@@ -1,2 +1,2 @@
 # wearit
-cost per wear app
+cost per wear webapp
