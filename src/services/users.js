@@ -1,56 +1,67 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
-
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+// Use database from firbase.js
 import { db } from "../firebase";
-
+// Reference to the "users" collection in Firestore
 const usersCollection = collection(db, "users");
+// Gets user profile from Firestore by user ID
+export async function getUserProfile(userId) {
+  const userDocument = doc(db, "users", userId);
+  const snapshot = await getDoc(userDocument);
 
-// Data access layer (DAL) functions that talk to Firebase Firestore.
-// A service function is a good place for data-access code.
-// Basically a service that "talks"/calls firebase and returns the data to the composable.
-// It hides Firebase-specific details from the rest of the app.
-// Structuring/organizing it like this makes it good for multiple reasons:
-//    1) easier to change the database later if we want to,
-//    2) makes the composable code cleaner and easier to read,
-//    3) makes it easier to test the composable code without needing a real database connection.
-// Also, the service know nothings vue refs, loading state, or error handling.
-// It just does the database work and returns the data or throws an error. The composable handles the rest.
+  if (!snapshot.exists()) {
+    return null;
+  }
 
+  return {
+    id: snapshot.id,
+    ...snapshot.data(),
+  };
+}
+// Creates a new user profile in Firestore
+export async function createUserProfile(user, username = null) {
+  const userDocument = doc(db, "users", user.uid);
+
+  await setDoc(userDocument, {
+    role: "user",
+    username,
+    wardrobeId: null,
+    createdAt: serverTimestamp(),
+  });
+}
+// Gets or creates a user profile in Firestore
+export async function getOrCreateUserProfile(user) {
+  const existingUser = await getUserProfile(user.uid);
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  const isGoogleUser = user.providerData.some(
+    (provider) => provider.providerId === "google.com",
+  );
+  // If the user is signing in with Google, use their display name 
+  // or email as the username
+  const username = isGoogleUser
+    ? user.displayName || user.email?.split("@")[0] || null
+    : null;
+
+  await createUserProfile(user, username);
+
+  return getUserProfile(user.uid);
+}
+// Lists all user profiles in the user document
 export async function listUsers() {
-  // step 1: read all users from the collection
-  // collection(db, "users") points to the Firestore collection named "users".
-  // getDocs(...) reads all documents in that collection once.
-  const userSnapshot = await getDocs(usersCollection);
+  const snapshot = await getDocs(usersCollection);
 
-  // A snapshot is Firestore's read result.
-  // We map each document into a plain JavaScript object that the UI can use.
-  return userSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    // doc.data() returns the fields stored in this Firestore document.
-    name: doc.data().name ?? "",
+  return snapshot.docs.map((document) => ({
+    id: document.id,
+    ...document.data(),
   }));
-}
-
-// create a new document in the users collection
-export async function createUser(user) {
-  await addDoc(usersCollection, {
-    name: user.name,
-    role: user.role ?? "user", // default to "user" if no role is provided
-    
-  });
-}
-
-// update one existing user document by document id
-export async function updateUser(userId, user) {
-  const userDocument = doc(db, "users", userId);
-
-  await updateDoc(userDocument, {
-    name: user.name,
-  });
-}
-
-// delete one existing user document by document id
-export async function removeUser(userId) {
-  const userDocument = doc(db, "users", userId);
-
-  await deleteDoc(userDocument);
 }

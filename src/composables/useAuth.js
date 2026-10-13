@@ -1,98 +1,139 @@
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { useRouter } from "vue-router";
+import { computed, ref } from "vue";
+// Import Firebase authentication functions
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
+// Import Firebase authentication and Google provider from firebase.js
+import { auth, googleProvider } from "../firebase";
+import { getOrCreateUserProfile } from "../services/users";
+// Reactive references for authentication state
+const currentUser = ref(null);
+const profile = ref(null);
+const isLoading = ref(true);
+const errorMessage = ref("");
 
-import { auth } from "../firebase";
+let authInitialized = false;
+let resolveAuthReady;
+// Promise to indicate when authentication state is ready
+const authReadyPromise = new Promise((resolve) => {
+  resolveAuthReady = resolve;
+});
+// Starts listening for authentication state changes 
+// and updates the reactive references accordingly
+const initializeAuth = () => {
+  if (authInitialized) {
+    return;
+  }
 
+  authInitialized = true;
+
+  onAuthStateChanged(auth, async (user) => {
+    // Update the current user and loading state
+    currentUser.value = user;
+    isLoading.value = true;
+    // If the user is signed in, get or create their profile in Firestore
+    try {
+      profile.value = user
+        ? await getOrCreateUserProfile(user)
+        : null;
+    } catch (error) {
+      profile.value = null;
+      errorMessage.value =
+        error instanceof Error ? error.message : "Could not load user profile.";
+    } finally {
+      isLoading.value = false;
+      resolveAuthReady();
+    }
+  });
+};
+
+initializeAuth();
+
+export function waitForAuthReady() {
+  return authReadyPromise;
+}
+// 
 export function useAuth() {
-  const router = useRouter();
-
-  // step 1 : create the reactive state for the login view
-  const email = ref("");
-  const password = ref("");
-  const currentUser = ref(auth.currentUser);
-  const isLoading = ref(false);
-  const errorMessage = ref("");
-
-  // Firebase will give us a function we can call later to stop listening.
-  let removeAuthListener = null;
-
   const isSignedIn = computed(() => currentUser.value !== null);
-  
-  // the single ? is called the optional chaining operator. It means "if currentUser.value is not null or undefined, then get the email property, otherwise return undefined". The ?? operator is called the nullish coalescing operator. It means "if the left side is null or undefined, then return the right side".
-  const userEmail = computed(() => currentUser.value?.email ?? ""); 
+
+  const isAdmin = computed(() => profile.value?.role === "admin");
+
+  const userEmail = computed(() => currentUser.value?.email ?? "");
 
   const clearError = () => {
     errorMessage.value = "";
   };
-
-  // step 4a : this runs every time Firebase notices a login/logout change
-  const handleAuthChange = (user) => {
-    currentUser.value = user;
-  };
-
-  // step 4b : start listening for auth changes
-  const startAuthListener = () => {
-    removeAuthListener = onAuthStateChanged(auth, handleAuthChange);
-  };
-
-  // step 4c : stop listening when this view is removed
-  const stopAuthListener = () => {
-    if (removeAuthListener) {
-      removeAuthListener();
-      removeAuthListener = null;
-    }
-  };
-
-  // step 2 : sign in with Firebase Auth and then go to admin
-  const login = async () => {
+// login function
+  const login = async (email, password) => {
+    // Clear any previous error messages
     clearError();
-    isLoading.value = true;
-
+    // Attempt to sign in the user with email and password
     try {
-      await signInWithEmailAndPassword(auth, email.value, password.value);
-      password.value = "";
-      await router.push("/admin");
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      errorMessage.value = error.message;
-    } finally {
-      isLoading.value = false;
+      errorMessage.value =
+        error instanceof Error ? error.message : "Login failed.";
+      throw error;
+    }
+  };
+  // signup function
+  const signup = async (email, password) => {
+    // Clear any previous error messages
+    clearError();
+  // Attempt to create a new user with email and password
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : "Sign up failed.";
+      throw error;
     }
   };
 
-  // step 3 : sign out the current user and go back to the login page
-  const logout = async () => {
+  // login with Google function
+  const loginWithGoogle = async () => {
+    // Clear any previous error messages
     clearError();
-    isLoading.value = true;
-
+  // Attempt to sign in the user with Google popup
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : "Google login failed.";
+      throw error;
+    }
+  };
+  // logout function
+  const logout = async () => {
+    // Clear any previous error messages
+    clearError();
+  // Attempt to sign out the user
     try {
       await signOut(auth);
-      await router.push({ name: "login" });
+      window.location.href = "/";
     } catch (error) {
-      errorMessage.value = error.message;
-    } finally {
-      isLoading.value = false;
+      errorMessage.value =
+        error instanceof Error ? error.message : "Logout failed.";
+      throw error;
     }
   };
-
-  // step 4 : keep Vue state in sync with Firebase Auth
-  onMounted(() => {
-    startAuthListener();
-  });
-
-  onUnmounted(() => {
-    stopAuthListener();
-  });
-
+// Return functions and variablesfor use in components
   return {
-    email,
-    password,
     currentUser,
+    profile,
     isSignedIn,
+    isAdmin,
     userEmail,
     isLoading,
     errorMessage,
     login,
+    signup,
+    loginWithGoogle,
     logout,
+    clearError,
   };
 }
