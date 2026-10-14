@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import { auth } from "../firebase";
-import { waitForAuthReady } from "../composables/useAuth";
-import { getUserProfile } from "../services/users";
+import { refreshProfile } from "../composables/useAuth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,9 +37,27 @@ const router = createRouter({
     },
 
     {
+      path: "/onboarding",
+      name: "onboarding",
+      component: () => import("../views/OnboardingView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
       path: "/dashboard",
       name: "dashboard",
       component: () => import("../views/DashboardView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/profile",
+      name: "profile",
+      component: () => import("../views/ProfileView.vue"),
       meta: {
         requiresAuth: true,
       },
@@ -59,18 +76,17 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
-  await waitForAuthReady();
+  // Built-in Firebase: waits until it knows if someone is logged in (after a page reload)
+  await auth.authStateReady();
   // Get the current user from Firebase Authentication
   const user = auth.currentUser;
 
-  // If an authenticated user tries to open login or signup page
-  // (which are guest-only pages), redirect them to the dashboard page
+  // Logged-in users can't open login or signup pages
   if (to.meta.guestOnly && user) {
     return { name: "dashboard" };
   }
-  
-  // If a non-authenticated user tries to access a page that requires authentication,
-  // redirect them to the login page
+
+  // Guests trying to open a protected page go to login first
   if (to.meta.requiresAuth && !user) {
     return {
       name: "login",
@@ -79,13 +95,28 @@ router.beforeEach(async (to) => {
       },
     };
   }
-// If a user tries to access an admin page, check if they have the "admin" role
-  if (to.meta.requiresAdmin) {
-    const profile = await getUserProfile(user.uid);
 
-    if (profile?.role !== "admin") {
-      return { name: "dashboard" };
-    }
+  // Guests need no more checks
+  if (!user) {
+    return true;
+  }
+
+  // Load the profile here, so we never check an old or missing one
+  const profile = await refreshProfile();
+
+  // Users who haven't finished onboarding are always sent there
+  if (!profile?.onboardingCompleted && to.name !== "onboarding") {
+    return { name: "onboarding" };
+  }
+
+  // Onboarding only happens once
+  if (profile?.onboardingCompleted && to.name === "onboarding") {
+    return { name: "dashboard" };
+  }
+
+  // Only admins can open admin pages
+  if (to.meta.requiresAdmin && profile?.role !== "admin") {
+    return { name: "dashboard" };
   }
 
   return true;

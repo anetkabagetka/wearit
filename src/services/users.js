@@ -31,7 +31,8 @@ export async function createUserProfile(user, username = null) {
   await setDoc(userDocument, {
     role: "user",
     username,
-    wardrobeId: null,
+    wardrobeId: null, // By default, the user has no wardrobe
+    onboardingCompleted: false, // By default, onboarding is not completed for new users
     createdAt: serverTimestamp(),
   });
 }

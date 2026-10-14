@@ -1,49 +1,59 @@
 <script setup>
-import { RouterLink } from "vue-router";
+import { computed } from "vue";
+import { RouterLink, useRouter } from "vue-router";
 
 import { useAuth } from "../composables/useAuth";
+
+const router = useRouter();
 
 const {
   isSignedIn,
   isAdmin,
   profile,
+  userEmail,
   logout,
 } = useAuth();
+
+// Username, or the part of the email before "@" if there is no username
+const displayName = computed(
+  () => profile.value?.username || userEmail.value.split("@")[0],
+);
+
+// Logs out, then goes to the landing page without reloading the app
+const handleLogout = async () => {
+  await logout();
+  router.push({ name: "landing" });
+};
 </script>
 
 <template>
   <header>
     <nav>
-      <h1>wearit</h1>
+      <RouterLink to="/" class="logo">wearit</RouterLink>
 
-      <RouterLink to="/about-us">About us</RouterLink>
-      <RouterLink to="/support-contact">
-        Support / Contact
-      </RouterLink>
-    </nav>
-
-    <div class="auth-links">
-      <template v-if="!isSignedIn">
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/signup">Sign up</RouterLink>
+      <template v-if="isSignedIn">
+        <RouterLink to="/dashboard">Dashboard</RouterLink>
+        <RouterLink v-if="isAdmin" to="/admin">Admin</RouterLink>
       </template>
 
       <template v-else>
-        <span v-if="profile?.username">
-          {{ profile.username }}
-        </span>
+        <RouterLink to="/about-us">About us</RouterLink>
+        <RouterLink to="/support-contact">Support / Contact</RouterLink>
+      </template>
+    </nav>
 
-        <RouterLink to="/dashboard">
-            Dashboard
-        </RouterLink>
+    <div class="auth-links">
+      <template v-if="isSignedIn">
+        <RouterLink to="/profile">{{ displayName }}</RouterLink>
 
-        <RouterLink v-if="isAdmin" to="/admin">
-          Admin
-        </RouterLink>
-
-        <button type="button" @click="logout">
+        <button type="button" @click="handleLogout">
           Log out
         </button>
+      </template>
+
+      <template v-else>
+        <RouterLink to="/login">Login</RouterLink>
+        <RouterLink to="/signup">Sign up</RouterLink>
       </template>
     </div>
   </header>
@@ -66,6 +76,11 @@ nav {
     text-decoration: none;
     color: inherit;
   }
+}
+
+.logo {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
 }
 
 .auth-links {
