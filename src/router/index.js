@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import { auth } from "../firebase";
-import { refreshProfile } from "../composables/useAuth";
+import { auth } from "@/firebase";
+import { refreshProfile } from "@/composables/useAuth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,13 +15,13 @@ const router = createRouter({
     {
       path: "/landing",
       name: "landing",
-      component: () => import("../views/LandingView.vue"),
+      component: () => import("@/views/LandingView.vue"),
     },
 
     {
       path: "/login",
       name: "login",
-      component: () => import("../views/LoginView.vue"),
+      component: () => import("@/views/auth/LoginView.vue"),
       meta: {
         guestOnly: true,
       },
@@ -30,7 +30,7 @@ const router = createRouter({
     {
       path: "/signup",
       name: "signup",
-      component: () => import("../views/SignupView.vue"),
+      component: () => import("@/views/auth/SignupView.vue"),
       meta: {
         guestOnly: true,
       },
@@ -39,7 +39,7 @@ const router = createRouter({
     {
       path: "/onboarding",
       name: "onboarding",
-      component: () => import("../views/OnboardingView.vue"),
+      component: () => import("@/views/OnboardingView.vue"),
       meta: {
         requiresAuth: true,
       },
@@ -48,7 +48,7 @@ const router = createRouter({
     {
       path: "/dashboard",
       name: "dashboard",
-      component: () => import("../views/DashboardView.vue"),
+      component: () => import("@/views/user/DashboardView.vue"),
       meta: {
         requiresAuth: true,
       },
@@ -57,7 +57,7 @@ const router = createRouter({
     {
       path: "/profile",
       name: "profile",
-      component: () => import("../views/ProfileView.vue"),
+      component: () => import("@/views/user/ProfileView.vue"),
       meta: {
         requiresAuth: true,
       },
@@ -66,7 +66,7 @@ const router = createRouter({
     {
       path: "/admin",
       name: "admin",
-      component: () => import("../views/AdminView.vue"),
+      component: () => import("@/views/admin/AdminView.vue"),
       meta: {
         requiresAuth: true,
         requiresAdmin: true,

@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
-import Navigation from '../components/Navigation.vue'
+import Navigation from '@/components/Navigation.vue'
 
-import { useAuth } from "../composables/useAuth";
+import { useAuth } from "@/composables/useAuth";
 
 const router = useRouter();
 const route = useRoute();

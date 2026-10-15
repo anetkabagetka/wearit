@@ -1,3 +1,14 @@
+<script setup>
+import { useAdminUsers } from "@/composables/useAdminUsers";
+
+const {
+  users,
+  isLoading,
+  errorMessage,
+  loadUsers,
+} = useAdminUsers();
+</script>
+
 <template>
   <main>
     <h1>Admin</h1>
@@ -31,14 +42,3 @@
     </ul>
   </main>
 </template>
-
-<script setup>
-import { useAdminUsers } from "../composables/useAdminUsers";
-
-const {
-  users,
-  isLoading,
-  errorMessage,
-  loadUsers,
-} = useAdminUsers();
-</script>

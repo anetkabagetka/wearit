@@ -7,7 +7,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 // Use database from firbase.js
-import { db } from "../firebase";
+import { db } from "@/firebase";
 // Reference to the "users" collection in Firestore
 const usersCollection = collection(db, "users");
 // Gets user profile from Firestore by user ID

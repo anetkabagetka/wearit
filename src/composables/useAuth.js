@@ -8,8 +8,8 @@ import {
   signOut,
 } from "firebase/auth";
 // Import Firebase authentication and Google provider from firebase.js
-import { auth, googleProvider } from "../firebase";
-import { getOrCreateUserProfile } from "../services/users";
+import { auth, googleProvider } from "@/firebase";
+import { getOrCreateUserProfile } from "@/services/users";
 // Reactive references for authentication state
 const currentUser = ref(null);
 const profile = ref(null);

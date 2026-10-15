@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import Navigation from '../components/Navigation.vue'
+import Navigation from '@/components/Navigation.vue'
 
-import { useAuth } from "../composables/useAuth";
+import { useAuth } from "@/composables/useAuth";
 
 const router = useRouter();
 
@@ -48,6 +48,7 @@ const handleGoogleSignup = async () => {
 <template>
     <Navigation />
     <main>
+        <p>Step 1 of 3</p>
         <h1>Create account</h1>
 
         <form @submit.prevent="handleSignup">

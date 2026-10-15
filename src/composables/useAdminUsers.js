@@ -1,6 +1,6 @@
 import { onMounted, ref } from "vue";
 
-import { listUsers } from "../services/users";
+import { listUsers } from "@/services/users";
 
 export function useAdminUsers() {
   const users = ref([]);

@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 
-import { useOnboarding } from "../composables/useOnboarding";
+import { useOnboarding } from "@/composables/useOnboarding";
 
 const router = useRouter();
 
@@ -11,6 +11,7 @@ const {
     username,
     currency,
     item,
+    addedItem,
     isSaving,
     errorMessage,
     currentCostPerWear,
@@ -21,10 +22,14 @@ const {
 
 <template>
     <main>
-        <p>Step {{ step }} of 3</p>
+        <button v-if="step === 3" type="button" @click="step--">
+            Back
+        </button>
 
-        <!-- Step 1: about you. "required" makes the browser block empty fields -->
-        <form v-if="step === 1" @submit.prevent="step++">
+        <p v-if="step <= 3">Step {{ step }} of 3</p>
+
+        <!-- Step 2: about you. "required" makes the browser block empty fields -->
+        <form v-if="step === 2" @submit.prevent="step++">
             <h1>Welcome to wearit</h1>
 
             <label>
@@ -44,8 +49,8 @@ const {
             <button type="submit">Next</button>
         </form>
 
-        <!-- Step 2: first item. v-model.number turns the input text into a number -->
-        <form v-else-if="step === 2" @submit.prevent="finish">
+        <!-- Step 3: first item. v-model.number turns the input text into a number -->
+        <form v-else-if="step === 3" @submit.prevent="finish(true)">
             <h1>Add your first item</h1>
 
             <label>
@@ -81,19 +86,29 @@ const {
                 <input v-model.number="item.timesWorn" type="number" min="0" required />
             </label>
 
-            <button type="button" @click="step--">Back</button>
             <button type="submit" :disabled="isSaving">
                 {{ isSaving ? "Saving..." : "Save item" }}
+            </button>
+            <button type="button" @click="finish(false)" :disabled="isSaving">
+             Skip for now
             </button>
 
             <p v-if="errorMessage">{{ errorMessage }}</p>
         </form>
 
         <!-- Step 3: show the cost per wear for the item they just added -->
-        <section v-else>
+        <section v-else-if="addedItem">
             <h1>{{ item.name }}</h1>
             <p>Cost per wear right now:</p>
             <p>{{ currentCostPerWear.toFixed(2) }} {{ currency }}</p>
+
+            <button type="button" @click="router.push({ name: 'dashboard' })">
+                Go to dashboard
+            </button>
+        </section>
+        <section v-else>
+            <h1>Your wardrobe is ready</h1>
+            <p>You can add your first item anytime from the dashboard.</p>
 
             <button type="button" @click="router.push({ name: 'dashboard' })">
                 Go to dashboard

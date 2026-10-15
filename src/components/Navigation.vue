@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 
-import { useAuth } from "../composables/useAuth";
+import { useAuth } from "@/composables/useAuth";
 
 const router = useRouter();
 
