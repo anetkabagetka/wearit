@@ -78,6 +78,10 @@ const handleGoogleLogin = async () => {
         <RouterLink :to="{ name: 'signup' }">
             Don't have an account? Sign up
         </RouterLink>
+
+        <RouterLink :to="{ name: 'reset-password' }">
+            Forgot your password?
+        </RouterLink>
     </main>
 </template>
 
