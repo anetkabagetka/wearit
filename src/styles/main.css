@@ -3,6 +3,13 @@
 :root {
     --font-text: 'Karla', sans-serif;
     --font-title: 'Prata', serif;
+
+    --black: #000;
+    --white: #fff;
+    --gray: #6e6e6e;
+    --light-gray: #e4e4e4;
+
+    --content-width: 1200px;
 }
 
 * {
@@ -12,15 +19,135 @@
 }
 
 body {
-    margin: 0 auto;
-    max-width: 1200px;
     font-family: var(--font-text);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-title);
+.container {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 24px;
 }
 
-main {
-    padding: 16px;
+.width-full {
+    width: 100%;
+}
+
+.section {
+    padding: 60px 0;
+
+    p {
+        color: var(--gray);
+    }
+}
+
+.section-muted {
+    background-color: var(--light-gray);
+}
+
+h1, h2, h4, h5, h6 {
+    font-family: var(--font-title);
+    font-weight: normal;
+}
+
+h3 {
+    font-family: var(--font-text);
+    font-weight: bold;
+    color: var(--gray);
+    font-size: 12px;
+}
+
+a, button {
+    text-decoration: none;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-text);
+}
+
+.btn-primary {
+    background-color: var(--black);
+    color: var(--white);
+    border: 1px solid var(--black);
+    text-align: center;
+}
+
+.btn-secondary {
+    background-color: var(--white);
+    color: var(--black);
+    border: 1px solid var(--black);
+    text-align: center;
+}
+
+.container-narrow {
+    max-width: 600px;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+}
+
+.split-top {
+    align-items: start;
+}
+
+.split-center {
+    align-items: center;
+}
+
+.split-media {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+@media (min-width: 768px) {
+    .split {
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+    }
+}
+
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.feature-icon {
+    flex-shrink: 0;
+}
+
+.feature-title {
+    font-family: var(--font-text);
+    font-weight: normal;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
