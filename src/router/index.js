@@ -19,6 +19,12 @@ const router = createRouter({
     },
 
     {
+      path: "/about-us",
+      name: "about",
+      component: () => import("@/views/AboutView.vue"),
+    },
+
+    {
       path: "/reset-password",
       name: "reset-password",
       component: () => import("@/views/auth/ResetPasswordView.vue"),
@@ -26,7 +32,7 @@ const router = createRouter({
         guestOnly: true,
       },
     },
-    
+
     {
       path: "/check-email",
       name: "check-email",
