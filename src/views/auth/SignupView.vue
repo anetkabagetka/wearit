@@ -47,7 +47,7 @@ const handleGoogleSignup = async () => {
 
 <template>
     <Navigation />
-    <main>
+    <main class="container">
         <p>Step 1 of 3</p>
         <h1>Create account</h1>
 

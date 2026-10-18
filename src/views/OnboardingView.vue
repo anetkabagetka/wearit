@@ -21,7 +21,7 @@ const {
 </script>
 
 <template>
-    <main>
+    <main class="container">
         <button v-if="step === 3" type="button" @click="step--">
             Back
         </button>
@@ -97,7 +97,7 @@ const {
         </form>
 
         <!-- Step 3: show the cost per wear for the item they just added -->
-        <section v-else-if="addedItem">
+        <section class="section" v-else-if="addedItem">
             <h1>{{ item.name }}</h1>
             <p>Cost per wear right now:</p>
             <p>{{ currentCostPerWear.toFixed(2) }} {{ currency }}</p>
@@ -106,7 +106,7 @@ const {
                 Go to dashboard
             </button>
         </section>
-        <section v-else>
+        <section class="section" v-else>
             <h1>Your wardrobe is ready</h1>
             <p>You can add your first item anytime from the dashboard.</p>
 

@@ -7,7 +7,7 @@ const { profile, userEmail } = useAuth();
 
 <template>
     <Navigation />
-    <main>
+    <main class="container">
         <h1>Profile</h1>
         <p><strong>Username:</strong> {{ profile?.username }}</p>
         <p><strong>Email:</strong> {{ userEmail }}</p>

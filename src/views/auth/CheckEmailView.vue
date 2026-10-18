@@ -1,5 +1,5 @@
 <template>
-    <main>
+    <main class="container">
         <h1>Check your email</h1>
         <p>
             We've sent a reset link to your email address. It resets in 30 minutes.

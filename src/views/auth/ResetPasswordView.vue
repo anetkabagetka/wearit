@@ -1,5 +1,5 @@
 <template>
-    <main>
+    <main class="container">
         <h1>Reset Password</h1>
         <p>Enter the email you signed up with and we'll send you a link to set a new password.</p>
 

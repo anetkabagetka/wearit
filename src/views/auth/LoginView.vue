@@ -48,7 +48,7 @@ const handleGoogleLogin = async () => {
 
 <template>
     <Navigation />
-    <main>
+    <main class="container">
         <h1>Login</h1>
 
         <form @submit.prevent="handleLogin">

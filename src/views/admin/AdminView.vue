@@ -10,7 +10,7 @@ const {
 </script>
 
 <template>
-  <main>
+  <main class="container">
     <h1>Admin</h1>
 
     <p v-if="isLoading">
