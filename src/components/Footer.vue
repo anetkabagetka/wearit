@@ -1,6 +1,13 @@
+<script setup>
+import logo from '@/assets/wearitlogo.svg'
+</script>
+
 <template>
     <footer class="site-footer">
         <div class="container footer-inner">
+            <div class="logo white">
+                <img :src="logo" alt="WearIt logo" />
+            </div>
             <div class="footer-links">
                 <RouterLink to="/about-us">About us</RouterLink>
                 <RouterLink to="/support-contact">Support / Contact</RouterLink>
@@ -13,6 +20,10 @@
 </template>
 
 <style scoped>
+.logo.white {
+    margin-bottom: 32px;
+}
+
 .site-footer {
     background-color: var(--black);
     color: var(--white);

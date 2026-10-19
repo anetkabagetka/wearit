@@ -22,6 +22,14 @@ body {
     font-family: var(--font-text);
 }
 
+.logo {
+    width: 100px;
+}
+
+.logo.white {
+    filter: invert(1);
+}
+
 .container {
     max-width: var(--content-width);
     margin: 0 auto;

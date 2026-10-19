@@ -1,7 +1,10 @@
 <script setup>
 import { computed } from "vue";
-import { RouterLink, useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+
+import logo from '@/assets/wearitlogo.svg'
+
 const router = useRouter();
 const {
   isSignedIn,
@@ -24,7 +27,9 @@ const handleLogout = async () => {
   <header>
     <div class="container header-inner">
       <nav>
-        <RouterLink to="/" class="logo">wearit</RouterLink>
+        <RouterLink to="/" class="logo">
+          <img :src="logo" alt="WearIt logo" />
+        </RouterLink>
         <template v-if="isSignedIn">
           <RouterLink to="/dashboard">Dashboard</RouterLink>
           <RouterLink v-if="isAdmin" to="/admin">Admin</RouterLink>

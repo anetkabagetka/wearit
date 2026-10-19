@@ -8,6 +8,7 @@ import Footer from '@/components/Footer.vue'
 import mailIcon from '@/assets/icons/mail.svg'
 import lockIcon from '@/assets/icons/lock.svg'
 import eyeIcon from '@/assets/icons/eye.svg'
+import logo from '@/assets/wearitlogo.svg'
 
 import { useAuth } from '@/composables/useAuth'
 
@@ -58,7 +59,9 @@ const handleGoogleLogin = async () => {
     <main>
         <section class="section">
             <div class="container container-narrow stack">
-                <div class="logo">wearit</div>
+                <div class="logo">
+                    <img :src="logo" alt="WearIt logo" />
+                </div>
                 <h1>Welcome back</h1>
                 <p>Log in to see your wardrobe and what every piece costs per wear.</p>
 
