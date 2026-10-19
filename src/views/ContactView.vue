@@ -4,6 +4,12 @@ import Footer from '@/components/Footer.vue'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import chevronRightIcon from '@/assets/icons/chevron-right.svg'
+
+// AI - reactive topic selection for contact form
+import { ref } from 'vue'
+
+const topics = ['Account', 'Bug', 'Other']
+const topic = ref('')
 </script>
 
 <template>
@@ -33,6 +39,17 @@ import chevronRightIcon from '@/assets/icons/chevron-right.svg'
                                         placeholder="user@example.com" required />
                                 </span>
                             </label>
+
+                            <!-- AI - topic selection for contact form -->
+                            <fieldset class="stack-small">
+                                <legend>Topic</legend>
+                                <div class="chips">
+                                    <label v-for="item in topics" :key="item" class="chip">
+                                        <input v-model="topic" type="radio" name="topic" :value="item" required />
+                                        {{ item }}
+                                    </label>
+                                </div>
+                            </fieldset>
 
                             <label class="stack-small">
                                 Message
