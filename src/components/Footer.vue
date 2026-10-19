@@ -4,7 +4,7 @@
             <div class="footer-links">
                 <RouterLink to="/about-us">About us</RouterLink>
                 <RouterLink to="/support-contact">Support / Contact</RouterLink>
-                <RouterLink to="/login">Login</RouterLink>
+                <RouterLink to="/login">Log in</RouterLink>
                 <RouterLink to="/signup">Create account</RouterLink>
             </div>
             <p class="footer-text">&copy; 2026 wearit. All rights reserved.</p>

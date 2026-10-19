@@ -42,7 +42,7 @@ const handleLogout = async () => {
           </button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="btn btn-secondary">Login</RouterLink>
+          <RouterLink to="/login" class="btn btn-secondary">Log in</RouterLink>
           <RouterLink to="/signup" class="btn btn-primary">Sign up, it's free</RouterLink>
         </template>
       </div>
