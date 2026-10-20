@@ -8,6 +8,7 @@
     --white: #fff;
     --gray: #6e6e6e;
     --light-gray: #e4e4e4;
+    --subtle-gray: #f4f4f4;
 
     --content-width: 1200px;
 }
@@ -49,7 +50,7 @@ body {
 }
 
 .section-muted {
-    background-color: var(--light-gray);
+    background-color: var(--subtle-gray);
 }
 
 h1, h2, h4, h5, h6 {

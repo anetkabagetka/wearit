@@ -54,17 +54,35 @@ const handleGoogleSignup = async () => {
         <form @submit.prevent="handleSignup">
             <label>
                 Email
-                <input v-model="email" type="email" autocomplete="email" required />
+                <input 
+                    v-model="email" 
+                    type="email" 
+                    autocomplete="email" 
+                    placeholder="user@example.com" 
+                    required 
+                />
             </label>
 
             <label>
                 Password
-                <input v-model="password" type="password" autocomplete="new-password" required />
+                <input 
+                    v-model="password" 
+                    type="password" 
+                    autocomplete="new-password" 
+                    placeholder="Enter your password" 
+                    required 
+                />
             </label>
 
             <label>
                 Confirm password
-                <input v-model="confirmPassword" type="password" autocomplete="new-password" required />
+                <input 
+                    v-model="confirmPassword" 
+                    type="password" 
+                    autocomplete="new-password" 
+                    placeholder="Repeat your password" 
+                    required 
+                />
             </label>
 
             <button type="submit" :disabled="isLoading">

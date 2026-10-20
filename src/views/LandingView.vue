@@ -1,6 +1,7 @@
 <script setup>
 import Navigation from '@/components/Navigation.vue'
 import Footer from '@/components/Footer.vue'
+import CpwCard from '@/components/CpwCard.vue'
 
 import heroImage from '@/assets/about_hero.jpg'
 
@@ -8,6 +9,7 @@ import moneyIcon from '@/assets/icons/money.svg'
 import chartIcon from '@/assets/icons/chart.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
 import leafIcon from '@/assets/icons/leaf.svg'
+import starIcon from '@/assets/icons/star.svg'
 </script>
 
 <template>
@@ -25,8 +27,9 @@ import leafIcon from '@/assets/icons/leaf.svg'
           </p>
           <div class="actions">
             <RouterLink to="/signup" class="btn btn-primary">Get started, it's free</RouterLink>
-            <RouterLink to="/about-us" class="btn btn-secondary">Login</RouterLink>
+            <RouterLink to="/about-us" class="btn btn-secondary">Log in</RouterLink>
           </div>
+          <CpwCard />
         </div>
 
         <img :src="heroImage" alt="Clothes hanging on a rail" class="split-media">
@@ -89,6 +92,77 @@ import leafIcon from '@/assets/icons/leaf.svg'
       <div class="container stack">
         <h3>TESTIMONIALS</h3>
         <h1>People who wear what they own</h1>
+        <div class="feature-list reviews">
+          <div class="feature">
+            <div class="feature-text review">
+              <div class="stars">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+              </div>
+              <p>
+                “My €200 coat is down to €1.60 a wear. The €30 party top I wore once? Still €30.”
+              </p>
+              <div class="review-person">
+                <div class="review-person-icon">
+                  HL
+                </div>
+                <div>
+                  <strong>Hannah L.</strong>
+                  <p>Tracking 86 items</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-text review">
+              <div class="stars">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+              </div>
+              <p>
+                “Seeing the cost per wear drop every time I log keeps me reaching for what I already own.”
+              </p>
+              <div class="review-person">
+                <div class="review-person-icon">
+                  JK
+                </div>
+                <div>
+                  <strong>Jonas K.</strong>
+                  <p>Average CPW down 38%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-text review">
+              <div class="stars">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+                <img :src="starIcon" alt="Star Icon">
+              </div>
+              <p>
+                “I sold 14 things I never wore and stopped impulse buying. My average CPW is €3.10.”
+              </p>
+              <div class="review-person">
+                <div class="review-person-icon">
+                  PS
+                </div>
+                <div>
+                  <strong>Petra S.</strong>
+                  <p>Tracking 132 items</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -110,6 +184,50 @@ import leafIcon from '@/assets/icons/leaf.svg'
 <style scoped>
 .split.landing {
   margin-top: 24px;
+}
+
+.review-person {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.review-person-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--light-gray);
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-list {
+  gap: 16px;
+}
+
+.feature-list.reviews {
+  margin-top: 24px;
+  flex-direction: row;
+}
+
+.feature .stars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  margin-top: 8px;
+}
+
+.feature-text.review {
+  background-color: var(--subtle-gray);
+  padding: 16px;
+  min-width: 33%;
+  border-radius: 8px;
+
+  p {
+    color: var(--black);
+  }
 }
 
 .login-link {

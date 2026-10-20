@@ -1,15 +1,16 @@
 <script setup>
-import Navigation from "@/components/Navigation.vue";
-import Footer from "@/components/Footer.vue";
+import Navigation from "@/components/Navigation.vue"
+import Footer from "@/components/Footer.vue"
+import CpwCard from "@/components/CpwCard.vue"
 
-import aboutBanner from "@/assets/about_hero.jpg";
+import aboutBanner from "@/assets/about_hero.jpg"
 
-import plusIcon from "@/assets/icons/plus.svg";
-import shirtIcon from "@/assets/icons/shirt.svg";
-import chartIcon from "@/assets/icons/chart.svg";
-import leafIcon from "@/assets/icons/leaf.svg";
-import lockIcon from "@/assets/icons/lock.svg";
-import moneyIcon from "@/assets/icons/money.svg";
+import plusIcon from "@/assets/icons/plus.svg"
+import shirtIcon from "@/assets/icons/shirt.svg"
+import chartIcon from "@/assets/icons/chart.svg"
+import leafIcon from "@/assets/icons/leaf.svg"
+import lockIcon from "@/assets/icons/lock.svg"
+import moneyIcon from "@/assets/icons/money.svg"
 </script>
 
 <template>
@@ -32,14 +33,16 @@ import moneyIcon from "@/assets/icons/money.svg";
         <section class="section section-muted">
             <div class="container stack">
                 <h3>HOW IT WORKS</h3>
+                <h1>Cost per wear, explained</h1>
 
                 <div class="split split-top">
                     <div class="stack">
-                        <h1>Cost per wear, explained</h1>
+                        
                         <p>
                             Divide what you paid by the number of times you wore it.
                             The more you wear something, the better value it becomes.
                         </p>
+                        <CpwCard />
                     </div>
 
                     <div class="feature-list">
