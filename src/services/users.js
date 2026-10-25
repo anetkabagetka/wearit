@@ -36,8 +36,9 @@ export async function createUserProfile(user, username = null) {
     createdAt: serverTimestamp(),
   });
 }
-// Gets or creates a user profile in Firestore
-export async function getOrCreateUserProfile(user) {
+// Gets or creates a user profile in Firestore.
+// signupUsername is the username typed on the signup page, if there is one
+export async function getOrCreateUserProfile(user, signupUsername = null) {
   const existingUser = await getUserProfile(user.uid);
 
   if (existingUser) {
@@ -47,13 +48,13 @@ export async function getOrCreateUserProfile(user) {
   const isGoogleUser = user.providerData.some(
     (provider) => provider.providerId === "google.com",
   );
-  // If the user is signing in with Google, use their display name 
+  // If the user is signing in with Google, use their display name
   // or email as the username
-  const username = isGoogleUser
+  const googleUsername = isGoogleUser
     ? user.displayName || user.email?.split("@")[0] || null
     : null;
 
-  await createUserProfile(user, username);
+  await createUserProfile(user, signupUsername || googleUsername);
 
   return getUserProfile(user.uid);
 }

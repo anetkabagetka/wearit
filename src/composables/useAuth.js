@@ -15,12 +15,18 @@ const currentUser = ref(null);
 const profile = ref(null);
 const isLoading = ref(true);
 const errorMessage = ref("");
+// Username typed on the signup page, used once when the new profile is created
+let pendingUsername = null;
 
 // Loads (or creates) the signed-in user's profile and saves it in state.
 // The router calls this before every page, so the profile is never stale
 export async function refreshProfile() {
   const user = auth.currentUser;
-  profile.value = user ? await getOrCreateUserProfile(user) : null;
+  profile.value = user ? await getOrCreateUserProfile(user, pendingUsername) : null;
+  // The profile exists now, so the signup username is no longer needed
+  if (profile.value) {
+    pendingUsername = null;
+  }
   return profile.value;
 }
 
@@ -65,13 +71,17 @@ export function useAuth() {
     }
   };
   // signup function
-  const signup = async (email, password) => {
+  const signup = async (email, password, username) => {
     // Clear any previous error messages
     clearError();
+    // Remember the username before the account exists,
+    // so it is ready when the profile gets created
+    pendingUsername = username;
     // Attempt to create a new user with email and password
     try {
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
+      pendingUsername = null;
       errorMessage.value =
         error instanceof Error ? error.message : "Sign up failed.";
       throw error;

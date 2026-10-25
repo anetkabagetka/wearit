@@ -1,13 +1,23 @@
+<script setup>
+// The defaults are the example shown on the landing page.
+// Other pages pass their own label, value and formula
+defineProps({
+    label: { type: String, default: "EXAMPLE: WOOL BLAZER" },
+    value: { type: String, default: "€4.20" },
+    formula: { type: String, default: "€126 blazer ÷ 30 wears = €4.20" },
+});
+</script>
+
 <template>
     <div class="cpw-card">
-        <h3>EXAMPLE: WOOL BLAZER</h3>
+        <h3>{{ label }}</h3>
         <div class="cpw-card-content">
             <h1>
-                €4.20
+                {{ value }}
             </h1>
             <p>per wear</p>
         </div>
-        <p>€126 blazer ÷ 30 wears = €4.20</p>
+        <p>{{ formula }}</p>
     </div>
 </template>
 

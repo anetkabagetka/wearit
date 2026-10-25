@@ -5,7 +5,7 @@ import { db } from "@/firebase";
 
 // Saves the wardrobe, first item and profile changes together.
 // writeBatch means either everything is saved or nothing is
-export async function completeOnboarding(userId, { username, currency, item }) {
+export async function completeOnboarding(userId, { currency, item, goals, targetCostPerWear }) {
     const batch = writeBatch(db);
     // The wardrobe uses the user's ID, so each user has exactly one wardrobe
     const wardrobeRef = doc(db, "wardrobes", userId);
@@ -14,6 +14,8 @@ export async function completeOnboarding(userId, { username, currency, item }) {
     batch.set(wardrobeRef, {
         ownerId: userId,
         currency,
+        goals,
+        targetCostPerWear,
         createdAt: serverTimestamp(),
     });
     // Only if user didnt skip adding item, save the first item in the wardrobe
@@ -24,18 +26,19 @@ export async function completeOnboarding(userId, { username, currency, item }) {
     batch.set(itemRef, {
         name: item.name,
         category: item.category,
+        brand: item.brand || null, // Brand is optional, so save null when it's empty
         price: item.price,
         purchaseDate: item.purchaseDate || null,
         timesWorn: item.timesWorn,
+        photoUrl: item.photoUrl || null, // Cloudinary address of the photo, or null without a photo
         lastWornAt: null,
         createdAt: serverTimestamp(),
     });
     }
 
-    // Update the user's profile with the username, wardrobeId 
+    // Update the user's profile with the wardrobeId
     // and onboardingCompleted changes to true
     batch.update(doc(db, "users", userId), {
-        username,
         wardrobeId: userId,
         onboardingCompleted: true,
     });
