@@ -41,8 +41,8 @@ const handleLogout = async () => {
       </nav>
       <div class="auth-links">
         <template v-if="isSignedIn">
-          <RouterLink to="/profile">{{ displayName }}</RouterLink>
-          <button type="button" @click="handleLogout">
+          <RouterLink to="/profile" class="profile-link-name">{{ displayName }}</RouterLink>
+          <button type="button" @click="handleLogout" class="btn btn-secondary">
             Log out
           </button>
         </template>
@@ -87,5 +87,11 @@ nav {
   display: flex;
   align-items: center;
   gap: 32px;
+}
+
+.profile-link-name {
+  font-weight: bold;
+  text-decoration: none;
+  color: var(--black);
 }
 </style>
