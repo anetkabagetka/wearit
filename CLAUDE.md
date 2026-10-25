@@ -7,6 +7,7 @@ Follow the coding conventions in @AGENTS.md.
 ## Stack
 - Vue 3 (`<script setup>`) + Vue Router, built with Vite
 - Firebase: Auth (email + Google) and Firestore
+- Cloudinary for photos (unsigned upload preset, no API secret in the frontend)
 - Plain JavaScript (no TypeScript)
 
 ## Commands
@@ -19,10 +20,11 @@ Follow the coding conventions in @AGENTS.md.
 - `src/views/` – pages, grouped by area: `auth/`, `user/`, `admin/` (landing and onboarding at the root)
 - `src/components/` – shared UI (e.g. `Navigation.vue`)
 - `src/composables/` – reactive state and UI actions (`useAuth`, `useOnboarding`, `useAdminUsers`)
-- `src/services/` – Firestore calls only (`users.js`, `wardrobes.js`)
-- `src/utils/` – pure helpers (`costPerWear.js`)
+- `src/services/` – external API calls only: Firestore (`users.js`, `wardrobes.js`) and Cloudinary (`cloudinary.js`)
+- `src/utils/` – pure helpers (`costPerWear.js`, `formatMoney.js`)
 - `src/router/index.js` – routes and the global guard
 - `src/firebase.js` – Firebase init; config comes from `VITE_FIREBASE_*` env vars in `.env`
+- Cloudinary config: `VITE_CLOUDINARY_CLOUD_NAME` and `VITE_CLOUDINARY_UPLOAD_PRESET` in `.env`
 
 ## Routing rules
 Route `meta` drives access in `router.beforeEach`:
@@ -33,8 +35,9 @@ Route `meta` drives access in `router.beforeEach`:
 
 ## Firestore data
 - `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`
-- `wardrobes/{uid}` – one wardrobe per user (ID = user ID): `ownerId`, `currency`, `createdAt`
-- `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `price`, `purchaseDate`, `timesWorn`, `lastWornAt`, `createdAt`
+- `wardrobes/{uid}` – one wardrobe per user (ID = user ID): `ownerId`, `currency`, `goals`, `targetCostPerWear`, `createdAt`
+- `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `brand`, `price`, `purchaseDate`, `timesWorn`, `photoUrl`, `lastWornAt`, `createdAt`
+- Photos live in Cloudinary, Firestore only stores their `photoUrl`. Folders: `wearit/profile-pictures/{uid}` and `wearit/wardrobes/{uid}/items`
 - Security rules live in `firestore.rules`
 
 ## Notes
