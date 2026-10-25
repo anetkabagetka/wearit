@@ -6,9 +6,11 @@ import Footer from '@/components/Footer.vue'
 import StepProgress from '@/components/StepProgress.vue'
 import CpwCard from '@/components/CpwCard.vue'
 import PhotoUpload from '@/components/PhotoUpload.vue'
+import FormField from '@/components/FormField.vue'
 
 import { useOnboarding } from '@/composables/useOnboarding'
 import { formatMoney } from '@/utils/formatMoney'
+import { isFormValid } from '@/utils/isFormValid'
 
 import moneyIcon from '@/assets/icons/money.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
@@ -50,6 +52,20 @@ const selectedCurrency = computed(
     () => currencyOptions.find((option) => option.code === currency.value) ?? currencyOptions[0],
 );
 
+// Goes to the next step only when every field in this step is filled in correctly
+const goToNextStep = (event) => {
+    if (isFormValid(event.target)) {
+        step.value++;
+    }
+};
+
+// Saves the item only when its fields are filled in correctly ("Skip for now" skips this check)
+const handleFinish = (event) => {
+    if (isFormValid(event.target)) {
+        finish(true);
+    }
+};
+
 // Texts for the cost per wear preview in step 4
 const previewValue = computed(() => formatMoney(currentCostPerWear.value, currency.value));
 const previewFormula = computed(() => {
@@ -73,7 +89,7 @@ const previewFormula = computed(() => {
                 <p>Step {{ step }} of 4</p>
 
                 <!-- Step 2: about you. "required" makes the browser block empty fields -->
-                <form v-if="step === 2" @submit.prevent="step++" class="stack">
+                <form v-if="step === 2" @submit.prevent="goToNextStep" class="stack" novalidate>
                     <h1>Choose your currency</h1>
                     <p>We use it to calculate cost per wear.</p>
 
@@ -92,7 +108,7 @@ const previewFormula = computed(() => {
                 </form>
 
                 <!-- Step 3: goals and target cost per wear -->
-                <form v-else-if="step === 3" @submit.prevent="step++" class="stack">
+                <form v-else-if="step === 3" @submit.prevent="goToNextStep" class="stack" novalidate>
                     <h1>What are your goals?</h1>
                     <p>Pick as many as you like. We tailor your insights and reminders to them.</p>
 
@@ -108,14 +124,13 @@ const previewFormula = computed(() => {
                     </fieldset>
 
                     <!-- min and max work for every currency, from a few euros to a few hundred koruna -->
-                    <label class="stack-small">
-                        <span class="field-label">Target cost per wear</span>
+                    <FormField label="Target cost per wear">
                         <span class="input-icon">
                             <span class="input-prefix">{{ selectedCurrency.symbol }}</span>
                             <input v-model.number="targetCostPerWear" type="number" min="0.1" max="1000" step="0.01"
                                 placeholder="2.00" required @wheel="$event.target.blur()" />
                         </span>
-                    </label>
+                    </FormField>
                     <p v-if="targetCostPerWear > 0" class="caption">
                         At {{ targetCostPerWear.toFixed(2) }} {{ currency }}, a {{ selectedCurrency.blazerPrice }} {{ currency }} blazer
                         pays off after {{ Math.ceil(selectedCurrency.blazerPrice / targetCostPerWear) }} wears.
@@ -125,20 +140,18 @@ const previewFormula = computed(() => {
                 </form>
 
                 <!-- Step 4: first item. v-model.number turns the input text into a number -->
-                <form v-else-if="step === 4" @submit.prevent="finish(true)" class="stack">
+                <form v-else-if="step === 4" @submit.prevent="handleFinish" class="stack" novalidate>
                     <h1>Add your first item</h1>
                     <p>Start with something you wear a lot.</p>
 
                     <PhotoUpload v-model="photoFile" />
 
-                    <label class="stack-small">
-                        <span class="field-label">Name</span>
+                    <FormField label="Name">
                         <input v-model="item.name" type="text" placeholder="Wool blazer" required />
-                    </label>
+                    </FormField>
 
                     <div class="field-row">
-                        <label class="stack-small">
-                            <span class="field-label">Category</span>
+                        <FormField label="Category">
                             <select v-model="item.category" required>
                                 <option value="" disabled>Select</option>
                                 <option>Tops</option>
@@ -148,34 +161,30 @@ const previewFormula = computed(() => {
                                 <option>Shoes</option>
                                 <option>Accessories</option>
                             </select>
-                        </label>
+                        </FormField>
 
-                        <label class="stack-small">
-                            <span class="field-label">Brand</span>
+                        <FormField label="Brand">
                             <input v-model="item.brand" type="text" placeholder="COS" />
-                        </label>
+                        </FormField>
                     </div>
 
-                    <label class="stack-small">
-                        <span class="field-label">Purchase price</span>
+                    <FormField label="Purchase price">
                         <span class="input-icon">
                             <span class="input-prefix">{{ selectedCurrency.symbol }}</span>
                             <input v-model.number="item.price" type="number" min="0" step="0.01" placeholder="126.00"
                                 required @wheel="$event.target.blur()" />
                         </span>
-                    </label>
+                    </FormField>
 
                     <div class="field-row">
-                        <label class="stack-small">
-                            <span class="field-label">Purchase date</span>
+                        <FormField label="Purchase date">
                             <input v-model="item.purchaseDate" type="date" />
-                        </label>
+                        </FormField>
 
-                        <label class="stack-small">
-                            <span class="field-label">Times worn so far</span>
+                        <FormField label="Times worn so far">
                             <input v-model.number="item.timesWorn" type="number" min="0" required
                                 @wheel="$event.target.blur()" />
-                        </label>
+                        </FormField>
                     </div>
 
                     <CpwCard label="COST PER WEAR PREVIEW" :value="previewValue" :formula="previewFormula" />
@@ -190,7 +199,7 @@ const previewFormula = computed(() => {
                         </button>
                     </div>
 
-                    <p v-if="errorMessage" class="caption">{{ errorMessage }}</p>
+                    <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
                 </form>
 
             </div>

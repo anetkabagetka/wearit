@@ -1,10 +1,12 @@
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import Navigation from '@/components/Navigation.vue'
 import StepProgress from '@/components/StepProgress.vue'
+import FormField from '@/components/FormField.vue'
 
 import { useAuth } from '@/composables/useAuth'
+import { isFormValid } from '@/utils/isFormValid'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import lockIcon from '@/assets/icons/lock.svg'
@@ -17,7 +19,15 @@ const username = ref("");
 const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
-const localErrorMessage = ref("");
+const showPassword = ref(false);
+// Becomes true when the user leaves the confirm field or submits, so we don't complain while they type
+const checkPasswordsMatch = ref(false);
+
+const confirmPasswordError = computed(() =>
+    checkPasswordsMatch.value && confirmPassword.value !== password.value
+        ? "Passwords do not match."
+        : "",
+);
 
 const {
     isLoading,
@@ -26,11 +36,11 @@ const {
     loginWithGoogle,
 } = useAuth();
 
-const handleSignup = async () => {
-    localErrorMessage.value = "";
+const handleSignup = async (event) => {
+    checkPasswordsMatch.value = true;
 
-    if (password.value !== confirmPassword.value) {
-        localErrorMessage.value = "Passwords do not match.";
+    // Stop here if a field is empty or wrong, FormField shows what to fix
+    if (!isFormValid(event.target) || confirmPasswordError.value) {
         return;
     }
 
@@ -62,51 +72,51 @@ const handleGoogleSignup = async () => {
                 <h1>Create your account</h1>
                 <p>Track what every piece in your wardrobe really costs, one wear at a time.</p>
 
-                <form @submit.prevent="handleSignup" class="stack">
-                    <label class="stack-small">
-                        Email
+                <form @submit.prevent="handleSignup" class="stack" novalidate>
+                    <FormField label="Email">
                         <span class="input-icon">
                             <img :src="mailIcon" alt="" />
                             <input v-model="email" type="email" autocomplete="email" placeholder="user@example.com"
                                 required />
                         </span>
-                    </label>
+                    </FormField>
 
-                    <label class="stack-small">
-                        Username
+                    <FormField label="Username">
                         <span class="input-icon">
                             <img :src="userIcon" alt="" />
                             <input v-model="username" type="text" autocomplete="username" placeholder="User123"
                                 required />
                         </span>
-                    </label>
+                    </FormField>
 
-                    <label class="stack-small">
-                        Password
+                    <!-- pattern: at least one number (\d) and one symbol (not a letter or number) -->
+                    <FormField label="Password">
                         <span class="input-icon">
                             <img :src="lockIcon" alt="" />
                             <input v-model="password" :type="showPassword ? 'text' : 'password'"
-                                autocomplete="current-password" placeholder="Enter your password" required />
+                                autocomplete="new-password" placeholder="Enter your password" required minlength="8"
+                                pattern="(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+                                title="Use at least 8 characters, including a number and a symbol." />
                             <button type="button" class="input-icon-button" @click="showPassword = !showPassword"
                                 :aria-label="showPassword ? 'Hide password' : 'Show password'">
                                 <img :src="eyeIcon" alt="" :style="{ opacity: showPassword ? 1 : 0.4 }" />
                             </button>
                         </span>
-                    </label>
+                    </FormField>
+                    <p class="caption">Use at least 8 characters, including a number and a symbol.</p>
 
-                    <label class="stack-small">
-                        Confirm password
+                    <FormField label="Confirm password" :error="confirmPasswordError">
                         <span class="input-icon">
                             <img :src="lockIcon" alt="" />
                             <input v-model="confirmPassword" :type="showPassword ? 'text' : 'password'"
-                                autocomplete="new-password" placeholder="Repeat your password" required />
+                                autocomplete="new-password" placeholder="Repeat your password" required
+                                @blur="checkPasswordsMatch = true" />
                             <button type="button" class="input-icon-button" @click="showPassword = !showPassword"
                                 :aria-label="showPassword ? 'Hide password' : 'Show password'">
                                 <img :src="eyeIcon" alt="" :style="{ opacity: showPassword ? 1 : 0.4 }" />
                             </button>
                         </span>
-                    </label>
-                    <p>Use at least 8 characters, including a number and a symbol.</p>
+                    </FormField>
 
                     <button type="submit" :disabled="isLoading" class="btn btn-primary">
                         {{ isLoading ? "Creating account..." : "Create account" }}
@@ -120,12 +130,8 @@ const handleGoogleSignup = async () => {
                 <button type="button" @click="handleGoogleSignup" :disabled="isLoading" class="btn btn-secondary">
                     Continue with Google
                 </button>
-                <!-- Display error messages from the local state if any -->
-                <p v-if="localErrorMessage">
-                    {{ localErrorMessage }}
-                </p>
-                <!-- Display error messages from google login if any -->
-                <p v-if="errorMessage">
+                <!-- Errors from Firebase, e.g. the email is already used -->
+                <p v-if="errorMessage" class="form-error" role="alert">
                     {{ errorMessage }}
                 </p>
 

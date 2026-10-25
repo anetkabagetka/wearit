@@ -11,19 +11,19 @@ import mailIcon from '@/assets/icons/mail.svg'
         <section class="section">
             <div class="container container-narrow stack">
                 <div class="icon">
-                    <img :src="mailIcon" alt="Email icon" />
+                    <img :src="mailIcon" alt="" />
                 </div>
                 <h1>Check your email</h1>
+                <!-- Firebase doesn't tell us if the account exists, so we say "if" -->
                 <p>
-                    We sent you an email with a link to reset your password. 
-                    Please check your inbox and follow the instructions.
+                    If an account exists for that email, we've sent a reset link.
+                    The link works for 1 hour. Check your spam folder if you don't see it.
                 </p>
 
                 <div class="stack check-email-actions">
-                    <button type="button" class="btn btn-primary">Open email app</button>
-                    <RouterLink :to="{ name: 'login' }" class="btn btn-secondary">Back to log in</RouterLink>
+                    <RouterLink :to="{ name: 'login' }" class="btn btn-primary">Back to log in</RouterLink>
                 </div>
-                <p class="resend-text">Didn't get it? <RouterLink :to="{ name: 'check-email' }" class="link">Resend
+                <p class="resend-text">Didn't get it? <RouterLink :to="{ name: 'reset-password' }" class="link">Send it again
                     </RouterLink>
                 </p>
             </div>

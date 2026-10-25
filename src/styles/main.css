@@ -9,6 +9,7 @@
     --gray: #6e6e6e;
     --light-gray: #e4e4e4;
     --subtle-gray: #f4f4f4;
+    --error: #c62828;
 
     --content-width: 1200px;
 }
@@ -190,6 +191,31 @@ fieldset {
 .field-label {
     font-size: 13px;
     color: var(--gray);
+}
+
+.required-star {
+    color: var(--error);
+    margin-left: 2px;
+}
+
+.field-optional {
+    font-weight: normal;
+}
+
+.field-error,
+.form-error {
+    font-size: 13px;
+    color: var(--error);
+}
+
+.form-field.has-error input,
+.form-field.has-error select,
+.form-field.has-error textarea {
+    border-color: var(--error);
+}
+
+.form-field legend {
+    margin-bottom: 8px;
 }
 
 /* Two form fields side by side, e.g. purchase date and times worn */

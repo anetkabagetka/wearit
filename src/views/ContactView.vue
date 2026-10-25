@@ -1,6 +1,9 @@
 <script setup>
 import Navigation from '@/components/Navigation.vue'
 import Footer from '@/components/Footer.vue'
+import FormField from '@/components/FormField.vue'
+
+import { isFormValid } from '@/utils/isFormValid'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import chevronRightIcon from '@/assets/icons/chevron-right.svg'
@@ -9,7 +12,18 @@ import chevronRightIcon from '@/assets/icons/chevron-right.svg'
 import { ref } from 'vue'
 
 const topics = ['Account', 'Bug', 'Other']
+const name = ref('')
+const email = ref('')
 const topic = ref('')
+const message = ref('')
+
+const handleSend = (event) => {
+    // Stop here if a field is empty or wrong, FormField shows what to fix
+    if (!isFormValid(event.target)) {
+        return
+    }
+    // Sending the message is not built yet
+}
 </script>
 
 <template>
@@ -25,36 +39,33 @@ const topic = ref('')
                             Send us a message and we'll reply within one working day.
                         </p>
 
-                        <form @submit.prevent class="stack">
-                            <label class="stack-small">
-                                Name
-                                <input type="text" placeholder="Your name" required />
-                            </label>
+                        <form @submit.prevent="handleSend" class="stack" novalidate>
+                            <FormField label="Name">
+                                <input v-model="name" type="text" autocomplete="name" placeholder="Your name"
+                                    required />
+                            </FormField>
 
-                            <label class="stack-small">
-                                Email
+                            <FormField label="Email">
                                 <span class="input-icon">
                                     <img :src="mailIcon" alt="" />
                                     <input v-model="email" type="email" autocomplete="email"
                                         placeholder="user@example.com" required />
                                 </span>
-                            </label>
+                            </FormField>
 
                             <!-- AI - topic selection for contact form -->
-                            <fieldset class="stack-small">
-                                <legend>Topic</legend>
+                            <FormField label="Topic" group>
                                 <div class="chips">
                                     <label v-for="item in topics" :key="item" class="chip">
                                         <input v-model="topic" type="radio" name="topic" :value="item" required />
                                         {{ item }}
                                     </label>
                                 </div>
-                            </fieldset>
+                            </FormField>
 
-                            <label class="stack-small">
-                                Message
-                                <textarea placeholder="Tell us what's going on..." required></textarea>
-                            </label>
+                            <FormField label="Message">
+                                <textarea v-model="message" placeholder="Tell us what's going on..." required></textarea>
+                            </FormField>
 
                             <button type="submit" class="btn btn-primary">Send message</button>
                         </form>

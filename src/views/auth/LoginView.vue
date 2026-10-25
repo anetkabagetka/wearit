@@ -4,6 +4,7 @@ import { useRoute, useRouter, RouterLink } from "vue-router"
 
 import Navigation from '@/components/Navigation.vue'
 import Footer from '@/components/Footer.vue'
+import FormField from '@/components/FormField.vue'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import lockIcon from '@/assets/icons/lock.svg'
@@ -11,6 +12,7 @@ import eyeIcon from '@/assets/icons/eye.svg'
 import logo from '@/assets/wearitlogo.svg'
 
 import { useAuth } from '@/composables/useAuth'
+import { isFormValid } from '@/utils/isFormValid'
 
 const router = useRouter();
 const route = useRoute();
@@ -35,7 +37,12 @@ const getRedirectTarget = () => {
         : { name: "dashboard" };
 };
 
-const handleLogin = async () => {
+const handleLogin = async (event) => {
+    // Stop here if a field is empty or wrong, FormField shows what to fix
+    if (!isFormValid(event.target)) {
+        return;
+    }
+
     try {
         await login(email.value, password.value);
         await router.push(getRedirectTarget());
@@ -65,18 +72,16 @@ const handleGoogleLogin = async () => {
                 <h1>Welcome back</h1>
                 <p>Log in to see your wardrobe and what every piece costs per wear.</p>
 
-                <form @submit.prevent="handleLogin" class="stack">
-                    <label class="stack-small">
-                        Email
+                <form @submit.prevent="handleLogin" class="stack" novalidate>
+                    <FormField label="Email">
                         <span class="input-icon">
                             <img :src="mailIcon" alt="" />
                             <input v-model="email" type="email" autocomplete="email" placeholder="user@example.com"
                                 required />
                         </span>
-                    </label>
+                    </FormField>
 
-                    <label class="stack-small">
-                        Password
+                    <FormField label="Password">
                         <span class="input-icon">
                             <img :src="lockIcon" alt="" />
                             <input v-model="password" :type="showPassword ? 'text' : 'password'"
@@ -86,7 +91,7 @@ const handleGoogleLogin = async () => {
                                 <img :src="eyeIcon" alt="" :style="{ opacity: showPassword ? 1 : 0.4 }" />
                             </button>
                         </span>
-                    </label>
+                    </FormField>
 
                     <RouterLink :to="{ name: 'reset-password' }" class="link">
                         Forgot password?
@@ -106,7 +111,7 @@ const handleGoogleLogin = async () => {
                     Continue with Google
                 </button>
 
-                <p v-if="errorMessage">
+                <p v-if="errorMessage" class="form-error" role="alert">
                     {{ errorMessage }}
                 </p>
 

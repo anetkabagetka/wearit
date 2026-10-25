@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -10,6 +11,7 @@ import {
 // Import Firebase authentication and Google provider from firebase.js
 import { auth, googleProvider } from "@/firebase";
 import { getOrCreateUserProfile } from "@/services/users";
+import { getAuthErrorMessage } from "@/utils/authErrorMessage";
 // Reactive references for authentication state
 const currentUser = ref(null);
 const profile = ref(null);
@@ -65,8 +67,7 @@ export function useAuth() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      errorMessage.value =
-        error instanceof Error ? error.message : "Login failed.";
+      errorMessage.value = getAuthErrorMessage(error, "Login failed. Please try again.");
       throw error;
     }
   };
@@ -82,8 +83,7 @@ export function useAuth() {
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
       pendingUsername = null;
-      errorMessage.value =
-        error instanceof Error ? error.message : "Sign up failed.";
+      errorMessage.value = getAuthErrorMessage(error, "Sign up failed. Please try again.");
       throw error;
     }
   };
@@ -95,8 +95,25 @@ export function useAuth() {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      errorMessage.value =
-        error instanceof Error ? error.message : "Google login failed.";
+      errorMessage.value = getAuthErrorMessage(error, "Google login failed. Please try again.");
+      throw error;
+    }
+  };
+  // Sends an email with a link to set a new password
+  const resetPassword = async (email) => {
+    clearError();
+
+    try {
+      // After setting the new password, the email's link brings the user back to our login page
+      await sendPasswordResetEmail(auth, email, {
+        url: `${window.location.origin}/login`,
+      });
+    } catch (error) {
+      // Never reveal whether an account exists for this email, so treat "no account" as sent
+      if (error?.code === "auth/user-not-found") {
+        return;
+      }
+      errorMessage.value = getAuthErrorMessage(error, "Could not send the reset link. Please try again.");
       throw error;
     }
   };
@@ -124,6 +141,7 @@ export function useAuth() {
     login,
     signup,
     loginWithGoogle,
+    resetPassword,
     logout,
     clearError,
   };
