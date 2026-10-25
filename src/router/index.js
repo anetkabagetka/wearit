@@ -83,6 +83,33 @@ const router = createRouter({
     },
 
     {
+      path: "/wardrobe",
+      name: "wardrobe",
+      component: () => import("@/views/user/WardrobeView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/insights",
+      name: "insights",
+      component: () => import("@/views/user/InsightsView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings",
+      name: "settings",
+      component: () => import("@/views/user/SettingsView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
       path: "/profile",
       name: "profile",
       component: () => import("@/views/user/ProfileView.vue"),

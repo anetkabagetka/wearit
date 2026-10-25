@@ -48,7 +48,7 @@ const handleLogout = async () => {
             <img :src="chartIcon" alt="Insights" />
             Insights
           </RouterLink>
-          <RouterLink to="/outfits">
+          <RouterLink to="/settings">
             <img :src="settingsIcon" alt="Settings" />
             Settings
           </RouterLink>
