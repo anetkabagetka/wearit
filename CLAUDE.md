@@ -43,3 +43,10 @@ Route `meta` drives access in `router.beforeEach`:
 ## Notes
 - Comments in this codebase are short, plain-English explanations for beginners; keep that style.
 - Use `writeBatch` when several documents must be saved together.
+
+## Forms
+- Wrap every field in `FormField` (`label` prop, the input goes in the slot). It shows a red `*` when the input has `required`, otherwise "(optional)", plus the error message under the field.
+- Validation comes from HTML attributes (`required`, `type="email"`, `min`, `max`, `minlength`, `pattern` + `title`); friendly messages are in `utils/validationMessage.js`.
+- Forms use `novalidate`, and the submit handler starts with `if (!isFormValid(event.target)) return;` (`utils/isFormValid.js`).
+- Custom errors (e.g. "Passwords do not match.") go in `FormField`'s `error` prop. Groups of radios/checkboxes use `<FormField label="..." group>`.
+- Firebase auth errors are turned into readable text by `utils/authErrorMessage.js`; show them in `<p class="form-error" role="alert">`.
