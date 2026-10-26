@@ -6,6 +6,12 @@ import cameraIcon from "@/assets/icons/camera.svg";
 // The chosen photo file (or null). The parent uses it with v-model
 const photo = defineModel({ type: File, default: null });
 
+// Texts inside the box. The defaults are the ones from onboarding
+defineProps({
+    title: { type: String, default: "Add a photo" },
+    subtitle: { type: String, default: "Snap it or upload one from your gallery" },
+});
+
 const previewUrl = ref("");
 const errorMessage = ref("");
 
@@ -59,8 +65,8 @@ const handleChange = (event) => {
 
             <template v-else>
                 <img :src="cameraIcon" alt="" width="28" height="28" />
-                <span class="photo-upload-title">Add a photo</span>
-                <span class="caption">Snap it or upload one from your gallery</span>
+                <span class="photo-upload-title">{{ title }}</span>
+                <span class="caption">{{ subtitle }}</span>
             </template>
         </label>
 

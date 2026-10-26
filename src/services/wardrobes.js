@@ -1,7 +1,36 @@
-// Import functions from Firebase which we will use to save 
-// the wardrobe, first item and profile changes together
-import { collection, collectionGroup, doc, getDocs, serverTimestamp, writeBatch } from "firebase/firestore";
+// Import functions from Firebase which we will use to read and save
+// the wardrobe, its items and profile changes
+import {
+    addDoc,
+    collection,
+    collectionGroup,
+    doc,
+    getDoc,
+    getDocs,
+    serverTimestamp,
+    writeBatch,
+} from "firebase/firestore";
 import { db } from "@/firebase";
+
+// Turns an item from a form into the shape we save in Firestore.
+// Onboarding and the add item page both use it, so every item looks the same
+function toItemData(item) {
+    return {
+        name: item.name,
+        category: item.category,
+        brand: item.brand || null, // Optional fields are saved as null when they're empty
+        color: item.color || null,
+        season: item.season || null,
+        price: item.price,
+        purchaseDate: item.purchaseDate || null,
+        timesWorn: Number(item.timesWorn) || 0, // An empty field counts as 0 wears
+        tags: item.tags ?? [],
+        notes: item.notes || null,
+        photoUrl: item.photoUrl || null, // Cloudinary address of the photo, or null without a photo
+        lastWornAt: null,
+        createdAt: serverTimestamp(),
+    };
+}
 
 // Saves the wardrobe, first item and profile changes together.
 // writeBatch means either everything is saved or nothing is
@@ -18,22 +47,11 @@ export async function completeOnboarding(userId, { currency, item, goals, target
         targetCostPerWear,
         createdAt: serverTimestamp(),
     });
+
     // Only if user didnt skip adding item, save the first item in the wardrobe
     if (item) {
         const itemRef = doc(collection(wardrobeRef, "items"));
-
-        // Save the first item in the wardrobe
-    batch.set(itemRef, {
-        name: item.name,
-        category: item.category,
-        brand: item.brand || null, // Brand is optional, so save null when it's empty
-        price: item.price,
-        purchaseDate: item.purchaseDate || null,
-        timesWorn: item.timesWorn,
-        photoUrl: item.photoUrl || null, // Cloudinary address of the photo, or null without a photo
-        lastWornAt: null,
-        createdAt: serverTimestamp(),
-    });
+        batch.set(itemRef, toItemData(item));
     }
 
     // Update the user's profile with the wardrobeId
@@ -45,6 +63,25 @@ export async function completeOnboarding(userId, { currency, item, goals, target
 
     // Commit the batch to save all changes together
     await batch.commit();
+}
+
+// Gets one user's wardrobe (currency, goals...), or null if they don't have one yet
+export async function getWardrobe(userId) {
+    const snapshot = await getDoc(doc(db, "wardrobes", userId));
+
+    if (!snapshot.exists()) {
+        return null;
+    }
+
+    return {
+        id: snapshot.id,
+        ...snapshot.data(),
+    };
+}
+
+// Adds a new item to the user's wardrobe. Firestore creates the item's ID
+export function addItem(userId, item) {
+    return addDoc(collection(db, "wardrobes", userId, "items"), toItemData(item));
 }
 
 // Lists all items from all wardrobes in the database

@@ -152,17 +152,6 @@ const initials = (name) =>
   }
 }
 
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.title-m {
-  font-size: 18px;
-  letter-spacing: 0.5px;
-}
-
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;

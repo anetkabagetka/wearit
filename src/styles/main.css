@@ -389,3 +389,19 @@ fieldset {
     align-items: center;
     gap: 16px;
 }
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.title-m {
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+input[readonly] {
+    background-color: var(--subtle-gray);
+    color: var(--gray);
+}

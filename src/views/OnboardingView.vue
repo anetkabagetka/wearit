@@ -11,6 +11,7 @@ import FormField from '@/components/FormField.vue'
 import { useOnboarding } from '@/composables/useOnboarding'
 import { formatMoney } from '@/utils/formatMoney'
 import { isFormValid } from '@/utils/isFormValid'
+import { categoryOptions } from '@/utils/itemOptions'
 
 import moneyIcon from '@/assets/icons/money.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
@@ -28,7 +29,6 @@ const {
     photoFile,
     isSaving,
     errorMessage,
-    currentCostPerWear,
     finish,
 } = useOnboarding();
 
@@ -66,11 +66,10 @@ const handleFinish = (event) => {
     }
 };
 
-// Texts for the cost per wear preview in step 4
-const previewValue = computed(() => formatMoney(currentCostPerWear.value, currency.value));
+// The line under the price in the step 4 preview, worded like Figma: "€126 ÷ 1 wear. Every wear lowers it."
 const previewFormula = computed(() => {
     const wears = Math.max(item.value.timesWorn || 0, 1);
-    const price = formatMoney(item.value.price, currency.value);
+    const price = formatMoney(item.value.price, currency.value, { wholeNumbers: true });
     return `${price} ÷ ${wears} ${wears === 1 ? "wear" : "wears"}. Every wear lowers it.`;
 });
 </script>
@@ -154,12 +153,7 @@ const previewFormula = computed(() => {
                         <FormField label="Category">
                             <select v-model="item.category" required>
                                 <option value="" disabled>Select</option>
-                                <option>Tops</option>
-                                <option>Bottoms</option>
-                                <option>Dresses</option>
-                                <option>Outerwear</option>
-                                <option>Shoes</option>
-                                <option>Accessories</option>
+                                <option v-for="category in categoryOptions" :key="category">{{ category }}</option>
                             </select>
                         </FormField>
 
@@ -182,12 +176,14 @@ const previewFormula = computed(() => {
                         </FormField>
 
                         <FormField label="Times worn so far">
-                            <input v-model.number="item.timesWorn" type="number" min="0" required
+                            <input v-model.number="item.timesWorn" type="number" min="0" step="1" placeholder="0"
                                 @wheel="$event.target.blur()" />
                         </FormField>
                     </div>
 
-                    <CpwCard label="COST PER WEAR PREVIEW" :value="previewValue" :formula="previewFormula" />
+                    <!-- The goal comes from step 3, so the bar shows how far this item is from it -->
+                    <CpwCard label="Cost per wear preview" :price="item.price || 0" :times-worn="item.timesWorn || 0"
+                        :currency="currency" :goal="targetCostPerWear || null" :formula="previewFormula" />
 
                     <div class="actions">
                         <button type="submit" :disabled="isSaving" class="btn btn-primary width-full">

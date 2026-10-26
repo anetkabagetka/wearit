@@ -29,7 +29,8 @@ import starIcon from '@/assets/icons/star.svg'
             <RouterLink to="/signup" class="btn btn-primary">Get started, it's free</RouterLink>
             <RouterLink to="/about-us" class="btn btn-secondary">Log in</RouterLink>
           </div>
-          <CpwCard />
+          <CpwCard label="Example: wool blazer" :price="126" :times-worn="30"
+            formula="€126 blazer ÷ 30 wears = €4.20" />
         </div>
 
         <img :src="heroImage" alt="Clothes hanging on a rail" class="split-media">

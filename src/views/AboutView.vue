@@ -42,7 +42,7 @@ import moneyIcon from "@/assets/icons/money.svg"
                             Divide what you paid by the number of times you wore it.
                             The more you wear something, the better value it becomes.
                         </p>
-                        <CpwCard />
+                        <CpwCard label="Wool blazer · COS" :price="126" :times-worn="30" :goal="2" />
                     </div>
 
                     <div class="feature-list">
