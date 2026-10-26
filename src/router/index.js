@@ -119,6 +119,15 @@ const router = createRouter({
     },
 
     {
+      path: "/edit-item/:itemId",
+      name: "edit-item",
+      component: () => import("@/views/user/EditItemView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
       path: "/profile",
       name: "profile",
       component: () => import("@/views/user/ProfileView.vue"),
