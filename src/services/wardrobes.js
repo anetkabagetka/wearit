@@ -87,6 +87,22 @@ export async function getWardrobe(userId) {
     };
 }
 
+// Changes the wardrobe's currency and saves the converted goal and item prices.
+// items is a list of { id, price } with the new prices.
+// writeBatch means either everything is saved or nothing is (max 500 changes per batch)
+export async function changeWardrobeCurrency(userId, { currency, targetCostPerWear, items }) {
+    const batch = writeBatch(db);
+    const wardrobeRef = doc(db, "wardrobes", userId);
+
+    batch.update(wardrobeRef, { currency, targetCostPerWear });
+
+    for (const item of items) {
+        batch.update(doc(wardrobeRef, "items", item.id), { price: item.price });
+    }
+
+    await batch.commit();
+}
+
 // Adds a new item to the user's wardrobe. Firestore creates the item's ID
 export function addItem(userId, item) {
     return addDoc(collection(db, "wardrobes", userId, "items"), {

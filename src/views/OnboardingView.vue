@@ -7,11 +7,13 @@ import StepProgress from '@/components/StepProgress.vue'
 import CpwCard from '@/components/CpwCard.vue'
 import PhotoUpload from '@/components/PhotoUpload.vue'
 import FormField from '@/components/FormField.vue'
+import CurrencyPicker from '@/components/CurrencyPicker.vue'
 
 import { useOnboarding } from '@/composables/useOnboarding'
 import { formatMoney } from '@/utils/formatMoney'
 import { isFormValid } from '@/utils/isFormValid'
 import { categoryOptions } from '@/utils/itemOptions'
+import { findCurrency } from '@/utils/currencyOptions'
 
 import moneyIcon from '@/assets/icons/money.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
@@ -38,19 +40,9 @@ const goalOptions = [
     { value: "buy-better", label: "Buy less, buy better", description: "See the likely CPW before you buy", icon: leafIcon },
     { value: "sell-donate", label: "Sell or donate what I don't wear", description: "Spot items that never pay off", icon: tagIcon },
 ];
-// blazerPrice is the example blazer from the description, used in the step 3 caption
-const currencyOptions = [
-    { code: "EUR", label: "Euro (€)", symbol: "€", example: "e.g. €126 blazer, €4.20 per wear", blazerPrice: 126 },
-    { code: "DKK", label: "Danish krone (kr)", symbol: "kr", example: "e.g. 940 kr blazer, 31 kr per wear", blazerPrice: 940 },
-    { code: "GBP", label: "British pound (£)", symbol: "£", example: "e.g. £108 blazer, £3.60 per wear", blazerPrice: 108 },
-    { code: "USD", label: "US dollar ($)", symbol: "$", example: "e.g. $137 blazer, $4.57 per wear", blazerPrice: 137 },
-    { code: "CZK", label: "Czech koruna (Kč)", symbol: "Kč", example: "e.g. 3,150 Kč blazer, 105 Kč per wear", blazerPrice: 3150 },
-];
 
 // The full option for the currency picked in step 2 (symbol, blazer price, ...)
-const selectedCurrency = computed(
-    () => currencyOptions.find((option) => option.code === currency.value) ?? currencyOptions[0],
-);
+const selectedCurrency = computed(() => findCurrency(currency.value));
 
 // Goes to the next step only when every field in this step is filled in correctly
 const goToNextStep = (event) => {
@@ -92,16 +84,8 @@ const previewFormula = computed(() => {
                     <h1>Choose your currency</h1>
                     <p>We use it to calculate cost per wear.</p>
 
-                    <fieldset class="stack-small">
-                        <label v-for="option in currencyOptions" :key="option.code" class="option-row">
-                            <span class="option-row-text">
-                                <span class="option-row-label">{{ option.label }}</span>
-                                <span class="option-row-description">{{ option.example }}</span>
-                            </span>
-                            <input v-model="currency" type="radio" name="currency" :value="option.code" />
-                        </label>
-                        <p class="caption">You can change this any time in Settings.</p>
-                    </fieldset>
+                    <CurrencyPicker v-model="currency" />
+                    <p class="caption">You can change this any time in Settings.</p>
 
                     <button type="submit" class="btn btn-primary">Continue</button>
                 </form>
