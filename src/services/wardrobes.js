@@ -1,6 +1,6 @@
 // Import functions from Firebase which we will use to save 
 // the wardrobe, first item and profile changes together
-import { collection, doc, serverTimestamp, writeBatch } from "firebase/firestore";
+import { collection, collectionGroup, doc, getDocs, serverTimestamp, writeBatch } from "firebase/firestore";
 import { db } from "@/firebase";
 
 // Saves the wardrobe, first item and profile changes together.
@@ -45,4 +45,20 @@ export async function completeOnboarding(userId, { currency, item, goals, target
 
     // Commit the batch to save all changes together
     await batch.commit();
+}
+
+// Lists all items from all wardrobes in the database
+export async function listAllItems() {
+    // collectionGroup finds EVERY collection called "items", also ones outside a wardrobe
+    const snapshot = await getDocs(collectionGroup(db, "items"));
+
+    return snapshot.docs
+        // Keep only items inside a wardrobe (wardrobes/{uid}/items). Others have no
+        // parent document, so reading .id on it would crash
+        .filter((document) => document.ref.parent.parent !== null)
+        // Put the data in an array of items, including the ownerId from the parent wardrobe
+        .map((document) => ({
+            ownerId: document.ref.parent.parent.id,
+            ...document.data(),
+        }));
 }

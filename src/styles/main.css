@@ -246,7 +246,6 @@ fieldset {
     background-color: var(--white);
     font-size: 13px;
     font-weight: 500;
-    cursor: pointer;
 
     input {
         position: absolute;
@@ -255,7 +254,12 @@ fieldset {
     }
 }
 
-.chip:has(input:checked) {
+.chip:has(input) {
+    cursor: pointer;
+}
+
+.chip:has(input:checked),
+.chip-selected {
     background-color: var(--black);
     border-color: var(--black);
     color: var(--white);

@@ -4,7 +4,9 @@ import {
   getDocs,
   collection,
   setDoc,
+  updateDoc,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 // Use database from firbase.js
 import { db } from "@/firebase";
@@ -42,6 +44,12 @@ export async function getOrCreateUserProfile(user, signupUsername = null) {
   const existingUser = await getUserProfile(user.uid);
 
   if (existingUser) {
+    // If the user already exists, update their email if it's not set
+    if (!existingUser.email && user.email) {
+      await updateDoc(doc(db, "users", user.uid), {
+        email: user.email,
+      });
+    }
     return existingUser;
   }
 
@@ -66,4 +74,30 @@ export async function listUsers() {
     id: document.id,
     ...document.data(),
   }));
+}
+
+// Change a users role to admin or user.
+export function updateUserRole(userId, role) {
+  return updateDoc(doc(db, "users", userId), {
+    role,
+  });
+}
+
+// Deletes everything a user has in Firestore: their items, their wardrobe and their profile.
+// writeBatch means either everything is deleted or nothing is.
+// Their login (Firebase Authentication) and Cloudinary photos are NOT deleted here
+export async function deleteUserData(userId) {
+  const batch = writeBatch(db);
+  const wardrobeRef = doc(db, "wardrobes", userId);
+
+  // Firestore doesn't delete sub-collections automatically, so delete each item first
+  const itemsSnapshot = await getDocs(collection(wardrobeRef, "items"));
+  for (const itemDocument of itemsSnapshot.docs) {
+    batch.delete(itemDocument.ref);
+  }
+
+  batch.delete(wardrobeRef);
+  batch.delete(doc(db, "users", userId));
+
+  await batch.commit();
 }
