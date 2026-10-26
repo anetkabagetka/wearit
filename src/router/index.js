@@ -103,7 +103,61 @@ const router = createRouter({
     {
       path: "/settings",
       name: "settings",
-      component: () => import("@/views/user/SettingsView.vue"),
+      component: () => import("@/views/user/settings/MainSettingsView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings/edit-profile",
+      name: "settings-edit-profile",
+      component: () => import("@/views/user/settings/EditProfileView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings/change-password",
+      name: "settings-change-password",
+      component: () => import("@/views/user/settings/ChangePasswordView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings/delete-account",
+      name: "settings-delete-account",
+      component: () => import("@/views/user/settings/DeleteAccountView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings/currency",
+      name: "settings-currency",
+      component: () => import("@/views/user/settings/CurrencySettingsView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings/notifications",
+      name: "settings-notifications",
+      component: () => import("@/views/user/settings/NotificationSettingsView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/settings/theme",
+      name: "settings-theme",
+      component: () => import("@/views/user/settings/ThemeSettingsView.vue"),
       meta: {
         requiresAuth: true,
       },

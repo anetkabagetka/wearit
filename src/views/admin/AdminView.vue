@@ -4,6 +4,7 @@ import { onBeforeUnmount, onMounted, ref } from "vue";
 import Navigation from "@/components/Navigation.vue";
 import { useAdminUsers } from "@/composables/useAdminUsers";
 import { useAuth } from "@/composables/useAuth";
+import { getInitials } from '@/utils/getInitials'
 
 import chevronLeftIcon from "@/assets/icons/chevron-left.svg";
 import searchIcon from "@/assets/icons/search.svg";
@@ -44,8 +45,7 @@ onMounted(() => document.addEventListener("click", closeMenu));
 onBeforeUnmount(() => document.removeEventListener("click", closeMenu));
 
 // First letter of the name capitalized
-const initials = (name) =>
-  name.split(" ").map((word) => word[0]).join("").slice(0, 2).toUpperCase();
+const initials = (name) => getInitials(name);
 </script>
 
 <template>

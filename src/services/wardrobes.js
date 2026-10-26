@@ -95,6 +95,16 @@ export function addItem(userId, item) {
     });
 }
 
+// Lists all items in one user's wardrobe
+export async function listItems(userId) {
+    const snapshot = await getDocs(collection(db, "wardrobes", userId, "items"));
+
+    return snapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+    }));
+}
+
 // Gets one item from the user's wardrobe, or null if it doesn't exist
 export async function getItem(userId, itemId) {
     const snapshot = await getDoc(doc(db, "wardrobes", userId, "items", itemId));

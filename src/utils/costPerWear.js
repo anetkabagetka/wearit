@@ -3,3 +3,11 @@
 export function costPerWear(price, timesWorn) {
   return price / Math.max(timesWorn, 1);
 }
+
+// Average cost per wear of a whole wardrobe: everything spent ÷ all wears together,
+// e.g. €4,280 spent ÷ 625 wears = €6.85
+export function averageCostPerWear(items) {
+  const totalSpent = items.reduce((total, item) => total + (item.price || 0), 0);
+  const totalWears = items.reduce((total, item) => total + (item.timesWorn || 0), 0);
+  return costPerWear(totalSpent, totalWears);
+}
