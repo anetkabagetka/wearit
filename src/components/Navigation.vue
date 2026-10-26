@@ -32,10 +32,8 @@ const handleLogout = async () => {
   <header>
     <div class="container header-inner">
       <nav>
-        <RouterLink to="/" class="logo">
-          <img :src="logo" alt="WearIt logo" />
-        </RouterLink>
         <template v-if="isSignedIn">
+          <img :src="logo" alt="WearIt logo" class="logo" />
           <RouterLink to="/dashboard">
             <img :src="homeIcon" alt="Home" />
             Home
@@ -55,15 +53,18 @@ const handleLogout = async () => {
           <RouterLink v-if="isAdmin" to="/admin">Admin</RouterLink>
         </template>
         <template v-else>
+          <RouterLink to="/" class="logo">
+            <img :src="logo" alt="WearIt logo" />
+          </RouterLink>
           <RouterLink to="/about-us">About us</RouterLink>
           <RouterLink to="/support-contact">Support / Contact</RouterLink>
         </template>
       </nav>
       <div class="auth-links">
         <template v-if="isSignedIn">
-          <button type="button" @click="handleLogout" class="btn btn-primary">
+          <RouterLink :to="{ name: 'add-item' }" class="btn btn-primary">
             Add item
-          </button>
+          </RouterLink>
           <RouterLink to="/profile" class="profile-link-name">{{ displayName }}</RouterLink>
           <button type="button" @click="handleLogout" class="btn btn-secondary">
             Log out
