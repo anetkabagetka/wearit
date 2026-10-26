@@ -6,14 +6,16 @@ import {
     collectionGroup,
     doc,
     getDoc,
+    deleteDoc,
     getDocs,
     serverTimestamp,
+    updateDoc,
     writeBatch,
 } from "firebase/firestore";
 import { db } from "@/firebase";
 
 // Turns an item from a form into the shape we save in Firestore.
-// Onboarding and the add item page both use it, so every item looks the same
+// Onboarding, add item and edit item all use it, so every item looks the same
 function toItemData(item) {
     return {
         name: item.name,
@@ -27,6 +29,12 @@ function toItemData(item) {
         tags: item.tags ?? [],
         notes: item.notes || null,
         photoUrl: item.photoUrl || null, // Cloudinary address of the photo, or null without a photo
+    };
+}
+
+// Fields only a brand new item gets. Editing must not reset them
+function newItemFields() {
+    return {
         lastWornAt: null,
         createdAt: serverTimestamp(),
     };
@@ -51,7 +59,7 @@ export async function completeOnboarding(userId, { currency, item, goals, target
     // Only if user didnt skip adding item, save the first item in the wardrobe
     if (item) {
         const itemRef = doc(collection(wardrobeRef, "items"));
-        batch.set(itemRef, toItemData(item));
+        batch.set(itemRef, { ...toItemData(item), ...newItemFields() });
     }
 
     // Update the user's profile with the wardrobeId
@@ -81,7 +89,37 @@ export async function getWardrobe(userId) {
 
 // Adds a new item to the user's wardrobe. Firestore creates the item's ID
 export function addItem(userId, item) {
-    return addDoc(collection(db, "wardrobes", userId, "items"), toItemData(item));
+    return addDoc(collection(db, "wardrobes", userId, "items"), {
+        ...toItemData(item),
+        ...newItemFields(),
+    });
+}
+
+// Gets one item from the user's wardrobe, or null if it doesn't exist
+export async function getItem(userId, itemId) {
+    const snapshot = await getDoc(doc(db, "wardrobes", userId, "items", itemId));
+
+    if (!snapshot.exists()) {
+        return null;
+    }
+
+    return {
+        id: snapshot.id,
+        ...snapshot.data(),
+    };
+}
+
+// Saves the changes to an item. createdAt and lastWornAt stay as they were
+export function updateItem(userId, itemId, item) {
+    return updateDoc(doc(db, "wardrobes", userId, "items", itemId), {
+        ...toItemData(item),
+        updatedAt: serverTimestamp(),
+    });
+}
+
+// Deletes one item. Its photo stays in Cloudinary (deleting it needs the API secret)
+export function deleteItem(userId, itemId) {
+    return deleteDoc(doc(db, "wardrobes", userId, "items", itemId));
 }
 
 // Lists all items from all wardrobes in the database
