@@ -3,8 +3,10 @@ import { computed, ref } from "vue";
 import {
   EmailAuthProvider,
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -135,6 +137,39 @@ export function useAuth() {
     }
   };
 
+  // Asks the user to prove it's really them before something serious, like deleting the account.
+  // Email accounts type their password, Google accounts confirm in the Google window
+  const confirmIdentity = async (password) => {
+    clearError();
+
+    try {
+      const user = auth.currentUser;
+      const isGoogleUser = user.providerData.some((provider) => provider.providerId === "google.com");
+
+      if (isGoogleUser) {
+        await reauthenticateWithPopup(user, googleProvider);
+      } else {
+        await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
+      }
+    } catch (error) {
+      const wrongPassword = ["auth/invalid-credential", "auth/wrong-password"].includes(error?.code);
+      errorMessage.value = wrongPassword
+        ? "Your password is wrong."
+        : getAuthErrorMessage(error, "Could not confirm it's you. Please try again.");
+      throw error;
+    }
+  };
+  // Deletes the login itself (Firebase Authentication). Call confirmIdentity first
+  const deleteLoginAccount = async () => {
+    clearError();
+
+    try {
+      await deleteUser(auth.currentUser);
+    } catch (error) {
+      errorMessage.value = getAuthErrorMessage(error, "Could not delete your account. Please try again.");
+      throw error;
+    }
+  };
   // Changes the password. Firebase wants proof it's really you first,
   // so we log in again in the background with the current password
   const changePassword = async (currentPassword, newPassword) => {
@@ -183,6 +218,8 @@ export function useAuth() {
     clearError,
     changeEmail,
     changePassword,
+    confirmIdentity,
+    deleteLoginAccount,
     logout,
   };
 }
