@@ -4,6 +4,7 @@ const messages = {
     "auth/invalid-credential": "Wrong email or password.",
     "auth/wrong-password": "Wrong email or password.",
     "auth/user-not-found": "Wrong email or password.",
+    "auth/requires-recent-login": "For your safety, please log out and log in again, then try this again.",
     "auth/invalid-email": "Please enter a valid email address.",
     "auth/email-already-in-use": "An account with this email already exists. Try logging in instead.",
     "auth/weak-password": "This password is too weak. Use at least 8 characters, including a number and a symbol.",

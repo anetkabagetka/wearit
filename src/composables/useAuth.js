@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  verifyBeforeUpdateEmail,
 } from "firebase/auth";
 // Import Firebase authentication and Google provider from firebase.js
 import { auth, googleProvider } from "@/firebase";
@@ -117,6 +118,20 @@ export function useAuth() {
       throw error;
     }
   };
+
+  // Starts changing the login email. Firebase first sends a link to the NEW address,
+  // and the email only changes after the user clicks it, so nobody can take over the account
+  const changeEmail = async (newEmail) => {
+    clearError();
+
+    try {
+      await verifyBeforeUpdateEmail(auth.currentUser, newEmail);
+    } catch (error) {
+      errorMessage.value = getAuthErrorMessage(error, "Could not change your email. Please try again.");
+      throw error;
+    }
+  };
+
   // logout function. The page that calls it decides where to go next
   const logout = async () => {
     clearError();
@@ -144,5 +159,7 @@ export function useAuth() {
     resetPassword,
     logout,
     clearError,
+    changeEmail,
+    logout,
   };
 }

@@ -101,3 +101,8 @@ export async function deleteUserData(userId) {
 
   await batch.commit();
 }
+
+// Saves changes to the user's profile, e.g. { username: "Aneta", photoUrl: "https://..." }
+export function updateUserProfile(userId, changes) {
+  return updateDoc(doc(db, "users", userId), changes);
+}
