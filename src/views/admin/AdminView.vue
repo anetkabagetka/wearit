@@ -1,9 +1,8 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
-
 import Navigation from "@/components/Navigation.vue";
 import { useAdminUsers } from "@/composables/useAdminUsers";
 import { useAuth } from "@/composables/useAuth";
+import { useDropdown } from "@/composables/useDropdown";
 import { getInitials } from '@/utils/getInitials'
 
 import chevronLeftIcon from "@/assets/icons/chevron-left.svg";
@@ -23,16 +22,8 @@ const {
 } = useAdminUsers();
 const { currentUser } = useAuth();
 
-// ID of the user whose "more" menu is open, or null when all menus are closed
-const openMenuId = ref(null);
-
-const toggleMenu = (userId) => {
-  openMenuId.value = openMenuId.value === userId ? null : userId;
-};
-
-const closeMenu = () => {
-  openMenuId.value = null;
-};
+// Which user's "more" menu is open. Clicking anywhere else closes it
+const { openMenu, toggleMenu, closeMenu } = useDropdown();
 
 // Runs a menu option, then closes the menu
 const chooseOption = (action, user) => {
@@ -40,9 +31,6 @@ const chooseOption = (action, user) => {
   action(user);
 };
 
-// Clicking anywhere else on the page closes the open menu
-onMounted(() => document.addEventListener("click", closeMenu));
-onBeforeUnmount(() => document.removeEventListener("click", closeMenu));
 
 // First letter of the name capitalized
 const initials = (name) => getInitials(name);
@@ -113,14 +101,14 @@ const initials = (name) => getInitials(name);
 
             <!-- Disabled on my own row, so I can't remove my admin role or delete myself.
                  .stop keeps the click from reaching the page, which would close the menu again -->
-            <div class="row-menu" @click.stop @keydown.esc="closeMenu">
+            <div class="menu-wrapper" @click.stop @keydown.esc="closeMenu">
               <button type="button" class="more-button" :aria-label="`Options for ${user.username || user.email}`"
-                aria-haspopup="menu" :aria-expanded="openMenuId === user.id"
+                aria-haspopup="menu" :aria-expanded="openMenu === user.id"
                 :disabled="user.id === currentUser?.uid" @click="toggleMenu(user.id)">
                 <img :src="moreIcon" alt="" width="20" height="20" />
               </button>
 
-              <div v-if="openMenuId === user.id" class="menu" role="menu">
+              <div v-if="openMenu === user.id" class="menu" role="menu">
                 <button type="button" role="menuitem" @click="chooseOption(toggleRole, user)">
                   {{ user.role === "admin" ? "Make user" : "Make admin" }}
                 </button>
@@ -248,44 +236,5 @@ const initials = (name) => getInitials(name);
 .more-button:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-}
-
-/* position: relative lets the menu sit right under the three dots */
-.row-menu {
-  position: relative;
-}
-
-.menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  min-width: 160px;
-  padding: 4px;
-  border: 1px solid var(--light-gray);
-  border-radius: 8px;
-  background-color: var(--white);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-
-  button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background: none;
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  button:hover,
-  button:focus-visible {
-    background-color: var(--subtle-gray);
-  }
-}
-
-.menu-danger {
-  color: var(--error);
 }
 </style>

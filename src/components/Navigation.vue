@@ -2,6 +2,8 @@
 import { computed } from "vue";
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useDropdown } from '@/composables/useDropdown'
+import { getInitials } from '@/utils/getInitials'
 
 import logo from '@/assets/wearitlogo.svg'
 
@@ -22,8 +24,12 @@ const {
 const displayName = computed(
   () => profile.value?.username || userEmail.value.split("@")[0],
 );
+// The menu that opens when you click your avatar
+const { openMenu, toggleMenu, closeMenu } = useDropdown();
+
 // Logs out, then goes to the landing page without reloading the app
 const handleLogout = async () => {
+  closeMenu();
   await logout();
   router.push({ name: "landing" });
 };
@@ -65,10 +71,19 @@ const handleLogout = async () => {
           <RouterLink :to="{ name: 'add-item' }" class="btn btn-primary">
             Add item
           </RouterLink>
-          <RouterLink to="/profile" class="profile-link-name">{{ displayName }}</RouterLink>
-          <button type="button" @click="handleLogout" class="btn btn-secondary">
-            Log out
-          </button>
+          <!-- Your avatar opens a small menu. .stop keeps the click from reaching the page,
+               which would close the menu again -->
+          <div class="menu-wrapper" @click.stop @keydown.esc="closeMenu">
+            <button type="button" class="avatar-button" :aria-label="`Account menu for ${displayName}`"
+              aria-haspopup="menu" :aria-expanded="openMenu === 'account'" @click="toggleMenu('account')">
+              <img v-if="profile?.photoUrl" :src="profile.photoUrl" alt="" class="avatar" />
+              <span v-else class="avatar">{{ getInitials(displayName) }}</span>
+            </button>
+
+            <div v-if="openMenu === 'account'" class="menu" role="menu">
+              <button type="button" role="menuitem" @click="handleLogout">Log out</button>
+            </div>
+          </div>
         </template>
         <template v-else>
           <RouterLink to="/login" class="btn btn-secondary">Log in</RouterLink>
@@ -116,9 +131,45 @@ nav {
   gap: 32px;
 }
 
-.profile-link-name {
-  font-weight: bold;
-  text-decoration: none;
+/* The button itself is the 32px gray circle from Figma.
+   flex-shrink: 0 stops a full nav from squeezing it into an oval,
+   overflow: hidden cuts the photo to the circle,
+   appearance: none removes the browser's own button look (e.g. in Safari) */
+.avatar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  overflow: hidden;
+  appearance: none;
+  background-color: var(--light-gray);
+  /* Thin gray ring, so the circle shows even when a photo has white edges */
+  box-shadow: 0 0 0 1px var(--light-gray);
+  cursor: pointer;
+}
+
+.avatar-button:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+}
+
+/* The photo or the initials fill the whole circle */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   color: var(--black);
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  object-fit: cover;
 }
 </style>
