@@ -1,12 +1,15 @@
 import { computed, ref } from "vue";
 // Import Firebase authentication functions
 import {
+  EmailAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  updatePassword,
   verifyBeforeUpdateEmail,
 } from "firebase/auth";
 // Import Firebase authentication and Google provider from firebase.js
@@ -132,6 +135,25 @@ export function useAuth() {
     }
   };
 
+  // Changes the password. Firebase wants proof it's really you first,
+  // so we log in again in the background with the current password
+  const changePassword = async (currentPassword, newPassword) => {
+    clearError();
+
+    try {
+      const user = auth.currentUser;
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, newPassword);
+    } catch (error) {
+      // Here a wrong password can only mean the current password, so say exactly that
+      const wrongPassword = ["auth/invalid-credential", "auth/wrong-password"].includes(error?.code);
+      errorMessage.value = wrongPassword
+        ? "Your current password is wrong."
+        : getAuthErrorMessage(error, "Could not change your password. Please try again.");
+      throw error;
+    }
+  };
   // logout function. The page that calls it decides where to go next
   const logout = async () => {
     clearError();
@@ -160,6 +182,7 @@ export function useAuth() {
     logout,
     clearError,
     changeEmail,
+    changePassword,
     logout,
   };
 }

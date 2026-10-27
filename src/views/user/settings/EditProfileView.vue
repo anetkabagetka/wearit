@@ -91,7 +91,6 @@ const handleSave = (event) => {
         </FormField>
         <p class="caption">
           <template v-if="isGoogleAccount">You log in with Google, so your email can only be changed there.</template>
-          <template v-else>We send your weekly cost-per-wear summary to this address.</template>
         </p>
       </div>
 
