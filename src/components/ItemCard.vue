@@ -3,6 +3,7 @@ import { computed } from "vue";
 
 import { costPerWear } from "@/utils/costPerWear";
 import { formatMoney } from "@/utils/formatMoney";
+import { formatWears } from "@/utils/formatWears";
 
 // One tile in the wardrobe grid: photo, name, cost per wear, wears and brand.
 // Clicking it opens the item's edit page
@@ -12,15 +13,6 @@ const props = defineProps({
 });
 
 const cpwText = computed(() => formatMoney(costPerWear(props.item.price, props.item.timesWorn), props.currency));
-
-// e.g. "41 wears", "1 wear" or "Not worn yet"
-const wearsText = computed(() => {
-    const wears = props.item.timesWorn;
-    if (!wears) {
-        return "Not worn yet";
-    }
-    return `${wears} ${wears === 1 ? "wear" : "wears"}`;
-});
 </script>
 
 <template>
@@ -36,7 +28,7 @@ const wearsText = computed(() => {
                 <span class="caption">/ wear</span>
             </span>
             <span class="caption">
-                {{ wearsText }}<template v-if="item.brand"> · {{ item.brand }}</template>
+                {{ formatWears(item.timesWorn) }}<template v-if="item.brand"> · {{ item.brand }}</template>
             </span>
         </div>
     </RouterLink>
@@ -69,7 +61,8 @@ const wearsText = computed(() => {
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Long names end with "..." instead of breaking the grid */
+    text-overflow: ellipsis;
+    /* Long names end with "..." instead of breaking the grid */
 }
 
 .item-card-cpw {
