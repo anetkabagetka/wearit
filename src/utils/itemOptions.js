@@ -4,3 +4,10 @@ export const colorOptions = ["Black", "White", "Grey", "Beige", "Brown", "Blue",
 export const seasonOptions = ["All year", "Spring", "Summer", "Autumn", "Winter"];
 // Tags every user starts with. They can add their own on the add item page
 export const defaultTags = ["Work", "Date night", "Gift"];
+
+// Why an item left the wardrobe, for the "Remove from wardrobe" pop-up on the item page
+export const removeOptions = [
+    { value: "sold", label: "Sold", description: "Record the sale price" },
+    { value: "donated", label: "Donated", description: "Gave it to a charity shop or clothes bank" },
+    { value: "gave-away", label: "Gave away", description: "Passed on to a friend or family" },
+];

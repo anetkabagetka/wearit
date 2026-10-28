@@ -1,10 +1,12 @@
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
-import { getItem, getWardrobe, markItemWorn } from "@/services/wardrobes";
+import { deleteItem, getItem, getWardrobe, markItemRemoved, markItemWorn } from "@/services/wardrobes";
 
-// State and actions for the item detail page: the item, the currency and goal, and "Log a wear"
+// State and actions for the item detail page: the item, the currency and goal, "Log a wear" and delete
 export function useItemDetail(itemId) {
+    const router = useRouter();
     const item = ref(null);
     const currency = ref("");
     const goal = ref(null); // The target cost per wear set in onboarding, or null without a goal
@@ -55,6 +57,40 @@ export function useItemDetail(itemId) {
         }
     };
 
+    // Deletes the item (its wear history goes with it), then opens the wardrobe
+    const remove = async () => {
+        isSaving.value = true;
+        errorMessage.value = "";
+
+        try {
+            await deleteItem(auth.currentUser.uid, itemId);
+            await router.push({ name: "wardrobe" });
+        } catch {
+            errorMessage.value = "Could not delete the item. Please try again.";
+        } finally {
+            isSaving.value = false;
+        }
+    };
+
+    // Takes the item out of the wardrobe (sold, donated or given away), then opens the wardrobe.
+    // The sale price is only saved when it was sold
+    const markRemoved = async (reason, salePrice) => {
+        isSaving.value = true;
+        errorMessage.value = "";
+
+        try {
+            await markItemRemoved(auth.currentUser.uid, itemId, {
+                reason,
+                salePrice: reason === "sold" ? salePrice : null,
+            });
+            await router.push({ name: "wardrobe" });
+        } catch {
+            errorMessage.value = "Could not save the change. Please try again.";
+        } finally {
+            isSaving.value = false;
+        }
+    };
+
     onMounted(load);
 
     return {
@@ -66,5 +102,7 @@ export function useItemDetail(itemId) {
         isSaving,
         errorMessage,
         logWear,
+        remove,
+        markRemoved,
     };
 }

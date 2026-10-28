@@ -157,6 +157,16 @@ export function markItemWorn(userId, itemId) {
     });
 }
 
+// Takes an item out of the wardrobe because it was sold, donated or given away.
+// The item isn't deleted, so its wear history and final cost per wear are kept
+export function markItemRemoved(userId, itemId, { reason, salePrice }) {
+    return updateDoc(doc(db, "wardrobes", userId, "items", itemId), {
+        removedAs: reason, // "sold", "donated" or "gave-away"
+        salePrice, // Only for "sold", otherwise null
+        removedAt: serverTimestamp(),
+    });
+}
+
 // Deletes one item. Its photo stays in Cloudinary (deleting it needs the API secret)
 export function deleteItem(userId, itemId) {
     return deleteDoc(doc(db, "wardrobes", userId, "items", itemId));

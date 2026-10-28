@@ -5,20 +5,62 @@ import { useRoute } from 'vue-router'
 import Navigation from '@/components/Navigation.vue'
 import CpwCard from '@/components/CpwCard.vue'
 import ListRow from '@/components/ListRow.vue'
+import AppDialog from '@/components/AppDialog.vue'
+import FormField from '@/components/FormField.vue'
 
 import { useItemDetail } from '@/composables/useItemDetail'
 import { costPerWear } from '@/utils/costPerWear'
 import { formatDate } from '@/utils/formatDate'
-import { formatMoney } from '@/utils/formatMoney'
+import { formatMoney, getCurrencySymbol } from '@/utils/formatMoney'
+import { isFormValid } from '@/utils/isFormValid'
+import { removeOptions } from '@/utils/itemOptions'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import editIcon from '@/assets/icons/edit.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
+import trashIcon from '@/assets/icons/trash.svg'
+import tagIcon from '@/assets/icons/tag.svg'
+import closeIcon from '@/assets/icons/close.svg'
 
 // The item's ID comes from the address, e.g. /item/abc123 → "abc123"
 const route = useRoute()
 
-const { item, currency, goal, isLoading, isNotFound, isSaving, errorMessage, logWear } = useItemDetail(route.params.itemId)
+const { item, currency, goal, isLoading, isNotFound, isSaving, errorMessage, logWear, remove, markRemoved } =
+    useItemDetail(route.params.itemId)
+
+// true while the "Delete item?" pop-up is open
+const isDeleteOpen = ref(false)
+
+// Closes the pop-up first, so an error message on the page isn't hidden behind it
+const confirmDelete = () => {
+    isDeleteOpen.value = false
+    remove()
+}
+
+// "Remove from wardrobe" pop-up: open or not, why the item left, and what it sold for
+const isRemoveOpen = ref(false)
+const reason = ref('sold')
+const salePrice = ref(null)
+
+// e.g. "Final CPW after sale: €2.87 · (€126 − €40) ÷ 30 wears"
+const finalCpwText = computed(() => {
+    const price = item.value.price
+    const sale = salePrice.value || 0
+    const wears = Math.max(item.value.timesWorn, 1)
+    const finalCpw = formatMoney(costPerWear(price - sale, item.value.timesWorn), currency.value)
+    const priceText = formatMoney(price, currency.value, { wholeNumbers: true })
+    const saleText = formatMoney(sale, currency.value, { wholeNumbers: true })
+    return `Final CPW after sale: ${finalCpw} · (${priceText} − ${saleText}) ÷ ${wears} ${wears === 1 ? 'wear' : 'wears'}`
+})
+
+const handleRemove = (event) => {
+    // Stop here if the sale price is empty or wrong, FormField shows what to fix
+    if (!isFormValid(event.target)) {
+        return
+    }
+    isRemoveOpen.value = false
+    markRemoved(reason.value, salePrice.value)
+}
 
 // e.g. "COS · Outerwear · Black · Autumn". filter(Boolean) skips the empty ones
 const metaText = computed(() =>
@@ -37,7 +79,7 @@ const nextWearText = computed(() => {
 // "Today", a date like "23 Sep 2026", or "–" when no wear was logged yet
 const lastWornText = computed(() => {
     if (!item.value.lastWornAt) {
-        return '–'
+        return '-'
     }
     const date = formatDate(item.value.lastWornAt)
     return date === formatDate(new Date()) ? 'Today' : date
@@ -46,7 +88,7 @@ const lastWornText = computed(() => {
 // Wears per month since buying it, e.g. 30 wears in 7 months = "4.3". Needs a purchase date
 const wornPerMonth = computed(() => {
     if (!item.value.purchaseDate) {
-        return '–'
+        return '-'
     }
     const days = (Date.now() - new Date(item.value.purchaseDate)) / 86400000 // 86400000 ms = 1 day
     const months = Math.max(days / 30, 1) // min 1 month, so a brand new item doesn't show huge numbers
@@ -151,7 +193,7 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
                             <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
-                                }}</strong>
+                            }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -177,7 +219,63 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
                     <h2 class="title-m">Manage</h2>
                     <ListRow :icon="editIcon" label="Edit item"
                         :to="{ name: 'edit-item', params: { itemId: item.id } }" />
+                    <ListRow :icon="tagIcon" label="Mark as sold or donated" @click="isRemoveOpen = true" />
+                    <ListRow :icon="trashIcon" label="Delete item" @click="isDeleteOpen = true" />
                 </section>
+
+                <AppDialog v-model="isDeleteOpen">
+                    <div class="stack">
+                        <h2 class="title-m">Delete {{ item.name }}?</h2>
+                        <p class="notes">All logged wears and cost per wear history will be removed. This can't be
+                            undone.</p>
+                        <div class="stack-small">
+                            <button type="button" class="btn btn-primary" :disabled="isSaving" @click="confirmDelete">
+                                Delete item
+                            </button>
+                            <!-- autofocus: Cancel is selected when the pop-up opens, so pressing Enter can't delete by accident -->
+                            <button type="button" class="btn btn-secondary" autofocus @click="isDeleteOpen = false">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </AppDialog>
+
+                <AppDialog v-model="isRemoveOpen">
+                    <form class="stack" novalidate @submit.prevent="handleRemove">
+                        <div class="section-header">
+                            <h2 class="title-m">Remove from wardrobe</h2>
+                            <button type="button" class="back-button" aria-label="Close" @click="isRemoveOpen = false">
+                                <img :src="closeIcon" alt="" />
+                            </button>
+                        </div>
+                        <p class="notes">Removed items keep their history and final cost per wear.</p>
+
+                        <!-- Same option rows as the currency picker: the whole row is the radio button -->
+                        <fieldset class="stack-small">
+                            <label v-for="option in removeOptions" :key="option.value" class="option-row">
+                                <span class="option-row-text">
+                                    <span class="option-row-label">{{ option.label }}</span>
+                                    <span class="option-row-description">{{ option.description }}</span>
+                                </span>
+                                <input v-model="reason" type="radio" name="reason" :value="option.value" />
+                            </label>
+                        </fieldset>
+
+                        <!-- The sale price only matters when it was sold -->
+                        <div v-if="reason === 'sold'" class="stack-small">
+                            <FormField label="Sale price">
+                                <span class="input-icon">
+                                    <span class="input-prefix">{{ getCurrencySymbol(currency) }}</span>
+                                    <input v-model.number="salePrice" type="number" min="0" step="0.01"
+                                        placeholder="0.00" required />
+                                </span>
+                            </FormField>
+                            <p class="caption">{{ finalCpwText }}</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" :disabled="isSaving">Confirm</button>
+                    </form>
+                </AppDialog>
             </div>
         </div>
     </main>

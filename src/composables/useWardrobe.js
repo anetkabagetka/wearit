@@ -30,7 +30,8 @@ export function useWardrobe() {
             if (wardrobe?.currency) {
                 currency.value = wardrobe.currency;
             }
-            items.value = savedItems;
+            // Sold, donated and given away items stay saved (for their history), but aren't in the wardrobe anymore
+            items.value = savedItems.filter((item) => !item.removedAs);
         } catch {
             errorMessage.value = "Could not load your wardrobe. Please refresh the page.";
         } finally {
