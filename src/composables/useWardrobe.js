@@ -26,6 +26,7 @@ function isPicked(list, value) {
 export function useWardrobe() {
     const items = ref([]);
     const currency = ref("EUR"); // Replaced by the wardrobe's currency once it has loaded
+    const goal = ref(null); // The target cost per wear set in onboarding, or null without a goal
     const isLoading = ref(true);
     const errorMessage = ref("");
     const search = ref("");
@@ -72,6 +73,7 @@ export function useWardrobe() {
             if (wardrobe?.currency) {
                 currency.value = wardrobe.currency;
             }
+            goal.value = wardrobe?.targetCostPerWear ?? null;
             // Sold, donated and given away items stay saved (for their history), but aren't in the wardrobe anymore
             items.value = savedItems.filter((item) => !item.removedAs);
         } catch {
@@ -82,7 +84,8 @@ export function useWardrobe() {
     }
 
     // Saves one more wear for an item, then updates the item on the page too,
-    // so the new count and cost per wear show without loading everything again
+    // so the new count and cost per wear show without loading everything again.
+    // Returns true when it worked, so the page knows whether to show "Wear logged"
     const wearItem = async (item) => {
         errorMessage.value = "";
 
@@ -90,8 +93,12 @@ export function useWardrobe() {
             await markItemWorn(auth.currentUser.uid, item.id);
             item.timesWorn = (item.timesWorn || 0) + 1;
             item.lastWornAt = new Date();
+            // Items saved before wear history existed have no wornDates, ?? [] starts an empty list
+            item.wornDates = [...(item.wornDates ?? []), new Date()];
+            return true;
         } catch {
             errorMessage.value = "Could not save the wear. Please try again.";
+            return false;
         }
     }
 
@@ -100,6 +107,7 @@ export function useWardrobe() {
     return {
         items,
         currency,
+        goal,
         isLoading,
         errorMessage,
         search,
