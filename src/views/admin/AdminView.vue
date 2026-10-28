@@ -140,21 +140,6 @@ const initials = (name) => getInitials(name);
   }
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.stat-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px;
-  border: 1px solid var(--light-gray);
-  border-radius: 8px;
-}
-
 .stat-card-inverse {
   grid-column: 1 / -1;
   background-color: var(--black);
@@ -173,12 +158,6 @@ const initials = (name) => getInitials(name);
   .stat-card-inverse {
     grid-column: auto;
   }
-}
-
-.stat-value {
-  font-family: var(--font-title);
-  font-weight: normal;
-  font-size: 24px;
 }
 
 .user-list {

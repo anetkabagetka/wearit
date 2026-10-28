@@ -164,6 +164,15 @@ const router = createRouter({
     },
 
     {
+      path: "/item/:itemId",
+      name: "item",
+      component: () => import("@/views/user/ItemDetailView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
       path: "/add-item",
       name: "add-item",
       component: () => import("@/views/user/AddItemView.vue"),

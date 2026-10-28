@@ -16,7 +16,7 @@ const cpwText = computed(() => formatMoney(costPerWear(props.item.price, props.i
 </script>
 
 <template>
-    <RouterLink :to="{ name: 'edit-item', params: { itemId: item.id } }" class="item-card">
+    <RouterLink :to="{ name: 'item', params: { itemId: item.id } }" class="item-card">
         <img v-if="item.photoUrl" :src="item.photoUrl" alt="" class="item-card-photo" />
         <!-- Gray box when the item has no photo -->
         <div v-else class="item-card-photo"></div>
