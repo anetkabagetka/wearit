@@ -9,8 +9,9 @@ import AppDialog from '@/components/AppDialog.vue'
 import FormField from '@/components/FormField.vue'
 
 import { useItemDetail } from '@/composables/useItemDetail'
+import { useDropdown } from '@/composables/useDropdown'
 import { costPerWear } from '@/utils/costPerWear'
-import { formatDate } from '@/utils/formatDate'
+import { formatDate, toJsDate } from '@/utils/formatDate'
 import { formatMoney, getCurrencySymbol } from '@/utils/formatMoney'
 import { isFormValid } from '@/utils/isFormValid'
 import { removeOptions } from '@/utils/itemOptions'
@@ -21,6 +22,7 @@ import shirtIcon from '@/assets/icons/shirt.svg'
 import trashIcon from '@/assets/icons/trash.svg'
 import tagIcon from '@/assets/icons/tag.svg'
 import closeIcon from '@/assets/icons/close.svg'
+import moreIcon from '@/assets/icons/more.svg'
 
 // The item's ID comes from the address, e.g. /item/abc123 → "abc123"
 const route = useRoute()
@@ -85,14 +87,12 @@ const lastWornText = computed(() => {
     return date === formatDate(new Date()) ? 'Today' : date
 })
 
-// Wears per month since buying it, e.g. 30 wears in 7 months = "4.3". Needs a purchase date
+// Wears in the last 3 months ÷ 3, e.g. 13 wears = "4.3".
+// Only wears logged with "Log a wear" have a date, so only those count
 const wornPerMonth = computed(() => {
-    if (!item.value.purchaseDate) {
-        return '-'
-    }
-    const days = (Date.now() - new Date(item.value.purchaseDate)) / 86400000 // 86400000 ms = 1 day
-    const months = Math.max(days / 30, 1) // min 1 month, so a brand new item doesn't show huge numbers
-    return (item.value.timesWorn / months).toFixed(1)
+    const threeMonthsAgo = Date.now() - 90 * 86400000 // 90 days, 86400000 ms = 1 day
+    const recentWears = (item.value.wornDates ?? []).filter((date) => toJsDate(date).getTime() > threeMonthsAgo)
+    return (recentWears.length / 3).toFixed(1)
 })
 
 // Logged wears, newest first, e.g. { number: 30, date: "Wed, 23 Sept 2026", cpw: "€4.20" }.
@@ -114,6 +114,19 @@ const wearHistory = computed(() => {
 // The 5 newest wears, or all of them after clicking "See all"
 const showAllWears = ref(false)
 const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : wearHistory.value.slice(0, 5)))
+// The "… icon" menu in the top bar
+const { openMenu, toggleMenu, closeMenu } = useDropdown()
+// e.g. "Sold for €40", "Donated" or "Gave away". Empty while the item is still in the wardrobe
+const removedText = computed(() => {
+    if (!item.value.removedAs) {
+        return ''
+    }
+    const label = removeOptions.find((option) => option.value === item.value.removedAs).label
+    if (item.value.salePrice) {
+        return `${label} for ${formatMoney(item.value.salePrice, currency.value, { wholeNumbers: true })}`
+    }
+    return label
+})
 </script>
 
 <template>
@@ -123,7 +136,35 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
             <RouterLink :to="{ name: 'wardrobe' }" class="back-button" aria-label="Back to wardrobe">
                 <img :src="chevronLeftIcon" alt="" />
             </RouterLink>
-            <h1 class="title-m">{{ item?.name || 'Item' }}</h1>
+            <h1 class="title-m page-title">{{ item?.name || 'Item' }}</h1>
+
+            <!-- Pencil and "…" on the right, once the item has loaded -->
+            <template v-if="item">
+                <RouterLink :to="{ name: 'edit-item', params: { itemId: item.id } }" class="back-button"
+                    aria-label="Edit item">
+                    <img :src="editIcon" alt="" />
+                </RouterLink>
+
+                <!-- Same small menu as the profile menu in the navigation.
+                     .stop keeps the click from reaching the page, which would close the menu again -->
+                <div class="menu-wrapper" @click.stop @keydown.esc="closeMenu">
+                    <button type="button" class="back-button" aria-label="More actions" aria-haspopup="menu"
+                        :aria-expanded="openMenu === 'item'" @click="toggleMenu('item')">
+                        <img :src="moreIcon" alt="" />
+                    </button>
+
+                    <div v-if="openMenu === 'item'" class="menu" role="menu">
+                        <button v-if="!item.removedAs" type="button" role="menuitem"
+                            @click="closeMenu(); isRemoveOpen = true">
+                            Mark as sold or donated
+                        </button>
+                        <button type="button" role="menuitem" class="menu-danger"
+                            @click="closeMenu(); isDeleteOpen = true">
+                            Delete item
+                        </button>
+                    </div>
+                </div>
+            </template>
         </div>
 
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
@@ -171,14 +212,17 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
                 <div class="stack-small">
                     <h2 class="item-name">{{ item.name }}</h2>
                     <p class="caption">{{ metaText }}</p>
-                    <div v-if="item.tags?.length" class="chips">
+                    <div v-if="item.tags?.length || removedText" class="chips">
+                        <!-- Black chip on sold, donated or given away items -->
+                        <span v-if="removedText" class="chip chip-selected">{{ removedText }}</span>
                         <span v-for="tag in item.tags" :key="tag" class="chip">{{ tag }}</span>
                     </div>
                 </div>
 
                 <CpwCard :price="item.price" :times-worn="item.timesWorn" :currency="currency" :goal="goal" inverse />
 
-                <div class="stack-small">
+                <!-- Only items still in the wardrobe can be worn -->
+                <div v-if="!item.removedAs" class="stack-small">
                     <button type="button" class="btn btn-primary width-full log-button" :disabled="isSaving"
                         @click="logWear">
                         <img :src="shirtIcon" alt="" width="20" height="20" />
@@ -193,7 +237,7 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
                             <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
-                            }}</strong>
+                                }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -208,7 +252,7 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
                             <span v-if="item.lastWornAt" class="caption">Wear #{{ item.timesWorn }}</span>
                         </div>
                         <div class="stat-card">
-                            <span class="field-label">Worn per month</span>
+                            <span class="caption">Last 3 months</span>
                             <strong class="stat-value">{{ wornPerMonth }}</strong>
                             <span class="caption">Since you bought it</span>
                         </div>
@@ -219,7 +263,8 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
                     <h2 class="title-m">Manage</h2>
                     <ListRow :icon="editIcon" label="Edit item"
                         :to="{ name: 'edit-item', params: { itemId: item.id } }" />
-                    <ListRow :icon="tagIcon" label="Mark as sold or donated" @click="isRemoveOpen = true" />
+                    <ListRow v-if="!item.removedAs" :icon="tagIcon" label="Mark as sold or donated"
+                        @click="isRemoveOpen = true" />
                     <ListRow :icon="trashIcon" label="Delete item" @click="isDeleteOpen = true" />
                 </section>
 
@@ -285,6 +330,10 @@ const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : we
 .item-page {
     padding-top: 24px;
     padding-bottom: 80px;
+}
+
+.page-title {
+    flex: 1;
 }
 
 .item-photo {

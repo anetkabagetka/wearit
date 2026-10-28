@@ -131,12 +131,9 @@ export function useItemForm(itemId = null) {
         }
     };
 
-    // Deletes the item after asking, then opens the wardrobe (edit only)
+    // Deletes the item, then opens the wardrobe (edit only).
+    // The page asks first with the "Delete item?" pop-up
     const remove = async () => {
-        if (!confirm(`Delete ${item.value.name || "this item"}? This can't be undone.`)) {
-            return;
-        }
-
         isSaving.value = true;
         errorMessage.value = "";
 

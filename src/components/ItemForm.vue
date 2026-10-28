@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import FormField from '@/components/FormField.vue'
 import PhotoUpload from '@/components/PhotoUpload.vue'
 import CpwCard from '@/components/CpwCard.vue'
+import AppDialog from '@/components/AppDialog.vue'
 
 import { useItemForm } from '@/composables/useItemForm'
 import { isFormValid } from '@/utils/isFormValid'
@@ -38,6 +39,15 @@ const {
   save,
   remove,
 } = useItemForm(props.itemId)
+
+// true while the "Delete item?" pop-up is open
+const isDeleteOpen = ref(false)
+
+// Closes the pop-up first, so an error message on the page isn't hidden behind it
+const confirmDelete = () => {
+  isDeleteOpen.value = false
+  remove()
+}
 
 // "Add tag": the chip turns into a small text field while the user types a new tag
 const isAddingTag = ref(false)
@@ -75,17 +85,27 @@ const handleSave = (event) => {
       <h1 class="title-m">{{ isEditing ? 'Edit item' : 'Add item' }}</h1>
 
       <!-- Trash icon on the right, only when editing -->
-      <button
-        v-if="isEditing && !isLoading && !isNotFound"
-        type="button"
-        class="back-button delete-button"
-        aria-label="Delete item"
-        :disabled="isSaving"
-        @click="remove"
-      >
+      <button v-if="isEditing && !isLoading && !isNotFound" type="button" class="back-button delete-button"
+        aria-label="Delete item" :disabled="isSaving" @click="isDeleteOpen = true">
         <img :src="trashIcon" alt="" />
       </button>
     </div>
+
+    <!-- Same pop-up as on the item page -->
+    <AppDialog v-model="isDeleteOpen">
+      <div class="stack">
+        <h2 class="title-m">Delete {{ item.name || 'this item' }}?</h2>
+        <p class="caption">All logged wears and cost per wear history will be removed. This can't be undone.</p>
+        <div class="stack-small">
+          <button type="button" class="btn btn-primary" :disabled="isSaving" @click="confirmDelete">
+            Delete item
+          </button>
+          <button type="button" class="btn btn-secondary" autofocus @click="isDeleteOpen = false">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </AppDialog>
 
     <p v-if="isLoading">Loading...</p>
 
@@ -100,11 +120,8 @@ const handleSave = (event) => {
       <div class="item-form-column">
         <section class="stack">
           <h2 class="title-m">Photo</h2>
-          <PhotoUpload
-            v-model="photoFile"
-            :title="isEditing ? 'Change photo' : 'Upload photo'"
-            :subtitle="isEditing ? 'Original photo will be replaced' : 'Drag & drop or tap to upload'"
-          />
+          <PhotoUpload v-model="photoFile" :title="isEditing ? 'Change photo' : 'Upload photo'"
+            :subtitle="isEditing ? 'Original photo will be replaced' : 'Drag & drop or tap to upload'" />
         </section>
 
         <section class="stack">
@@ -161,15 +178,8 @@ const handleSave = (event) => {
             <FormField label="Purchase price">
               <span class="input-icon">
                 <span class="input-prefix">{{ getCurrencySymbol(currency) }}</span>
-                <input
-                  v-model.number="item.price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  required
-                  @wheel="$event.target.blur()"
-                />
+                <input v-model.number="item.price" type="number" min="0" step="0.01" placeholder="0.00" required
+                  @wheel="$event.target.blur()" />
               </span>
             </FormField>
 
@@ -186,26 +196,15 @@ const handleSave = (event) => {
             </FormField>
 
             <FormField label="Times worn so far">
-              <input
-                v-model.number="item.timesWorn"
-                type="number"
-                min="0"
-                step="1"
-                placeholder="0"
-                @wheel="$event.target.blur()"
-              />
+              <input v-model.number="item.timesWorn" type="number" min="0" step="1" placeholder="0"
+                @wheel="$event.target.blur()" />
             </FormField>
           </div>
         </section>
 
         <!-- "or 0" because an empty number field is string instead of a number -->
-        <CpwCard
-          :label="isEditing ? 'Current cost per wear' : 'Cost per wear'"
-          :price="item.price || 0"
-          :times-worn="item.timesWorn || 0"
-          :currency="currency"
-          :goal="goal"
-        />
+        <CpwCard :label="isEditing ? 'Current cost per wear' : 'Cost per wear'" :price="item.price || 0"
+          :times-worn="item.timesWorn || 0" :currency="currency" :goal="goal" />
 
         <section class="stack">
           <h2 class="title-m">Tags</h2>
@@ -217,27 +216,13 @@ const handleSave = (event) => {
                 {{ tag }}
               </label>
 
-              <button
-                v-if="!isAddingTag"
-                type="button"
-                class="chip add-tag"
-                @click="startAddingTag"
-              >
+              <button v-if="!isAddingTag" type="button" class="chip add-tag" @click="startAddingTag">
                 <img :src="plusIcon" alt="" width="16" height="16" />
                 Add tag
               </button>
               <!-- Enter or leaving the field adds the tag -->
-              <input
-                v-else
-                ref="tagInput"
-                v-model="newTag"
-                type="text"
-                class="tag-input"
-                placeholder="New tag"
-                aria-label="New tag"
-                @keydown.enter.prevent="confirmNewTag"
-                @blur="confirmNewTag"
-              />
+              <input v-else ref="tagInput" v-model="newTag" type="text" class="tag-input" placeholder="New tag"
+                aria-label="New tag" @keydown.enter.prevent="confirmNewTag" @blur="confirmNewTag" />
             </div>
           </FormField>
         </section>
