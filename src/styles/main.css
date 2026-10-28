@@ -406,6 +406,11 @@ input[readonly] {
     color: var(--gray);
 }
 
+.search input {
+    border: none;
+    background-color: var(--subtle-gray);
+}
+
 /* Small pop-up menus (admin "three dots", profile menu in the nav).
    The wrapper is position: relative, so the menu sits right under its button */
 .menu-wrapper {

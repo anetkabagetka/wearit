@@ -181,11 +181,6 @@ const initials = (name) => getInitials(name);
   font-size: 24px;
 }
 
-.search input {
-  border: none;
-  background-color: var(--subtle-gray);
-}
-
 .user-list {
   list-style: none;
 }

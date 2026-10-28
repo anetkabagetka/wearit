@@ -1,7 +1,8 @@
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { auth } from "@/firebase";
 import { getWardrobe, listItems, markItemWorn } from "@/services/wardrobes";
+import { costPerWear } from "@/utils/costPerWear";
 
 // State and actions for the wardrobe page: the items, the currency, and "Worn today"
 export function useWardrobe() {
@@ -9,6 +10,16 @@ export function useWardrobe() {
     const currency = ref("");
     const isLoading = ref(true);
     const errorMessage = ref("");
+    const search = ref("");
+
+    // Items that match the search bar, lowest cost per wear first
+    const visibleItems = computed(() => {
+        const text = search.value.toLowerCase();
+
+        return items.value
+            .filter((item) => `${item.name} ${item.brand ?? ""}`.toLowerCase().includes(text))
+            .sort((a, b) => costPerWear(a.price, a.timesWorn) - costPerWear(b.price, b.timesWorn));
+    });
 
     // Loads the wardrobe (for the currency) and all its items
     const load = async () => {
@@ -48,6 +59,8 @@ export function useWardrobe() {
         currency,
         isLoading,
         errorMessage,
+        search,
+        visibleItems,
         wearItem,
     }
 }
