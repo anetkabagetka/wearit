@@ -11,3 +11,5 @@ export const removeOptions = [
     { value: "donated", label: "Donated", description: "Gave it to a charity shop or clothes bank" },
     { value: "gave-away", label: "Gave away", description: "Passed on to a friend or family" },
 ];
+// The CPW slider in the Filters pop-up goes from 0 to this. At the very top it means "and more"
+export const cpwSliderMax = 50;

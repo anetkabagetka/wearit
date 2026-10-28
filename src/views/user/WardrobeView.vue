@@ -1,21 +1,59 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import Navigation from '@/components/Navigation.vue'
 import ItemCard from '@/components/ItemCard.vue'
 import ItemRow from '@/components/ItemRow.vue'
+import AppDialog from '@/components/AppDialog.vue'
 
 import { useWardrobe } from '@/composables/useWardrobe'
+import { formatMoney } from '@/utils/formatMoney'
+import { categoryOptions, colorOptions, cpwSliderMax, seasonOptions } from '@/utils/itemOptions'
 
 import plusIcon from '@/assets/icons/plus.svg'
 import searchIcon from '@/assets/icons/search.svg'
 import gridIcon from '@/assets/icons/grid.svg'
 import listIcon from '@/assets/icons/list.svg'
+import filterIcon from '@/assets/icons/filter.svg'
+import closeIcon from '@/assets/icons/close.svg'
 
-const { items, currency, isLoading, errorMessage, search, visibleItems } = useWardrobe()
+const { items, currency, isLoading, errorMessage, search, filters, brandOptions, resetFilters, visibleItems } =
+    useWardrobe()
 
 // "grid" or "list", changed by the view toggle
 const view = ref('grid')
+
+// true while the Filters pop-up is open
+const isFiltersOpen = ref(false)
+
+// The chip groups in the pop-up: their title, their choices, and which list in filters they fill.
+// Brand is left out while no item has a brand
+const filterGroups = computed(() =>
+    [
+        { title: 'Category', key: 'categories', options: categoryOptions },
+        { title: 'Brand', key: 'brands', options: brandOptions.value },
+        { title: 'Color', key: 'colors', options: colorOptions },
+        { title: 'Season', key: 'seasons', options: seasonOptions },
+    ].filter((group) => group.options.length > 0),
+)
+
+// true when the CPW slider isn't at "everything"
+const isCpwFiltered = computed(() => filters.value.minCpw > 0 || filters.value.maxCpw < cpwSliderMax)
+
+// How many filters are on, for the "Filters · 2" button: the CPW slider counts as one,
+// plus every group that has something picked
+const activeFilterCount = computed(() => {
+    const pickedGroups = filterGroups.value.filter((group) => filters.value[group.key].length > 0)
+    return (isCpwFiltered.value ? 1 : 0) + pickedGroups.length
+})
+
+// e.g. "Show items between €2 and €30 per wear". At the top of the slider it says "€50+"
+const cpwRangeText = computed(() => {
+    const { minCpw, maxCpw } = filters.value
+    const min = formatMoney(minCpw, currency.value, { wholeNumbers: true })
+    const max = formatMoney(maxCpw, currency.value, { wholeNumbers: true })
+    return `Show items between ${min} and ${maxCpw === cpwSliderMax ? `${max}+` : max} per wear`
+})
 </script>
 
 <template>
@@ -47,6 +85,13 @@ const view = ref('grid')
                     aria-label="Search your wardrobe" />
             </label>
 
+            <!-- Opens the Filters pop-up. Turns black and shows how many filters are on, e.g. "Filters · 2" -->
+            <button type="button" class="chip filter-button" :class="{ 'chip-selected': activeFilterCount > 0 }"
+                @click="isFiltersOpen = true">
+                Filters{{ activeFilterCount > 0 ? ` · ${activeFilterCount}` : '' }}
+                <img :src="filterIcon" alt="" width="16" height="16" />
+            </button>
+
             <div class="toolbar">
                 <p class="field-label">
                     {{ visibleItems.length }} {{ visibleItems.length === 1 ? 'item' : 'items' }} · sorted by CPW, lowest
@@ -77,6 +122,49 @@ const view = ref('grid')
                 </li>
             </ul>
         </template>
+
+        <!-- Changes show on the page right away, the button at the bottom just closes the pop-up -->
+        <AppDialog v-model="isFiltersOpen">
+            <div class="stack">
+                <div class="toolbar">
+                    <h2 class="title-m">Filters</h2>
+                    <button type="button" class="back-button" aria-label="Close" @click="isFiltersOpen = false">
+                        <img :src="closeIcon" alt="" />
+                    </button>
+                </div>
+
+                <fieldset class="filter-group">
+                    <legend>Cost per wear</legend>
+                    <label class="range-field">
+                        <span class="caption">From</span>
+                        <input v-model.number="filters.minCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
+                    </label>
+                    <label class="range-field">
+                        <span class="caption">To</span>
+                        <input v-model.number="filters.maxCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
+                    </label>
+                    <p class="caption">{{ cpwRangeText }}</p>
+                </fieldset>
+
+                <!-- Same chips as the tags in the item form: a hidden checkbox inside each label -->
+                <fieldset v-for="group in filterGroups" :key="group.key" class="filter-group">
+                    <legend>{{ group.title }}</legend>
+                    <div class="chips">
+                        <label v-for="option in group.options" :key="option" class="chip">
+                            <input v-model="filters[group.key]" type="checkbox" :value="option" />
+                            {{ option }}
+                        </label>
+                    </div>
+                </fieldset>
+
+                <div class="filter-buttons">
+                    <button type="button" class="btn btn-secondary" @click="resetFilters">Reset</button>
+                    <button type="button" class="btn btn-primary" @click="isFiltersOpen = false">
+                        Show {{ visibleItems.length }} {{ visibleItems.length === 1 ? 'item' : 'items' }}
+                    </button>
+                </div>
+            </div>
+        </AppDialog>
     </main>
 </template>
 
@@ -164,5 +252,48 @@ const view = ref('grid')
     .item-grid {
         grid-template-columns: repeat(5, minmax(0, 1fr));
     }
+}
+
+.filter-button {
+    align-self: flex-start;
+    gap: 4px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.filter-button.chip-selected img {
+    filter: invert(1);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--black);
+
+    legend {
+        margin-bottom: 8px;
+        font-family: var(--font-title);
+        font-size: 18px;
+    }
+}
+
+.range-field {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    align-items: center;
+    gap: 8px;
+
+    input {
+        padding: 0;
+        border: none;
+        accent-color: var(--black);
+    }
+}
+
+.filter-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 </style>

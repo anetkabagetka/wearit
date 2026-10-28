@@ -3,23 +3,65 @@ import { computed, onMounted, ref } from "vue";
 import { auth } from "@/firebase";
 import { getWardrobe, listItems, markItemWorn } from "@/services/wardrobes";
 import { costPerWear } from "@/utils/costPerWear";
+import { cpwSliderMax } from "@/utils/itemOptions";
+
+// What the Filters pop-up starts with. Empty lists mean "show everything"
+function emptyFilters() {
+    return {
+        minCpw: 0,
+        maxCpw: cpwSliderMax,
+        categories: [],
+        brands: [],
+        colors: [],
+        seasons: [],
+    };
+}
+
+// true when nothing is picked in a list (so everything counts), or when the value is picked
+function isPicked(list, value) {
+    return list.length === 0 || list.includes(value);
+}
 
 // State and actions for the wardrobe page: the items, the currency, and "Worn today"
 export function useWardrobe() {
     const items = ref([]);
-    const currency = ref("");
+    const currency = ref("EUR"); // Replaced by the wardrobe's currency once it has loaded
     const isLoading = ref(true);
     const errorMessage = ref("");
     const search = ref("");
+    const filters = ref(emptyFilters());
 
-    // Items that match the search bar, lowest cost per wear first
+    // Does an item fit everything picked in the Filters pop-up?
+    const matchesFilters = (item) => {
+        const { minCpw, maxCpw, categories, brands, colors, seasons } = filters.value;
+        const cpw = costPerWear(item.price, item.timesWorn);
+
+        return (
+            cpw >= minCpw &&
+            (maxCpw === cpwSliderMax || cpw <= maxCpw) && // At the top of the slider there's no upper limit
+            isPicked(categories, item.category) &&
+            isPicked(brands, item.brand) &&
+            isPicked(colors, item.color) &&
+            isPicked(seasons, item.season)
+        );
+    };
+
+    // Items that match the search bar and the filters, lowest cost per wear first
     const visibleItems = computed(() => {
         const text = search.value.toLowerCase();
 
         return items.value
-            .filter((item) => `${item.name} ${item.brand ?? ""}`.toLowerCase().includes(text))
+            .filter((item) => `${item.name} ${item.brand ?? ""}`.toLowerCase().includes(text) && matchesFilters(item))
             .sort((a, b) => costPerWear(a.price, a.timesWorn) - costPerWear(b.price, b.timesWorn));
     });
+
+    // Every brand in the wardrobe once, A to Z, for the Brand chips. new Set removes duplicates
+    const brandOptions = computed(() => [...new Set(items.value.map((item) => item.brand).filter(Boolean))].sort());
+
+    // "Reset" in the Filters pop-up
+    const resetFilters = () => {
+        filters.value = emptyFilters();
+    };
 
     // Loads the wardrobe (for the currency) and all its items
     const load = async () => {
@@ -61,6 +103,9 @@ export function useWardrobe() {
         isLoading,
         errorMessage,
         search,
+        filters,
+        brandOptions,
+        resetFilters,
         visibleItems,
         wearItem,
     }

@@ -237,7 +237,7 @@ const removedText = computed(() => {
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
                             <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
-                                }}</strong>
+                            }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -252,9 +252,9 @@ const removedText = computed(() => {
                             <span v-if="item.lastWornAt" class="caption">Wear #{{ item.timesWorn }}</span>
                         </div>
                         <div class="stat-card">
-                            <span class="caption">Last 3 months</span>
+                            <span class="field-label">Worn per month</span>
                             <strong class="stat-value">{{ wornPerMonth }}</strong>
-                            <span class="caption">Since you bought it</span>
+                            <span class="caption">Last 3 months</span>
                         </div>
                     </div>
                 </section>
