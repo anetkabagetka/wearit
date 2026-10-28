@@ -53,12 +53,8 @@ const handleSave = (event) => {
     <form @submit.prevent="handleSave" class="profile-form stack" novalidate>
       <div class="profile-photo">
         <!-- New photo first, then the saved photo, otherwise the initials -->
-        <img
-          v-if="previewUrl || profile?.photoUrl"
-          :src="previewUrl || profile?.photoUrl"
-          alt="Your profile photo"
-          class="profile-avatar"
-        />
+        <img v-if="previewUrl || profile?.photoUrl" :src="previewUrl || profile?.photoUrl" alt="Your profile photo"
+          class="profile-avatar" />
         <span v-else class="profile-avatar">{{ getInitials(username || email || '?') }}</span>
 
         <!-- The label works as the button: clicking it opens the hidden file picker -->
@@ -80,13 +76,7 @@ const handleSave = (event) => {
         <FormField label="Email">
           <span class="input-icon">
             <img :src="mailIcon" alt="" />
-            <input
-              v-model="email"
-              type="email"
-              autocomplete="email"
-              required
-              :readonly="isGoogleAccount"
-            />
+            <input v-model="email" type="email" autocomplete="email" required :readonly="isGoogleAccount" />
           </span>
         </FormField>
         <p class="caption">

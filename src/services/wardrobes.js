@@ -8,6 +8,7 @@ import {
     getDoc,
     deleteDoc,
     getDocs,
+    increment,
     serverTimestamp,
     updateDoc,
     writeBatch,
@@ -140,6 +141,15 @@ export function updateItem(userId, itemId, item) {
     return updateDoc(doc(db, "wardrobes", userId, "items", itemId), {
         ...toItemData(item),
         updatedAt: serverTimestamp(),
+    });
+}
+
+// Adds 1 to an items wear count and remebers that it was worn now
+// increment(1) lets Firestore add the 1 itself, so no wear gets lost
+export function markItemWorn(userId, itemId) {
+    return updateDoc(doc(db, "wardrobes", userId, "items", itemId), {
+        timesWorn: increment(1),
+        lastWornAt: serverTimestamp(),
     });
 }
 
