@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import Navigation from '@/components/Navigation.vue'
@@ -52,6 +52,26 @@ const wornPerMonth = computed(() => {
     const months = Math.max(days / 30, 1) // min 1 month, so a brand new item doesn't show huge numbers
     return (item.value.timesWorn / months).toFixed(1)
 })
+
+// Logged wears, newest first, e.g. { number: 30, date: "Wed, 23 Sept 2026", cpw: "€4.20" }.
+// The newest wear is wear number timesWorn, the one before it timesWorn - 1, and so on
+const wearHistory = computed(() => {
+    // [...list] makes a copy, so reverse() doesn't flip the item's own list
+    const newestFirst = [...(item.value.wornDates ?? [])].reverse()
+
+    return newestFirst.map((date, index) => {
+        const number = item.value.timesWorn - index
+        return {
+            number,
+            date: formatDate(date, { weekday: true }),
+            cpw: formatMoney(costPerWear(item.value.price, number), currency.value),
+        }
+    })
+})
+
+// The 5 newest wears, or all of them after clicking "See all"
+const showAllWears = ref(false)
+const visibleWears = computed(() => (showAllWears.value ? wearHistory.value : wearHistory.value.slice(0, 5)))
 </script>
 
 <template>
@@ -77,6 +97,26 @@ const wornPerMonth = computed(() => {
                 <img v-if="item.photoUrl" :src="item.photoUrl" :alt="item.name" class="item-photo" />
                 <!-- Gray box when the item has no photo -->
                 <div v-else class="item-photo"></div>
+                <section class="stack-small">
+                    <div class="section-header">
+                        <h2 class="title-m">Wear history</h2>
+                        <button v-if="wearHistory.length > 5 && !showAllWears" type="button" class="see-all"
+                            @click="showAllWears = true">
+                            See all {{ wearHistory.length }}
+                        </button>
+                    </div>
+
+                    <p v-if="wearHistory.length === 0" class="caption">
+                        No wears logged yet. Every time you click "Log a wear", the date shows up here.
+                    </p>
+
+                    <ul v-else class="wear-list">
+                        <li v-for="wear in visibleWears" :key="wear.number" class="wear-row">
+                            <span>{{ wear.date }}</span>
+                            <span class="wear-row-value">Wear #{{ wear.number }} · {{ wear.cpw }}</span>
+                        </li>
+                    </ul>
+                </section>
 
                 <section v-if="item.notes" class="stack-small">
                     <h2 class="title-m">Notes & condition</h2>
@@ -110,7 +150,8 @@ const wornPerMonth = computed(() => {
                     <div class="stats">
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
-                            <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true }) }}</strong>
+                            <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
+                                }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -181,5 +222,41 @@ const wornPerMonth = computed(() => {
 
 .log-hint {
     text-align: center;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* A button that looks like a small gray link */
+.see-all {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--gray);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.wear-list {
+    list-style: none;
+}
+
+/* Like ListRow: one row per wear with a gray line under it */
+.wear-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 15px;
+}
+
+.wear-row-value {
+    color: var(--gray);
 }
 </style>

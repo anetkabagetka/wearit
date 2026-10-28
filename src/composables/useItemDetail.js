@@ -46,6 +46,8 @@ export function useItemDetail(itemId) {
             await markItemWorn(auth.currentUser.uid, itemId);
             item.value.timesWorn = (item.value.timesWorn || 0) + 1;
             item.value.lastWornAt = new Date();
+            // Items saved before wear history existed have no wornDates, ?? [] starts an empty list
+            item.value.wornDates = [...(item.value.wornDates ?? []), new Date()];
         } catch {
             errorMessage.value = "Could not save the wear. Please try again.";
         } finally {

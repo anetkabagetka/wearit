@@ -2,6 +2,7 @@
 // the wardrobe, its items and profile changes
 import {
     addDoc,
+    arrayUnion,
     collection,
     collectionGroup,
     doc,
@@ -37,6 +38,7 @@ function toItemData(item) {
 function newItemFields() {
     return {
         lastWornAt: null,
+        wornDates: [], // Wear history: the date of every wear logged with "Log a wear"
         createdAt: serverTimestamp(),
     };
 }
@@ -144,12 +146,14 @@ export function updateItem(userId, itemId, item) {
     });
 }
 
-// Adds 1 to an items wear count and remebers that it was worn now
-// increment(1) lets Firestore add the 1 itself, so no wear gets lost
+// Adds 1 to an items wear count, remembers that it was worn now,
+// and adds the date to its wear history (wornDates).
+// increment(1) and arrayUnion let Firestore change the count and the list itself, so no wear gets lost
 export function markItemWorn(userId, itemId) {
     return updateDoc(doc(db, "wardrobes", userId, "items", itemId), {
         timesWorn: increment(1),
         lastWornAt: serverTimestamp(),
+        wornDates: arrayUnion(new Date()),
     });
 }
 

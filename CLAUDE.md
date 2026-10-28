@@ -36,7 +36,7 @@ Route `meta` drives access in `router.beforeEach`:
 ## Firestore data
 - `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`
 - `wardrobes/{uid}` – one wardrobe per user (ID = user ID): `ownerId`, `currency`, `goals`, `targetCostPerWear`, `createdAt`
-- `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `brand`, `color`, `season`, `price`, `purchaseDate`, `timesWorn`, `tags`, `notes`, `photoUrl`, `lastWornAt`, `createdAt` (saved through `toItemData` in `wardrobes.js`, so every item has the same shape)
+- `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `brand`, `color`, `season`, `price`, `purchaseDate`, `timesWorn`, `tags`, `notes`, `photoUrl`, `lastWornAt`, `wornDates` (dates of logged wears, added by `markItemWorn`), `createdAt` (saved through `toItemData` in `wardrobes.js`, so every item has the same shape)
 - Photos live in Cloudinary, Firestore only stores their `photoUrl`. Folders: `wearit/profile-pictures/{uid}` and `wearit/wardrobes/{uid}/items`
 - Security rules live in `firestore.rules`
 
