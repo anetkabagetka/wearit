@@ -6,22 +6,21 @@ import Navigation from '@/components/Navigation.vue'
 import CpwCard from '@/components/CpwCard.vue'
 import ListRow from '@/components/ListRow.vue'
 import AppDialog from '@/components/AppDialog.vue'
-import FormField from '@/components/FormField.vue'
+import RemoveItemDialog from '@/components/RemoveItemDialog.vue'
 
 import { useItemDetail } from '@/composables/useItemDetail'
 import { useDropdown } from '@/composables/useDropdown'
 import { costPerWear } from '@/utils/costPerWear'
 import { formatDate, toJsDate } from '@/utils/formatDate'
-import { formatMoney, getCurrencySymbol } from '@/utils/formatMoney'
-import { isFormValid } from '@/utils/isFormValid'
+import { formatMoney } from '@/utils/formatMoney'
 import { removeOptions } from '@/utils/itemOptions'
+import { wornToday } from '@/utils/wornToday'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import editIcon from '@/assets/icons/edit.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
 import trashIcon from '@/assets/icons/trash.svg'
 import tagIcon from '@/assets/icons/tag.svg'
-import closeIcon from '@/assets/icons/close.svg'
 import moreIcon from '@/assets/icons/more.svg'
 
 // The item's ID comes from the address, e.g. /item/abc123 → "abc123"
@@ -39,29 +38,23 @@ const confirmDelete = () => {
     remove()
 }
 
-// "Remove from wardrobe" pop-up: open or not, why the item left, and what it sold for
+// "Remove from wardrobe" pop-up (RemoveItemDialog). Confirm in it sends the reason and sale price here
 const isRemoveOpen = ref(false)
-const reason = ref('sold')
-const salePrice = ref(null)
 
-// e.g. "Final CPW after sale: €2.87 · (€126 − €40) ÷ 30 wears"
-const finalCpwText = computed(() => {
-    const price = item.value.price
-    const sale = salePrice.value || 0
-    const wears = Math.max(item.value.timesWorn, 1)
-    const finalCpw = formatMoney(costPerWear(price - sale, item.value.timesWorn), currency.value)
-    const priceText = formatMoney(price, currency.value, { wholeNumbers: true })
-    const saleText = formatMoney(sale, currency.value, { wholeNumbers: true })
-    return `Final CPW after sale: ${finalCpw} · (${priceText} − ${saleText}) ÷ ${wears} ${wears === 1 ? 'wear' : 'wears'}`
-})
+const handleRemove = (reason, salePrice) => {
+    isRemoveOpen.value = false
+    markRemoved(reason, salePrice)
+}
 
-const handleRemove = (event) => {
-    // Stop here if the sale price is empty or wrong, FormField shows what to fix
-    if (!isFormValid(event.target)) {
+// "Log a wear" works once a day. When today's wear is already logged, a pop-up says so instead
+const isWornTodayOpen = ref(false)
+
+const handleLogWear = () => {
+    if (wornToday(item.value)) {
+        isWornTodayOpen.value = true
         return
     }
-    isRemoveOpen.value = false
-    markRemoved(reason.value, salePrice.value)
+    logWear()
 }
 
 // e.g. "COS · Outerwear · Black · Autumn". filter(Boolean) skips the empty ones
@@ -224,7 +217,7 @@ const removedText = computed(() => {
                 <!-- Only items still in the wardrobe can be worn -->
                 <div v-if="!item.removedAs" class="stack-small">
                     <button type="button" class="btn btn-primary width-full log-button" :disabled="isSaving"
-                        @click="logWear">
+                        @click="handleLogWear">
                         <img :src="shirtIcon" alt="" width="20" height="20" />
                         Log a wear
                     </button>
@@ -237,7 +230,7 @@ const removedText = computed(() => {
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
                             <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
-                                }}</strong>
+                            }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -285,41 +278,18 @@ const removedText = computed(() => {
                     </div>
                 </AppDialog>
 
-                <AppDialog v-model="isRemoveOpen">
-                    <form class="stack" novalidate @submit.prevent="handleRemove">
-                        <div class="section-header">
-                            <h2 class="title-m">Remove from wardrobe</h2>
-                            <button type="button" class="back-button" aria-label="Close" @click="isRemoveOpen = false">
-                                <img :src="closeIcon" alt="" />
-                            </button>
-                        </div>
-                        <p class="notes">Removed items keep their history and final cost per wear.</p>
+                <RemoveItemDialog v-model="isRemoveOpen" :item="item" :currency="currency" :is-saving="isSaving"
+                    @confirm="handleRemove" />
 
-                        <!-- Same option rows as the currency picker: the whole row is the radio button -->
-                        <fieldset class="stack-small">
-                            <label v-for="option in removeOptions" :key="option.value" class="option-row">
-                                <span class="option-row-text">
-                                    <span class="option-row-label">{{ option.label }}</span>
-                                    <span class="option-row-description">{{ option.description }}</span>
-                                </span>
-                                <input v-model="reason" type="radio" name="reason" :value="option.value" />
-                            </label>
-                        </fieldset>
-
-                        <!-- The sale price only matters when it was sold -->
-                        <div v-if="reason === 'sold'" class="stack-small">
-                            <FormField label="Sale price">
-                                <span class="input-icon">
-                                    <span class="input-prefix">{{ getCurrencySymbol(currency) }}</span>
-                                    <input v-model.number="salePrice" type="number" min="0" step="0.01"
-                                        placeholder="0.00" required />
-                                </span>
-                            </FormField>
-                            <p class="caption">{{ finalCpwText }}</p>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" :disabled="isSaving">Confirm</button>
-                    </form>
+                <AppDialog v-model="isWornTodayOpen">
+                    <div class="stack">
+                        <h2 class="title-m">Already logged today</h2>
+                        <p class="notes">You already logged a wear of {{ item.name }} today. You can log the next one
+                            tomorrow.</p>
+                        <button type="button" class="btn btn-primary" autofocus @click="isWornTodayOpen = false">
+                            OK
+                        </button>
+                    </div>
                 </AppDialog>
             </div>
         </div>

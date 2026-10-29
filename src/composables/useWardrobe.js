@@ -1,7 +1,7 @@
 import { computed, onMounted, ref } from "vue";
 
 import { auth } from "@/firebase";
-import { getWardrobe, listItems, markItemWorn } from "@/services/wardrobes";
+import { getWardrobe, listItems, markItemRemoved, markItemWorn } from "@/services/wardrobes";
 import { costPerWear } from "@/utils/costPerWear";
 import { cpwSliderMax } from "@/utils/itemOptions";
 
@@ -102,6 +102,25 @@ export function useWardrobe() {
         }
     }
 
+    // Takes an item out of the wardrobe (sold, donated or given away), then out of the list on the page too.
+    // The sale price is only saved when it was sold. Returns true when it worked
+    const removeItem = async (item, reason, salePrice) => {
+        errorMessage.value = "";
+
+        try {
+            await markItemRemoved(auth.currentUser.uid, item.id, {
+                reason,
+                salePrice: reason === "sold" ? salePrice : null,
+            });
+            items.value = items.value.filter((saved) => saved.id !== item.id);
+            return true;
+        } catch {
+            errorMessage.value = "Could not save the change. Please try again.";
+            return false;
+        }
+    };
+
+
     onMounted(load);
 
     return {
@@ -116,5 +135,6 @@ export function useWardrobe() {
         resetFilters,
         visibleItems,
         wearItem,
+        removeItem,
     }
 }

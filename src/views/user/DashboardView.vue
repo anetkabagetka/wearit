@@ -6,6 +6,7 @@ import CpwCard from '@/components/CpwCard.vue'
 import ItemCard from '@/components/ItemCard.vue'
 import ItemRow from '@/components/ItemRow.vue'
 import AppDialog from '@/components/AppDialog.vue'
+import RemoveItemDialog from '@/components/RemoveItemDialog.vue'
 
 import { useAuth } from '@/composables/useAuth'
 import { useDashboard } from '@/composables/useDashboard'
@@ -14,6 +15,7 @@ import { toJsDate } from '@/utils/formatDate'
 import { formatMoney } from '@/utils/formatMoney'
 import { formatWears } from '@/utils/formatWears'
 import { categoryOptions } from '@/utils/itemOptions'
+import { wornToday } from '@/utils/wornToday'
 
 import shirtIcon from '@/assets/icons/shirt.svg'
 import plusIcon from '@/assets/icons/plus.svg'
@@ -43,6 +45,7 @@ const {
     recentlyAdded,
     mostWorn,
     leastWorn,
+    removeItem,
 } = useDashboard()
 
 // Username, or the part of the email before "@" if there is no username
@@ -75,6 +78,8 @@ const logSearch = ref('')
 const logCategory = ref('recent') // "recent" shows everything, or a category like "Tops"
 const loggedItem = ref(null)
 const cpwBefore = ref(0) // The logged item's cost per wear before this wear, for "was €4.20"
+// true when it was opened from "Wear them or sell them": then it only lists the 3 least worn items
+const onlyLeastWorn = ref(false)
 
 // The category chips in the pop-up: only categories that are in the wardrobe, in the usual order
 const logCategories = computed(() =>
@@ -84,6 +89,9 @@ const logCategories = computed(() =>
 // Items in the pop-up that match its search and chip, the most recently worn first.
 // Never worn items count as worn in 1970 (date 0), so they go last
 const logList = computed(() => {
+    if (onlyLeastWorn.value) {
+        return leastWorn.value
+    }
     const text = logSearch.value.toLowerCase()
     return items.value
         .filter((item) => item.name.toLowerCase().includes(text))
@@ -92,15 +100,27 @@ const logList = computed(() => {
 })
 
 // Opens the pop-up fresh: empty search, "Recent" chip, back to the list. "Log another wear" uses it too
-const openLogWear = () => {
+// leastOnly is true for the "Log a wear" button in "Wear them or sell them"
+const openLogWear = (leastOnly) => {
+    onlyLeastWorn.value = leastOnly
     logSearch.value = ''
     logCategory.value = 'recent'
     loggedItem.value = null
     isLogOpen.value = true
 }
 
-// Logs the wear, then shows "Wear logged" with the new cost per wear
+// A small pop-up on top of "Log a wear" when the item's wear is already logged today
+const wornTodayItem = ref(null)
+const isWornTodayOpen = ref(false)
+
+// Logs the wear, then shows "Wear logged" with the new cost per wear.
+// "Log a wear" works once a day per item, so a second one today only opens the "Already logged" pop-up
 const logWear = async (item) => {
+    if (wornToday(item)) {
+        wornTodayItem.value = item
+        isWornTodayOpen.value = true
+        return
+    }
     cpwBefore.value = costPerWear(item.price, item.timesWorn)
     if (await wearItem(item)) {
         loggedItem.value = item
@@ -113,6 +133,37 @@ const loggedFormula = computed(() => {
     const price = formatMoney(item.price, currency.value, { wholeNumbers: true })
     return `${price} ÷ ${formatWears(item.timesWorn)} · was ${formatMoney(cpwBefore.value, currency.value)}`
 })
+
+
+// "Sell or donate" in "Wear them or sell them": first pick one of the 3 least worn items,
+// then the same "Remove from wardrobe" pop-up as on the item page
+const isPickOpen = ref(false)
+const pickedId = ref('')
+const itemToRemove = ref(null) // The picked item, kept here while the second pop-up is open
+const isRemoveOpen = ref(false)
+const isRemoving = ref(false)
+
+// Opens the first pop-up, with the least worn item already selected
+const openSellOrDonate = () => {
+    pickedId.value = leastWorn.value[0].id
+    isPickOpen.value = true
+}
+
+// "Next": close the first pop-up and open "Remove from wardrobe" for the picked item
+const goToRemove = () => {
+    itemToRemove.value = leastWorn.value.find((item) => item.id === pickedId.value)
+    isPickOpen.value = false
+    isRemoveOpen.value = true
+}
+
+// "Confirm" in "Remove from wardrobe": the item leaves the wardrobe and the lists on this page
+const handleRemove = async (reason, salePrice) => {
+    isRemoving.value = true
+    if (await removeItem(itemToRemove.value, reason, salePrice)) {
+        isRemoveOpen.value = false
+    }
+    isRemoving.value = false
+}
 </script>
 
 <template>
@@ -146,7 +197,7 @@ const loggedFormula = computed(() => {
                     :goal="goal" :formula="averageFormula" inverse />
 
                 <div class="dashboard-buttons">
-                    <button type="button" class="btn btn-primary icon-button" @click="openLogWear">
+                    <button type="button" class="btn btn-primary icon-button" @click="openLogWear(false)">
                         <img :src="shirtIcon" alt="" width="20" height="20" class="white-icon" />
                         Log a wear
                     </button>
@@ -187,7 +238,8 @@ const loggedFormula = computed(() => {
                     </div>
                     <div class="stat-card">
                         <span class="field-label">Wardrobe value</span>
-                        <strong class="stat-value">{{ formatMoney(totalSpent, currency, { wholeNumbers: true }) }}</strong>
+                        <strong class="stat-value">{{ formatMoney(totalSpent, currency, { wholeNumbers: true })
+                        }}</strong>
                         <span class="caption">Total purchase price</span>
                     </div>
                     <div class="stat-card">
@@ -219,12 +271,12 @@ const loggedFormula = computed(() => {
                         Wear them or sell them!
                     </h2>
                     <p class="notes">These are worn the least, so every wear lowers their cost per wear the most.</p>
+                    <!-- Both buttons only offer the 3 least worn items listed above -->
                     <div class="tip-buttons">
-                        <button type="button" class="btn btn-primary" @click="openLogWear">Log a wear</button>
-                        <!-- "Mark as sold or donated" is on the item page, so this opens the least worn item -->
-                        <RouterLink :to="{ name: 'item', params: { itemId: leastWorn[0].id } }" class="btn btn-secondary">
+                        <button type="button" class="btn btn-primary" @click="openLogWear(true)">Log a wear</button>
+                        <button type="button" class="btn btn-secondary" @click="openSellOrDonate">
                             Sell or donate
-                        </RouterLink>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -259,20 +311,25 @@ const loggedFormula = computed(() => {
 
                     <div class="stack-small">
                         <button type="button" class="btn btn-primary" @click="isLogOpen = false">Done</button>
-                        <button type="button" class="btn btn-secondary" @click="openLogWear">Log another wear</button>
+                        <button type="button" class="btn btn-secondary" @click="openLogWear(onlyLeastWorn)">
+                            Log another wear
+                        </button>
                     </div>
                 </template>
 
                 <!-- Before logging: search and the list of items -->
                 <template v-else>
-                    <label class="input-icon search">
+                    <p v-if="onlyLeastWorn" class="notes">Your 3 least worn items. Every wear lowers their cost per
+                        wear the most.</p>
+
+                    <!-- Search and chips only for the whole wardrobe -->
+                    <label v-if="!onlyLeastWorn" class="input-icon search">
                         <img :src="searchIcon" alt="" width="20" height="20" />
                         <input v-model="logSearch" type="text" placeholder="Search item to log..."
                             aria-label="Search item to log" />
                     </label>
 
-                    <!-- Same chips as the role filter on the admin page: a hidden radio inside each label -->
-                    <div class="chips">
+                    <div v-if="!onlyLeastWorn" class="chips">
                         <label class="chip">
                             <input v-model="logCategory" type="radio" name="log-category" value="recent" />
                             Recent
@@ -302,6 +359,52 @@ const loggedFormula = computed(() => {
                 </template>
             </div>
         </AppDialog>
+
+
+        <!-- On top of "Log a wear": this item's wear is already logged today -->
+        <AppDialog v-model="isWornTodayOpen">
+            <div class="stack">
+                <h2 class="title-m">Already logged today</h2>
+                <p class="notes">You already logged a wear of {{ wornTodayItem?.name }} today. You can log the next
+                    one tomorrow.</p>
+                <button type="button" class="btn btn-primary" autofocus @click="isWornTodayOpen = false">OK</button>
+            </div>
+        </AppDialog>
+
+        <!-- Sell or donate, step 1: which of the 3 least worn items -->
+        <AppDialog v-model="isPickOpen">
+            <form class="stack" @submit.prevent="goToRemove">
+                <div class="section-header">
+                    <h2 class="title-m">Sell or donate</h2>
+                    <button type="button" class="back-button" aria-label="Close" @click="isPickOpen = false">
+                        <img :src="closeIcon" alt="" />
+                    </button>
+                </div>
+                <p class="notes">Which of your least worn items is leaving your wardrobe?</p>
+
+                <!-- Option rows like in "Remove from wardrobe", with the item's photo in front -->
+                <fieldset class="stack-small">
+                    <label v-for="item in leastWorn" :key="item.id" class="option-row">
+                        <img v-if="item.photoUrl" :src="item.photoUrl" alt="" class="log-row-photo" />
+                        <div v-else class="log-row-photo"></div>
+                        <span class="option-row-text">
+                            <span class="option-row-label">{{ item.name }}</span>
+                            <span class="option-row-description">
+                                {{ formatWears(item.timesWorn) }} ·
+                                {{ formatMoney(costPerWear(item.price, item.timesWorn), currency) }} per wear
+                            </span>
+                        </span>
+                        <input v-model="pickedId" type="radio" name="remove-item" :value="item.id" />
+                    </label>
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary">Next</button>
+            </form>
+        </AppDialog>
+
+        <!-- Sell or donate, step 2: the same pop-up as "Mark as sold or donated" on the item page -->
+        <RemoveItemDialog v-model="isRemoveOpen" :item="itemToRemove" :currency="currency" :is-saving="isRemoving"
+            @confirm="handleRemove" />
     </main>
 </template>
 
