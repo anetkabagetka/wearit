@@ -246,4 +246,24 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
   color: var(--black);
   text-decoration: none;
 }
+
+
+/* Phones: the three reviews don't fit side by side, so they become a row you swipe sideways.
+   overflow-x: auto makes the row scroll, scroll-snap stops each swipe at the start of a review */
+@media (max-width: 767px) {
+  .feature-list.reviews {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .feature-list.reviews .feature {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+  }
+
+  .feature-text.review {
+    min-width: 0;
+    width: 100%;
+  }
+}
 </style>
