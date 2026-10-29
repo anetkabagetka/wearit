@@ -221,7 +221,7 @@ const cpwRangeText = computed(() => {
     background-color: var(--black);
 
     img {
-        filter: invert(1);
+        filter: var(--icon-on-black-filter);
     }
 }
 
@@ -262,7 +262,7 @@ const cpwRangeText = computed(() => {
 }
 
 .filter-button.chip-selected img {
-    filter: invert(1);
+    filter: var(--icon-on-black-filter);
 }
 
 .filter-group {

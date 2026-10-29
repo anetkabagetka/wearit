@@ -356,9 +356,8 @@ const loggedFormula = computed(() => {
     gap: 8px;
 }
 
-/* A black icon on a black background turns white */
 .white-icon {
-    filter: invert(1);
+    filter: var(--icon-on-black-filter);
 }
 
 .section-header {

@@ -10,8 +10,39 @@
     --light-gray: #e4e4e4;
     --subtle-gray: #f4f4f4;
     --error: #c62828;
+    /* How the icons are drawn. They're black, and invert(1) turns them white:
+       --icon-filter is for every icon, --icon-on-black-filter for icons on a --black button or chip.
+       The dark theme swaps the two */
+    --icon-filter: none;
+    --icon-on-black-filter: invert(1);
 
     --content-width: 1200px;
+}
+
+
+/* The dark theme: the same colour names with dark values, so every page follows along.
+   Here --black is the text (white) and --white the background (black).
+   src/utils/theme.js puts data-theme="dark" on <html> when it's on */
+:root[data-theme="dark"] {
+    --black: #fff;
+    --white: #000;
+    --gray: #a3a3a3;
+    --light-gray: #333;
+    --subtle-gray: #1a1a1a;
+    --error: #ef5350;
+
+    --icon-filter: invert(1);
+    --icon-on-black-filter: none;
+
+    /* The browser's own parts (scrollbars, date pickers, the pop-up box) turn dark too */
+    color-scheme: dark;
+}
+
+/* The icons are black .svg files, photos never are. In the dark theme --icon-filter turns them white.
+   Vite turns small .svg files into text that starts with "data:image/svg", so that's here too */
+img[src$=".svg"],
+img[src^="data:image/svg"] {
+    filter: var(--icon-filter);
 }
 
 * {
@@ -22,6 +53,9 @@
 
 body {
     font-family: var(--font-text);
+    /* Set here so the dark theme can swap them */
+    background-color: var(--white);
+    color: var(--black);
 }
 
 .logo {
@@ -110,6 +144,8 @@ input, textarea, select {
     padding: 12px 16px;
     border-radius: 4px;
     border: 1px solid var(--light-gray);
+    /* The page's background, so fields look the same in both themes (dark ones would turn gray) */
+    background-color: var(--white);
 }
 
 input[type="number"] {

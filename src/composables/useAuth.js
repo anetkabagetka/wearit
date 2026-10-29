@@ -18,6 +18,7 @@ import {
 import { auth, googleProvider } from "@/firebase";
 import { getOrCreateUserProfile } from "@/services/users";
 import { getAuthErrorMessage } from "@/utils/authErrorMessage";
+import { applyTheme } from "@/utils/theme";
 // Reactive references for authentication state
 const currentUser = ref(null);
 const profile = ref(null);
@@ -31,6 +32,8 @@ let pendingUsername = null;
 export async function refreshProfile() {
   const user = auth.currentUser;
   profile.value = user ? await getOrCreateUserProfile(user, pendingUsername) : null;
+    // Use the theme saved on the profile (light when logged out or nothing is saved yet)
+  applyTheme(profile.value?.theme);
   // The profile exists now, so the signup username is no longer needed
   if (profile.value) {
     pendingUsername = null;

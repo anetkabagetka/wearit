@@ -34,8 +34,7 @@ Route `meta` drives access in `router.beforeEach`:
 - Users with `onboardingCompleted !== true` are always sent to `/onboarding`
 
 ## Firestore data
-- `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`
-- `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`, `notifications` (choices from the Notifications page), `pushIds` (browsers that allowed push), `lastReminderAt` (set by the Cloud Functions)
+- `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`, `notifications` (choices from the Notifications page), `pushIds` (browsers that allowed push), `lastReminderAt` (set by the Cloud Functions), `theme` (`"light"`, `"dark"` or `"system"`, from the Theme page)
 - `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `brand`, `color`, `season`, `price`, `purchaseDate`, `timesWorn`, `tags`, `notes`, `photoUrl`, `lastWornAt`, `wornDates` (dates of logged wears, added by `markItemWorn`), `removedAs`, `salePrice`, `removedAt` (only on sold, donated or given away items, added by `markItemRemoved`), `createdAt` (saved through `toItemData` in `wardrobes.js`, so every item has the same shape)
 - Photos live in Cloudinary, Firestore only stores their `photoUrl`. Folders: `wearit/profile-pictures/{uid}` and `wearit/wardrobes/{uid}/items`
 - Security rules live in `firestore.rules`, deployed with `firebase deploy --only firestore:rules`
@@ -44,6 +43,7 @@ Route `meta` drives access in `router.beforeEach`:
 ## Notes
 - Comments in this codebase are short, plain-English explanations for beginners; keep that style.
 - Use `writeBatch` when several documents must be saved together.
+- Light and dark theme: use the colour variables from `main.css` (`--black` for text, `--white` for backgrounds, the grays) instead of fixed colours, so both themes work. A black icon on a `--black` button gets `filter: var(--icon-on-black-filter)`. The dark values are in `:root[data-theme="dark"]`, switched by `utils/theme.js`.
 
 ## Forms
 - Wrap every field in `FormField` (`label` prop, the input goes in the slot). It shows a red `*` when the input has `required`, otherwise "(optional)", plus the error message under the field.

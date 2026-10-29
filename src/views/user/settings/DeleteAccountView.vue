@@ -156,8 +156,7 @@ const handleDelete = (event) => {
   gap: 8px;
 }
 
-/* The icon is black, so we flip it to white on the black button */
 .delete-button img {
-  filter: invert(1);
+  filter: var(--icon-on-black-filter);
 }
 </style>

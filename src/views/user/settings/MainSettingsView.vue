@@ -47,7 +47,9 @@ const notificationsText = computed(() => {
   const anyOn = !saved || saved.unusedItems || saved.weeklySummary || saved.goalMilestones || saved.productNews
   return anyOn ? 'On' : 'Off'
 })
-const themeText = computed(() => (profile.value?.theme === 'dark' ? 'Dark' : 'Light'))
+// The names from the Theme page, e.g. "Match system"
+const themeNames = { light: 'Light', dark: 'Dark', system: 'Match system' }
+const themeText = computed(() => themeNames[profile.value?.theme] ?? 'Light')
 </script>
 
 <template>

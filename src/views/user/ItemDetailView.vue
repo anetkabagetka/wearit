@@ -237,7 +237,7 @@ const removedText = computed(() => {
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
                             <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
-                            }}</strong>
+                                }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -363,7 +363,7 @@ const removedText = computed(() => {
     gap: 8px;
 
     img {
-        filter: invert(1);
+        filter: var(--icon-on-black-filter);
     }
 }
 
