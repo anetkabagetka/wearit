@@ -1,9 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import Navigation from '@/components/Navigation.vue'
 import ItemCard from '@/components/ItemCard.vue'
 import ItemRow from '@/components/ItemRow.vue'
+import OutfitCard from '@/components/OutfitCard.vue'
 import AppDialog from '@/components/AppDialog.vue'
 
 import { useWardrobe } from '@/composables/useWardrobe'
@@ -17,8 +19,12 @@ import listIcon from '@/assets/icons/list.svg'
 import filterIcon from '@/assets/icons/filter.svg'
 import closeIcon from '@/assets/icons/close.svg'
 
-const { items, currency, isLoading, errorMessage, search, filters, brandOptions, resetFilters, visibleItems } =
+const { items, outfits, currency, isLoading, errorMessage, search, filters, brandOptions, resetFilters, visibleItems, visibleOutfits } =
     useWardrobe()
+
+// "items" or "outfits". It's in the address (/wardrobe?tab=outfits), so Back and saving an outfit open the right tab
+const route = useRoute()
+const tab = computed(() => (route.query.tab === 'outfits' ? 'outfits' : 'items'))
 
 // "grid" or "list", changed by the view toggle
 const view = ref('grid')
@@ -61,15 +67,61 @@ const cpwRangeText = computed(() => {
     <main class="container wardrobe-page stack">
         <div class="top-bar">
             <h1 class="wardrobe-title">Wardrobe</h1>
-            <RouterLink :to="{ name: 'add-item' }" class="icon-link" aria-label="Add item">
+            <!-- + adds an item, or on the Outfits tab creates an outfit -->
+            <RouterLink :to="{ name: tab === 'outfits' ? 'create-outfit' : 'add-item' }" class="icon-link"
+                :aria-label="tab === 'outfits' ? 'Create outfit' : 'Add item'">
                 <img :src="plusIcon" alt="" width="24" height="24" />
             </RouterLink>
         </div>
+
+        <!-- Items | Outfits, like the Figma: the open tab has a border -->
+        <nav class="wardrobe-tabs" aria-label="Wardrobe">
+            <RouterLink :to="{ name: 'wardrobe' }" class="btn tab-button"
+                :class="tab === 'items' ? 'btn-secondary' : 'btn-ghost'"
+                :aria-current="tab === 'items' ? 'page' : 'false'">
+                Items
+            </RouterLink>
+            <RouterLink :to="{ name: 'wardrobe', query: { tab: 'outfits' } }" class="btn tab-button"
+                :class="tab === 'outfits' ? 'btn-secondary' : 'btn-ghost'"
+                :aria-current="tab === 'outfits' ? 'page' : 'false'">
+                Outfits
+            </RouterLink>
+        </nav>
 
         <!-- Shown above, everything, so the items stay visible if only one "wear" fails -->
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
         <p v-if="isLoading">Loading your wardrobe...</p>
+
+        <!-- The Outfits tab -->
+        <template v-else-if="tab === 'outfits'">
+            <div v-if="outfits.length === 0 && !errorMessage" class="stack-small">
+                <p>No outfits yet.</p>
+                <p class="caption">Put 2 or more items together to see what the whole outfit costs to wear.</p>
+                <RouterLink :to="{ name: 'create-outfit' }" class="btn btn-primary create-first">
+                    Create outfit
+                </RouterLink>
+            </div>
+
+            <template v-else>
+                <label class="input-icon search">
+                    <img :src="searchIcon" alt="" width="20" height="20" />
+                    <input v-model="search" type="text" placeholder="Search your outfits"
+                        aria-label="Search your outfits" />
+                </label>
+
+                <p class="field-label">
+                    {{ visibleOutfits.length }} {{ visibleOutfits.length === 1 ? 'outfit' : 'outfits' }} · sorted by
+                    CPW, lowest first
+                </p>
+
+                <ul class="outfit-grid">
+                    <li v-for="outfit in visibleOutfits" :key="outfit.id">
+                        <OutfitCard :outfit="outfit" :currency="currency" />
+                    </li>
+                </ul>
+            </template>
+        </template>
 
         <!-- Nothing saved yet (and no error, because then we dont know if there are any items) -->
         <div v-else-if="items.length === 0 && !errorMessage" class="stack-small">
@@ -228,6 +280,41 @@ const cpwRangeText = computed(() => {
 .view-toggle label:has(input:focus-visible) {
     outline: 2px solid var(--black);
     outline-offset: 2px;
+}
+
+.wardrobe-tabs {
+    display: flex;
+    gap: 4px;
+}
+
+/* Smaller than a normal button, like the Figma's small buttons */
+.tab-button {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.create-first {
+    align-self: flex-start;
+}
+
+/* Like the item grid, but 4 per row on desktop, so the photos in each outfit stay big enough */
+.outfit-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .outfit-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .outfit-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 .item-list {

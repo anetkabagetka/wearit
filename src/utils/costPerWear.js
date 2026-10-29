@@ -11,3 +11,9 @@ export function averageCostPerWear(items) {
   const totalWears = items.reduce((total, item) => total + (item.timesWorn || 0), 0);
   return costPerWear(totalSpent, totalWears);
 }
+
+// What wearing an outfit costs: the cost per wear of each of its items added up,
+// e.g. €4.20 + €1.22 + €1.61 + €7.27 = €14.30. It drops every time one of them is worn
+export function outfitCostPerWear(items) {
+  return items.reduce((total, item) => total + costPerWear(item.price, item.timesWorn), 0);
+}

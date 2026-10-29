@@ -20,7 +20,7 @@ Follow the coding conventions in @AGENTS.md.
 - `src/views/` – pages, grouped by area: `auth/`, `user/`, `admin/` (landing and onboarding at the root)
 - `src/components/` – shared UI (e.g. `Navigation.vue`)
 - `src/composables/` – reactive state and UI actions (`useAuth`, `useOnboarding`, `useAddItem`, `useAdminUsers`)
-- `src/services/` – external API calls only: Firestore (`users.js`, `wardrobes.js`) and Cloudinary (`cloudinary.js`)
+- `src/services/` – external API calls only: Firestore (`users.js`, `wardrobes.js`, `outfits.js`) and Cloudinary (`cloudinary.js`)
 - `src/utils/` – pure helpers (`costPerWear.js`, `formatMoney.js`, `itemOptions.js` for category/color/season/tag choices)
 - `src/router/index.js` – routes and the global guard
 - `src/firebase.js` – Firebase init; config comes from `VITE_FIREBASE_*` env vars in `.env`
@@ -36,6 +36,7 @@ Route `meta` drives access in `router.beforeEach`:
 ## Firestore data
 - `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`, `notifications` (choices from the Notifications page), `pushIds` (browsers that allowed push), `lastReminderAt` (set by the Cloud Functions), `theme` (`"light"`, `"dark"` or `"system"`, from the Theme page)
 - `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `brand`, `color`, `season`, `price`, `purchaseDate`, `timesWorn`, `tags`, `notes`, `photoUrl`, `lastWornAt`, `wornDates` (dates of logged wears, added by `markItemWorn`), `removedAs`, `salePrice`, `removedAt` (only on sold, donated or given away items, added by `markItemRemoved`), `createdAt` (saved through `toItemData` in `wardrobes.js`, so every item has the same shape)
+- `wardrobes/{uid}/outfits/{outfitId}` – `name`, `itemIds` (its items, in the order they were picked), `tags`, `timesWorn`, `lastWornAt`, `wornDates`, `createdAt` (saved by `addOutfit` in `outfits.js`). An outfit's cost per wear is its items' costs per wear added up (`outfitCostPerWear`); sold, donated or deleted items drop out of it
 - Photos live in Cloudinary, Firestore only stores their `photoUrl`. Folders: `wearit/profile-pictures/{uid}` and `wearit/wardrobes/{uid}/items`
 - Security rules live in `firestore.rules`, deployed with `firebase deploy --only firestore:rules`
 - Cloud Functions (push notifications) live in `functions/`, deployed with `firebase deploy --only functions`

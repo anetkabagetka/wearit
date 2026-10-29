@@ -83,7 +83,7 @@ export function updateUserRole(userId, role) {
   });
 }
 
-// Deletes everything a user has in Firestore: their items, their wardrobe and their profile.
+// Deletes everything a user has in Firestore: their items, their wardrobe, outfits and their profile.
 // writeBatch means either everything is deleted or nothing is.
 // Their login (Firebase Authentication) and Cloudinary photos are NOT deleted here
 export async function deleteUserData(userId) {
@@ -94,6 +94,12 @@ export async function deleteUserData(userId) {
   const itemsSnapshot = await getDocs(collection(wardrobeRef, "items"));
   for (const itemDocument of itemsSnapshot.docs) {
     batch.delete(itemDocument.ref);
+  }
+
+  // The same for the outfits
+  const outfitsSnapshot = await getDocs(collection(wardrobeRef, "outfits"));
+  for (const outfitDocument of outfitsSnapshot.docs) {
+    batch.delete(outfitDocument.ref);
   }
 
   batch.delete(wardrobeRef);
