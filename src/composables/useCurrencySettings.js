@@ -32,20 +32,23 @@ export function useCurrencySettings() {
         }
     };
 
-    // Converts every price and the goal to the new currency and saves it all together
-    const save = async () => {
-        const from = savedCurrency.value;
-        const to = currency.value;
+    // The "Convert all your prices?" pop-up on the page (AppDialog)
+    const isConfirmOpen = ref(false);
 
-        // Nothing changed, so there's nothing to convert
-        if (from === to) {
+    // Save: when nothing changed there's nothing to convert, so just go back. Otherwise ask first
+    const save = async () => {
+        if (currency.value === savedCurrency.value) {
             await router.push({ name: "settings" });
             return;
         }
+        isConfirmOpen.value = true;
+    };
 
-        if (!confirm(`Convert all your prices from ${from} to ${to}?`)) {
-            return;
-        }
+    // "Convert prices" in the pop-up: converts every price and the goal to the new currency
+    // and saves it all together
+    const convertAndSave = async () => {
+        const from = savedCurrency.value;
+        const to = currency.value;
 
         isSaving.value = true;
         errorMessage.value = "";
@@ -65,6 +68,8 @@ export function useCurrencySettings() {
 
             await router.push({ name: "settings" });
         } catch {
+            // Close the pop-up, so the message on the page shows
+            isConfirmOpen.value = false;
             errorMessage.value = "Could not change your currency. Nothing was changed, please try again.";
         } finally {
             isSaving.value = false;
@@ -79,5 +84,8 @@ export function useCurrencySettings() {
         isSaving,
         errorMessage,
         save,
+        savedCurrency,
+        isConfirmOpen,
+        convertAndSave,
     };
 }

@@ -1,5 +1,8 @@
 <script setup>
+import { computed, ref } from "vue";
+
 import Navigation from "@/components/Navigation.vue";
+import AppDialog from "@/components/AppDialog.vue";
 import { useAdminUsers } from "@/composables/useAdminUsers";
 import { useAuth } from "@/composables/useAuth";
 import { useDropdown } from "@/composables/useDropdown";
@@ -25,12 +28,45 @@ const { currentUser } = useAuth();
 // Which user's "more" menu is open. Clicking anywhere else closes it
 const { openMenu, toggleMenu, closeMenu } = useDropdown();
 
-// Runs a menu option, then closes the menu
-const chooseOption = (action, user) => {
+// The menu options don't change anything straight away: each opens a pop-up that asks first,
+// like "Delete item" on the item page. These remember which user each pop-up is about
+const userToChange = ref(null);
+const isRoleOpen = ref(false);
+const userToDelete = ref(null);
+const isDeleteOpen = ref(false);
+const isSaving = ref(false);
+
+// "Make admin" or "Make user" in the menu
+const askRole = (user) => {
   closeMenu();
-  action(user);
+  userToChange.value = user;
+  isRoleOpen.value = true;
 };
 
+// "Delete user" in the menu
+const askDelete = (user) => {
+  closeMenu();
+  userToDelete.value = user;
+  isDeleteOpen.value = true;
+};
+
+// The role the user gets: an admin becomes a normal user, a normal user an admin
+const newRole = computed(() => (userToChange.value?.role === "admin" ? "user" : "admin"));
+
+// The buttons in the pop-ups: do it, then close the pop-up. If it fails, the error shows on the page
+const confirmRole = async () => {
+  isSaving.value = true;
+  await toggleRole(userToChange.value);
+  isSaving.value = false;
+  isRoleOpen.value = false;
+};
+
+const confirmDelete = async () => {
+  isSaving.value = true;
+  await deleteUser(userToDelete.value);
+  isSaving.value = false;
+  isDeleteOpen.value = false;
+};
 
 // First letter of the name capitalized
 const initials = (name) => getInitials(name);
@@ -103,16 +139,16 @@ const initials = (name) => getInitials(name);
                  .stop keeps the click from reaching the page, which would close the menu again -->
             <div class="menu-wrapper" @click.stop @keydown.esc="closeMenu">
               <button type="button" class="more-button" :aria-label="`Options for ${user.username || user.email}`"
-                aria-haspopup="menu" :aria-expanded="openMenu === user.id"
-                :disabled="user.id === currentUser?.uid" @click="toggleMenu(user.id)">
+                aria-haspopup="menu" :aria-expanded="openMenu === user.id" :disabled="user.id === currentUser?.uid"
+                @click="toggleMenu(user.id)">
                 <img :src="moreIcon" alt="" width="20" height="20" />
               </button>
 
               <div v-if="openMenu === user.id" class="menu" role="menu">
-                <button type="button" role="menuitem" @click="chooseOption(toggleRole, user)">
+                <button type="button" role="menuitem" @click="askRole(user)">
                   {{ user.role === "admin" ? "Make user" : "Make admin" }}
                 </button>
-                <button type="button" role="menuitem" class="menu-danger" @click="chooseOption(deleteUser, user)">
+                <button type="button" role="menuitem" class="menu-danger" @click="askDelete(user)">
                   Delete user
                 </button>
               </div>
@@ -121,6 +157,45 @@ const initials = (name) => getInitials(name);
         </ul>
       </section>
     </template>
+
+    <!-- No v-if on the pop-ups' content: Cancel has to be on the page when a pop-up opens, or autofocus
+         can't pick it. ?. shows nothing instead of an error while no user is picked yet -->
+    <AppDialog v-model="isRoleOpen">
+      <div class="stack">
+        <h2 class="title-m">
+          Make {{ userToChange?.username || userToChange?.email }} {{ newRole === "admin" ? "an admin" : "a normal user"
+          }}?
+        </h2>
+        <p v-if="newRole === 'admin'">Admins can open this page: they see every user, and can change roles and delete
+          users.
+        </p>
+        <p v-else>They won't be able to open the admin page anymore.</p>
+        <div class="stack-small">
+          <button type="button" class="btn btn-primary" :disabled="isSaving" @click="confirmRole">
+            {{ newRole === "admin" ? "Make admin" : "Make user" }}
+          </button>
+          <!-- autofocus: Cancel is selected when the pop-up opens, so pressing Enter can't change anything by accident -->
+          <button type="button" class="btn btn-secondary" autofocus @click="isRoleOpen = false">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </AppDialog>
+
+    <AppDialog v-model="isDeleteOpen">
+      <div class="stack">
+        <h2 class="title-m">Delete {{ userToDelete?.username || userToDelete?.email }}?</h2>
+        <p>Their profile, wardrobe and all their items will be deleted. This can't be undone.</p>
+        <div class="stack-small">
+          <button type="button" class="btn btn-primary" :disabled="isSaving" @click="confirmDelete">
+            Delete user
+          </button>
+          <button type="button" class="btn btn-secondary" autofocus @click="isDeleteOpen = false">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </AppDialog>
   </main>
 </template>
 

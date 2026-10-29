@@ -1,13 +1,15 @@
 <script setup>
 import Navigation from '@/components/Navigation.vue'
 import CurrencyPicker from '@/components/CurrencyPicker.vue'
+import AppDialog from '@/components/AppDialog.vue'
 
 import { useCurrencySettings } from '@/composables/useCurrencySettings'
 import { RATES_DATE } from '@/utils/currencyOptions'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 
-const { currency, isLoading, isSaving, errorMessage, save } = useCurrencySettings()
+const { currency, isLoading, isSaving, errorMessage, save, savedCurrency, isConfirmOpen, convertAndSave } =
+    useCurrencySettings()
 </script>
 
 <template>
@@ -39,6 +41,26 @@ const { currency, isLoading, isSaving, errorMessage, save } = useCurrencySetting
 
             <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
         </form>
+
+        <!-- Asks before converting, like "Delete item" on the item page -->
+        <AppDialog v-model="isConfirmOpen">
+            <div class="stack">
+                <h2 class="title-m">Convert all your prices?</h2>
+                <p>
+                    Every price and your cost-per-wear goal change from {{ savedCurrency }} to {{ currency }}, at the
+                    saved rates from {{ RATES_DATE }}.
+                </p>
+                <div class="stack-small">
+                    <button type="button" class="btn btn-primary" :disabled="isSaving" @click="convertAndSave">
+                        {{ isSaving ? 'Converting...' : 'Convert prices' }}
+                    </button>
+                    <!-- autofocus: Cancel is selected when the pop-up opens, so pressing Enter can't convert by accident -->
+                    <button type="button" class="btn btn-secondary" autofocus @click="isConfirmOpen = false">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </AppDialog>
     </main>
 </template>
 

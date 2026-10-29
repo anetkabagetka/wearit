@@ -34,7 +34,7 @@ export function useAdminUsers() {
         .filter((item) => item.lastWornAt?.toMillis() > weekAgo)
         .map((item) => item.ownerId),
     );
-    return{
+    return {
       users: users.value.length,
       newThisWeek: users.value.filter(
         (user) => user.createdAt?.toMillis() > weekAgo,
@@ -43,8 +43,8 @@ export function useAdminUsers() {
       activePercent: users.value.length
         ? Math.round((activeUsers.size / users.value.length) * 100)
         : 0,
-        items: items.value.length,
-        wears: items.value.reduce((total, item) => total + (item.timesWorn || 0), 0),
+      items: items.value.length,
+      wears: items.value.reduce((total, item) => total + (item.timesWorn || 0), 0),
     };
   });
 
@@ -63,13 +63,10 @@ export function useAdminUsers() {
   const countItems = (userId) =>
     items.value.filter((item) => item.ownerId === userId).length;
 
-  // Change a users role to admin or user
+  // Change a users role to admin or user.
+  // The admin page asks first, in its "Make … an admin?" pop-up
   const toggleRole = async (user) => {
     const newRole = user.role === "admin" ? "user" : "admin";
-
-    if (!confirm(`Change ${user.username}'s role to ${newRole}?`)) {
-      return;
-    }
 
     try {
       await updateUserRole(user.id, newRole);
@@ -79,13 +76,10 @@ export function useAdminUsers() {
     }
   }
 
-  // Delete a user's profile, wardrobe and items from Firestore
+  // Delete a user's profile, wardrobe and items from Firestore.
+  // The admin page asks first, in its "Delete user?" pop-up
   const deleteUser = async (user) => {
     const name = user.username || user.email || "this user";
-
-    if (!confirm(`Delete ${name} and all their items? This can't be undone.`)) {
-      return;
-    }
 
     errorMessage.value = "";
 
