@@ -8,8 +8,9 @@ import shirtIcon from '@/assets/icons/shirt.svg'
 import chartIcon from '@/assets/icons/chart.svg'
 import starIcon from '@/assets/icons/star.svg'
 import mailIcon from '@/assets/icons/mail.svg'
+import checkIcon from '@/assets/icons/check.svg'
 
-const { notifications, errorMessage, save } = useNotificationSettings()
+const { notifications, errorMessage, save, pushStatus, allowPush } = useNotificationSettings()
 
 // The four switches: which choice they change, their text and their icon
 const switches = [
@@ -36,6 +37,23 @@ const dayOptions = [14, 30, 60, 90]
     <div class="notifications-content stack">
       <p class="intro">Gentle nudges that help you wear more of what you own.</p>
 
+      <!-- Push notifications only arrive after this browser allows them -->
+      <div v-if="pushStatus !== 'checking'" class="push-box">
+        <p v-if="pushStatus === 'granted'" class="push-on">
+          <img :src="checkIcon" alt="" width="20" height="20" />
+          Notifications are on for this device
+        </p>
+        <p v-else-if="pushStatus === 'denied'" class="caption">
+          Notifications are blocked for this site. Allow them in your browser's site settings, then reload the page.
+        </p>
+        <p v-else-if="pushStatus === 'unsupported'" class="caption">
+          This browser can't show notifications. On an iPhone, add wearit to your Home Screen first.
+        </p>
+        <button v-else type="button" class="btn btn-primary" @click="allowPush">
+          Allow notifications on this device
+        </button>
+      </div>
+
       <!-- Every change is saved right away, so there's no Save button -->
       <div>
         <label v-for="item in switches" :key="item.key" class="switch-row">
@@ -49,8 +67,7 @@ const dayOptions = [14, 30, 60, 90]
         <label class="stack-small">
           <span class="field-label">Remind me after</span>
           <!-- Only matters while "Remind me to wear unused items" is on -->
-          <select v-model.number="notifications.remindAfterDays" :disabled="!notifications.unusedItems"
-            @change="save">
+          <select v-model.number="notifications.remindAfterDays" :disabled="!notifications.unusedItems" @change="save">
             <option v-for="days in dayOptions" :key="days" :value="days">{{ days }} days unworn</option>
           </select>
         </label>
@@ -135,5 +152,18 @@ const dayOptions = [14, 30, 60, 90]
 
 select:disabled {
   color: var(--gray);
+}
+
+/* The gray box with the "Allow notifications" button or the status */
+.push-box {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--subtle-gray);
+}
+
+.push-on {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

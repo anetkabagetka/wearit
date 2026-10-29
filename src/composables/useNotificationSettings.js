@@ -1,8 +1,9 @@
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import { auth } from "@/firebase";
 import { useAuth } from "@/composables/useAuth";
 import { updateUserProfile } from "@/services/users";
+import { isPushSupported, registerForPush } from "@/services/messaging";
 
 // What everyone starts with until they change something (the same as in Figma)
 const defaultNotifications = {
@@ -35,9 +36,44 @@ export function useNotificationSettings() {
         }
     };
 
+    // Push notifications in this browser: "checking" while the page opens, then
+    // "unsupported", "default" (not asked yet), "granted" (allowed) or "denied" (blocked)
+    const pushStatus = ref("checking");
+
+    // Asks the browser for permission and registers it for push.
+    // Browsers only allow asking after a click, so the page calls this from a button
+    const allowPush = async () => {
+        errorMessage.value = "";
+
+        try {
+            pushStatus.value = await Notification.requestPermission();
+            if (pushStatus.value === "granted") {
+                await registerForPush(auth.currentUser.uid);
+            }
+        } catch {
+            errorMessage.value = "Could not turn on notifications on this device. Please try again.";
+        }
+    };
+
+    // When the page opens: can this browser do push, and was it allowed before?
+    onMounted(async () => {
+        if (!(await isPushSupported())) {
+            pushStatus.value = "unsupported";
+            return;
+        }
+        pushStatus.value = Notification.permission;
+
+        // Allowed before: register again, so Firebase keeps this browser's ID fresh
+        if (pushStatus.value === "granted") {
+            await allowPush();
+        }
+    });
+
     return {
         notifications,
         errorMessage,
         save,
+        pushStatus,
+        allowPush,
     };
 }

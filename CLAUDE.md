@@ -35,10 +35,11 @@ Route `meta` drives access in `router.beforeEach`:
 
 ## Firestore data
 - `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`
-- `wardrobes/{uid}` – one wardrobe per user (ID = user ID): `ownerId`, `currency`, `goals`, `targetCostPerWear`, `createdAt`
+- `users/{uid}` – profile: `username`, `role`, `wardrobeId`, `onboardingCompleted`, `notifications` (choices from the Notifications page), `pushIds` (browsers that allowed push), `lastReminderAt` (set by the Cloud Functions)
 - `wardrobes/{uid}/items/{itemId}` – `name`, `category`, `brand`, `color`, `season`, `price`, `purchaseDate`, `timesWorn`, `tags`, `notes`, `photoUrl`, `lastWornAt`, `wornDates` (dates of logged wears, added by `markItemWorn`), `removedAs`, `salePrice`, `removedAt` (only on sold, donated or given away items, added by `markItemRemoved`), `createdAt` (saved through `toItemData` in `wardrobes.js`, so every item has the same shape)
 - Photos live in Cloudinary, Firestore only stores their `photoUrl`. Folders: `wearit/profile-pictures/{uid}` and `wearit/wardrobes/{uid}/items`
-- Security rules live in `firestore.rules`
+- Security rules live in `firestore.rules`, deployed with `firebase deploy --only firestore:rules`
+- Cloud Functions (push notifications) live in `functions/`, deployed with `firebase deploy --only functions`
 
 ## Notes
 - Comments in this codebase are short, plain-English explanations for beginners; keep that style.

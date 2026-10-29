@@ -42,3 +42,5 @@ __screenshots__/
 .env
 node_modules
 .claude
+functions/node_modules
+functions/package-lock.json
