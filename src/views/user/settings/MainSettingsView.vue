@@ -41,7 +41,12 @@ const currencyText = computed(() => `${currency.value} ${getCurrencySymbol(curre
 
 // The Notifications and Theme pages save these on the user profile.
 // Until a choice is saved, notifications are on and the theme is light
-const notificationsText = computed(() => (profile.value?.notifications === false ? 'Off' : 'On'))
+const notificationsText = computed(() => {
+  const saved = profile.value?.notifications
+  // "Off" only when every notification switch is turned off
+  const anyOn = !saved || saved.unusedItems || saved.weeklySummary || saved.goalMilestones || saved.productNews
+  return anyOn ? 'On' : 'Off'
+})
 const themeText = computed(() => (profile.value?.theme === 'dark' ? 'Dark' : 'Light'))
 </script>
 
