@@ -1,19 +1,55 @@
 rules_version = '2';
 
+// Who may read and change what in Firestore.
+// Everything that isn't allowed here is refused - each user only sees their own data
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2028, 11, 4);
+    // Logged in, and the ID in the path is their own user ID
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Logged in, and their own profile says role "admin"
+    function isAdmin() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // Profiles: users/{userId}
+    match /users/{userId} {
+      // Your own profile, or any profile if you're an admin (the admin page lists all users)
+      allow read: if isOwner(userId) || isAdmin();
+
+      // A new profile always starts as a normal user, so nobody can sign up as an admin
+      allow create: if isOwner(userId) && request.resource.data.role == "user";
+
+      // You can change your own profile, but not your own role.
+      // Admins can change any profile (the admin page makes users admin or not)
+      allow update: if (isOwner(userId)
+          && request.resource.data.get("role", null) == resource.data.get("role", null))
+        || isAdmin();
+
+      // Delete account deletes your own profile, the admin page can delete any
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Wardrobes: wardrobes/{userId} and their items
+    match /wardrobes/{userId} {
+      // Everything in your own wardrobe
+      allow read, write: if isOwner(userId);
+      // Admins can read and delete wardrobes (when the admin page deletes a user)
+      allow read, delete: if isAdmin();
+
+      match /items/{itemId} {
+        allow read, write: if isOwner(userId);
+        allow read, delete: if isAdmin();
+      }
+    }
+
+    // The admin page's "items tracked" number reads every items collection at once
+    match /{path=**}/items/{itemId} {
+      allow read: if isAdmin();
     }
   }
 }
