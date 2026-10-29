@@ -8,6 +8,9 @@ import sunIcon from '@/assets/icons/sun.svg'
 import moonIcon from '@/assets/icons/moon.svg'
 import settingsIcon from '@/assets/icons/settings.svg'
 
+import lightPreview from '@/assets/theme-light.webp'
+import darkPreview from '@/assets/theme-dark.webp'
+
 const { theme, isSaving, errorMessage, save } = useThemeSettings()
 
 // The three choices: what gets saved, their text and their icon
@@ -45,11 +48,11 @@ const themeOptions = [
         <h2 class="title-m">Preview</h2>
         <div class="previews">
           <div class="preview stack-small">
-            <div class="preview-box preview-light"></div>
+            <img :src="lightPreview" alt="The Home page in the light theme" class="preview-box" />
             <span class="caption">Light</span>
           </div>
           <div class="preview stack-small">
-            <div class="preview-box preview-dark"></div>
+            <img :src="darkPreview" alt="The Home page in the dark theme" class="preview-box" />
             <span class="caption">Dark</span>
           </div>
         </div>
@@ -86,20 +89,15 @@ const themeOptions = [
   align-items: center;
 }
 
-/* Fixed colours on purpose: each box shows its own theme, whichever theme is on.
-   The border keeps the black box visible on the dark page */
+/* A picture of the Home page in each theme. On a phone the boxes get narrower:
+   object-fit: cover then cuts off the right side instead of squashing the picture.
+   The border keeps the dark picture visible on the dark page */
 .preview-box {
   width: 100%;
   height: 200px;
+  object-fit: cover;
+  object-position: top left;
   border: 1px solid var(--light-gray);
   border-radius: 4px;
-}
-
-.preview-light {
-  background-color: #e4e4e4;
-}
-
-.preview-dark {
-  background-color: #000;
 }
 </style>
