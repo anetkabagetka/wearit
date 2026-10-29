@@ -14,6 +14,7 @@ import trashIcon from '@/assets/icons/trash.svg'
 import moneyIcon from '@/assets/icons/money.svg'
 import bellIcon from '@/assets/icons/bell.svg'
 import sunIcon from '@/assets/icons/sun.svg'
+import usersIcon from '@/assets/icons/users.svg'
 import logOutIcon from '@/assets/icons/log-out.svg'
 
 const {
@@ -90,13 +91,14 @@ const themeText = computed(() => themeNames[profile.value?.theme] ?? 'Light')
         <section class="settings-group">
           <h2 class="settings-group-label">Preferences</h2>
           <ListRow :icon="moneyIcon" label="Currency" :value="currencyText" :to="{ name: 'settings-currency' }" />
-          <ListRow
-            :icon="bellIcon"
-            label="Notifications"
-            :value="notificationsText"
-            :to="{ name: 'settings-notifications' }"
-          />
+          <ListRow :icon="bellIcon" label="Notifications" :value="notificationsText"
+            :to="{ name: 'settings-notifications' }" />
           <ListRow :icon="sunIcon" label="Theme" :value="themeText" :to="{ name: 'settings-theme' }" />
+        </section>
+        <!-- Admins only. On wide screens Admin is in the header -->
+        <section v-if="profile?.role === 'admin'" class="settings-group admin-group">
+          <h2 class="settings-group-label">Admin</h2>
+          <ListRow :icon="usersIcon" label="Admin panel" value="Admins only" :to="{ name: 'admin' }" />
         </section>
 
         <ListRow :icon="logOutIcon" label="Log out" @click="handleLogout" />
@@ -205,5 +207,12 @@ const themeText = computed(() => themeNames[profile.value?.theme] ?? 'Light')
 
 .app-version {
   text-align: center;
+}
+
+/* The Admin group only shows below 1024px wide, where there's no header with an Admin link */
+@media (min-width: 1024px) {
+  .admin-group {
+    display: none;
+  }
 }
 </style>
