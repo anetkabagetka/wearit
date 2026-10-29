@@ -45,6 +45,12 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
         allow read, delete: if isAdmin();
       }
+
+      // Outfits: the same as items
+      match /outfits/{outfitId} {
+        allow read, write: if isOwner(userId);
+        allow read, delete: if isAdmin();
+      }
     }
 
     // The admin page's "items tracked" number reads every items collection at once
