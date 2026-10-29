@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation.vue"
 import Footer from "@/components/Footer.vue"
 import CpwCard from "@/components/CpwCard.vue"
 
-import aboutBanner from "@/assets/about_hero.jpg"
+import aboutBanner from "@/assets/about_banner.webp"
 
 import plusIcon from "@/assets/icons/plus.svg"
 import shirtIcon from "@/assets/icons/shirt.svg"
@@ -118,7 +118,7 @@ import moneyIcon from "@/assets/icons/money.svg"
 <style scoped>
 .about-banner {
     width: 100%;
-    height: 330px;
+    height: 400px;
     display: block;
     object-fit: cover;
 }

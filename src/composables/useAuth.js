@@ -195,6 +195,7 @@ export function useAuth() {
 
     try {
       await signOut(auth);
+      window.location.href = "/login";
     } catch (error) {
       errorMessage.value =
         error instanceof Error ? error.message : "Logout failed.";
