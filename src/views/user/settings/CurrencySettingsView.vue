@@ -31,7 +31,7 @@ const { currency, isLoading, isSaving, errorMessage, save, savedCurrency, isConf
             <CurrencyPicker v-model="currency" short-description />
 
             <p class="caption">
-                Examples show your wool blazer's cost per wear. Existing prices convert at the saved rates from
+                Examples show your wool blazer's cost per wear. Existing prices convert at the exchange rates from
                 {{ RATES_DATE }}.
             </p>
 

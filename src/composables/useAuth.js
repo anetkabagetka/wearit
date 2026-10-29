@@ -224,6 +224,5 @@ export function useAuth() {
     changePassword,
     confirmIdentity,
     deleteLoginAccount,
-    logout,
   };
 }
