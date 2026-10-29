@@ -514,3 +514,10 @@ input[readonly] {
     color: var(--error);
 }
 
+/* Phones and tablets: logged-in pages have the tab bar at the bottom of the screen (Navigation.vue).
+   body:has(.tab-bar) means "the page has a tab bar". The space keeps the end of the page from hiding behind it */
+@media (max-width: 1023px) {
+    body:has(.tab-bar) {
+        padding-bottom: 64px;
+    }
+}

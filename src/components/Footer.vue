@@ -10,7 +10,7 @@ import logo from '@/assets/wearitlogo.svg'
             </div>
             <div class="footer-links">
                 <RouterLink to="/about-us">About us</RouterLink>
-                <RouterLink to="/support-contact">Support / Contact</RouterLink>
+                <RouterLink to="/support-contact">Contact / Support</RouterLink>
                 <RouterLink to="/login">Log in</RouterLink>
                 <RouterLink to="/signup">Create account</RouterLink>
             </div>

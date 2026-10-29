@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useDropdown } from '@/composables/useDropdown'
 import { getInitials } from '@/utils/getInitials'
@@ -11,7 +11,10 @@ import homeIcon from '@/assets/icons/home.svg'
 import hangerIcon from '@/assets/icons/hanger.svg'
 import chartIcon from '@/assets/icons/chart.svg'
 import settingsIcon from '@/assets/icons/settings.svg'
+import plusIcon from '@/assets/icons/plus.svg'
+import menuIcon from '@/assets/icons/menu.svg'
 
+const route = useRoute();
 const router = useRouter();
 const {
   isSignedIn,
@@ -24,7 +27,7 @@ const {
 const displayName = computed(
   () => profile.value?.username || userEmail.value.split("@")[0],
 );
-// The menu that opens when you click your avatar
+// The menus that open when you click your avatar (wide screens) or ☰ (phones)
 const { openMenu, toggleMenu, closeMenu } = useDropdown();
 
 // Logs out, then goes to the landing page without reloading the app
@@ -33,9 +36,14 @@ const handleLogout = async () => {
   await logout();
   router.push({ name: "landing" });
 };
+
+// true when the page you're on belongs to this tab, so the tab is black instead of gray.
+// startsWith also counts the pages under it: /settings/theme belongs to Settings, /item/... to Wardrobe
+const isActive = (...paths) => paths.some((path) => route.path.startsWith(path));
 </script>
 <template>
-  <header>
+  <!-- Wide screens: the header at the top, logged in or not -->
+  <header class="desktop-header">
     <div class="container header-inner">
       <nav>
         <template v-if="isSignedIn">
@@ -63,7 +71,7 @@ const handleLogout = async () => {
             <img :src="logo" alt="WearIt logo" />
           </RouterLink>
           <RouterLink to="/about-us">About us</RouterLink>
-          <RouterLink to="/support-contact">Support / Contact</RouterLink>
+          <RouterLink to="/support-contact">Contact / Support</RouterLink>
         </template>
       </nav>
       <div class="auth-links">
@@ -87,11 +95,59 @@ const handleLogout = async () => {
         </template>
         <template v-else>
           <RouterLink to="/login" class="btn btn-secondary">Log in</RouterLink>
-          <RouterLink to="/signup" class="btn btn-primary">Sign up, it's free</RouterLink>
+          <RouterLink to="/signup" class="btn btn-primary">Get started, it's free</RouterLink>
         </template>
       </div>
     </div>
   </header>
+
+  <!-- Phones and tablets, logged out: the logo, Log in, and ☰ with the other links from the header above -->
+  <header v-if="!isSignedIn" class="mobile-header">
+    <RouterLink to="/" class="logo">
+      <img :src="logo" alt="WearIt logo" />
+    </RouterLink>
+
+    <div class="mobile-actions">
+      <RouterLink to="/login" class="btn btn-secondary">Log in</RouterLink>
+
+      <div class="menu-wrapper" @click.stop @keydown.esc="closeMenu">
+        <button type="button" class="menu-button" aria-label="Menu" aria-haspopup="menu"
+          :aria-expanded="openMenu === 'site'" @click="toggleMenu('site')">
+          <img :src="menuIcon" alt="" width="24" height="24" />
+        </button>
+
+        <div v-if="openMenu === 'site'" class="menu" role="menu">
+          <RouterLink to="/about-us" role="menuitem" @click="closeMenu">About us</RouterLink>
+          <RouterLink to="/support-contact" role="menuitem" @click="closeMenu">Contact / Support</RouterLink>
+          <RouterLink to="/signup" role="menuitem" @click="closeMenu">Get started, it's free</RouterLink>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Phones and tablets, logged in: the tab bar at the bottom of the screen.
+       Log out, and Admin for admins, are on the Settings page -->
+  <nav v-if="isSignedIn" class="tab-bar" aria-label="Main menu">
+    <RouterLink to="/dashboard" class="tab" :class="{ 'tab-active': isActive('/dashboard') }">
+      <img :src="homeIcon" alt="" width="24" height="24" />
+      Home
+    </RouterLink>
+    <RouterLink to="/wardrobe" class="tab" :class="{ 'tab-active': isActive('/wardrobe', '/item', '/edit-item') }">
+      <img :src="hangerIcon" alt="" width="24" height="24" />
+      Wardrobe
+    </RouterLink>
+    <RouterLink :to="{ name: 'add-item' }" class="tab-add" aria-label="Add item">
+      <img :src="plusIcon" alt="" width="24" height="24" />
+    </RouterLink>
+    <RouterLink to="/insights" class="tab" :class="{ 'tab-active': isActive('/insights') }">
+      <img :src="chartIcon" alt="" width="24" height="24" />
+      Insights
+    </RouterLink>
+    <RouterLink to="/settings" class="tab" :class="{ 'tab-active': isActive('/settings') }">
+      <img :src="settingsIcon" alt="" width="24" height="24" />
+      Settings
+    </RouterLink>
+  </nav>
 </template>
 
 <style scoped>
@@ -131,10 +187,6 @@ nav {
   gap: 32px;
 }
 
-/* The button itself is the 32px gray circle from Figma.
-   flex-shrink: 0 stops a full nav from squeezing it into an oval,
-   overflow: hidden cuts the photo to the circle,
-   appearance: none removes the browser's own button look (e.g. in Safari) */
 .avatar-button {
   display: flex;
   align-items: center;
@@ -158,7 +210,6 @@ nav {
   outline-offset: 2px;
 }
 
-/* The photo or the initials fill the whole circle */
 .avatar {
   display: flex;
   align-items: center;
@@ -171,5 +222,113 @@ nav {
   font-weight: 500;
   line-height: 1;
   object-fit: cover;
+}
+
+.mobile-header,
+.tab-bar {
+  display: none;
+}
+
+.mobile-header {
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 0 4px 0 16px;
+}
+
+.mobile-header .logo {
+  display: flex;
+}
+
+.mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-actions .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.mobile-header .menu a {
+  white-space: nowrap;
+}
+
+.menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Phones, logged in: the tab bar stays at the bottom of the screen while the page scrolls.
+   z-index puts it above the page */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  align-items: center;
+  gap: 0;
+  padding: 4px 8px 8px;
+  border-top: 1px solid var(--light-gray);
+  background-color: var(--white);
+}
+
+.tab-bar .tab {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  height: 52px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray);
+}
+
+.tab img {
+  opacity: 0.6;
+}
+
+.tab-bar .tab-active {
+  color: var(--black);
+}
+
+.tab-active img {
+  opacity: 1;
+}
+
+/* The black circle with + in the middle */
+.tab-bar .tab-add {
+  flex-shrink: 0;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--black);
+}
+
+.tab-add img {
+  filter: var(--icon-on-black-filter);
+}
+
+/* Below 1024px wide (phones and tablets) the header at the top doesn't fit anymore,
+   so it's swapped for the phone parts */
+@media (max-width: 1023px) {
+  .desktop-header {
+    display: none;
+  }
+
+  .mobile-header,
+  .tab-bar {
+    display: flex;
+  }
 }
 </style>
