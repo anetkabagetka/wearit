@@ -2,14 +2,24 @@
 import Navigation from '@/components/Navigation.vue'
 import Footer from '@/components/Footer.vue'
 import CpwCard from '@/components/CpwCard.vue'
+import HeroSlideshow from '@/components/HeroSlideshow.vue'
 
-import heroImage from '@/assets/about_hero.jpg'
+import hero1 from '@/assets/hero-1.webp'
+import hero2 from '@/assets/hero-2.webp'
+import hero3 from '@/assets/hero-3.webp'
+import hero4 from '@/assets/hero-4.webp'
+import hero5 from '@/assets/hero-5.webp'
+import hero6 from '@/assets/hero-6.webp'
+import hero7 from '@/assets/hero-7.webp'
 
 import moneyIcon from '@/assets/icons/money.svg'
 import chartIcon from '@/assets/icons/chart.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
 import leafIcon from '@/assets/icons/leaf.svg'
 import starIcon from '@/assets/icons/star.svg'
+
+// The photos on the right of the top section, in the order they're shown
+const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
 </script>
 
 <template>
@@ -33,7 +43,7 @@ import starIcon from '@/assets/icons/star.svg'
             formula="€126 blazer ÷ 30 wears = €4.20" />
         </div>
 
-        <img :src="heroImage" alt="Clothes hanging on a rail" class="split-media">
+        <HeroSlideshow :images="heroImages" alt="Black and white photo of someone in clothes they love" />
       </div>
     </section>
 
