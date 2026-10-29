@@ -17,6 +17,22 @@ const email = ref('')
 const topic = ref('')
 const message = ref('')
 
+// The questions in the FAQ, each with its answer
+const faq = [
+    {
+        title: 'How is cost per wear calculated?',
+        answer: 'The price divided by how many times you wore it. A €126 blazer worn 30 times costs €126 ÷ 30 = €4.20 per wear, and every wear you log makes it lower. When you sell something, the sale price comes off first: (€126 − €40) ÷ 30 = €2.87.',
+    },
+    {
+        title: 'Is my data private?',
+        answer: 'Yes. Your wardrobe is saved in your own account, and the database refuses everyone else. The only exception is the wearit admins, who can see accounts and wardrobes to look after the app.',
+    },
+    {
+        title: 'How do I delete my account?',
+        answer: 'Go to Settings → Delete account and confirm with your password (or in a Google window if you log in with Google). Your profile, your wardrobe and all your items are deleted. This can\'t be undone.',
+    },
+]
+
 const handleSend = (event) => {
     // Stop here if a field is empty or wrong, FormField shows what to fix
     if (!isFormValid(event.target)) {
@@ -64,7 +80,8 @@ const handleSend = (event) => {
                             </FormField>
 
                             <FormField label="Message">
-                                <textarea v-model="message" placeholder="Tell us what's going on..." required></textarea>
+                                <textarea v-model="message" placeholder="Tell us what's going on..."
+                                    required></textarea>
                             </FormField>
 
                             <button type="submit" class="btn btn-primary">Send message</button>
@@ -73,15 +90,13 @@ const handleSend = (event) => {
 
                     <div class="feature-list">
                         <h1>FAQ</h1>
-                        <h4 class="feature-title">
-                            How is cost per wear calculated? <img :src="chevronRightIcon" alt="Chevron Right Icon">
-                        </h4>
-                        <h4 class="feature-title">
-                            Is my data private? <img :src="chevronRightIcon" alt="Chevron Right Icon">
-                        </h4>
-                        <h4 class="feature-title">
-                            How do I delete my account? <img :src="chevronRightIcon" alt="Chevron Right Icon">
-                        </h4>
+                        <!-- <details> is built into the browser: clicking its <summary> opens and closes it -->
+                        <details v-for="question in faq" :key="question.title" class="faq">
+                            <summary class="feature-title">
+                                {{ question.title }} <img :src="chevronRightIcon" alt="" class="faq-chevron">
+                            </summary>
+                            <p class="faq-answer">{{ question.answer }}</p>
+                        </details>
                         <p class="stuck-text">Still stuck? Email us at
                             <a href="mailto:support@wardrobe.app">support@wardrobe.app</a>
                         </p>
@@ -96,6 +111,27 @@ const handleSend = (event) => {
 <style scoped>
 .feature-title {
     justify-content: space-between;
+}
+
+/* The question is the button that opens the answer */
+.faq summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+/* Hides the browser's own small triangle in Safari (list-style: none does it everywhere else) */
+.faq summary::-webkit-details-marker {
+    display: none;
+}
+
+/* The arrow turns down while the answer is open */
+.faq[open] .faq-chevron {
+    transform: rotate(90deg);
+}
+
+.faq-answer {
+    padding-top: 12px;
+    line-height: 1.5;
 }
 
 .stuck-text {
