@@ -64,7 +64,9 @@ const themeText = computed(() => themeNames[profile.value?.theme] ?? 'Light')
     <div class="settings-columns">
       <!-- Left column: profile card -->
       <section class="profile-card" aria-label="Your profile">
-        <span class="profile-avatar">{{ getInitials(displayName) }}</span>
+        <!-- The profile photo, or the initials when there's none (like the avatar in the header) -->
+        <img v-if="profile?.photoUrl" :src="profile.photoUrl" alt="" class="profile-avatar" />
+        <span v-else class="profile-avatar">{{ getInitials(displayName) }}</span>
 
         <div class="profile-details">
           <div class="profile-text">
@@ -152,6 +154,7 @@ const themeText = computed(() => themeNames[profile.value?.theme] ?? 'Light')
   background-color: var(--light-gray);
   font-family: var(--font-title);
   font-size: 24px;
+  object-fit: cover;
 }
 
 .profile-details {

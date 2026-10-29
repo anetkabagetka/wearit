@@ -10,17 +10,18 @@ import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import cameraIcon from '@/assets/icons/camera.svg'
 import userIcon from '@/assets/icons/user.svg'
 import mailIcon from '@/assets/icons/mail.svg'
+import trashIcon from '@/assets/icons/trash.svg'
 
 const {
-  profile,
   username,
   email,
-  previewUrl,
+  shownPhoto,
   isGoogleAccount,
   isSaving,
   errorMessage,
   successMessage,
   choosePhoto,
+  removePhoto,
   save,
 } = useEditProfile()
 
@@ -53,16 +54,23 @@ const handleSave = (event) => {
     <form @submit.prevent="handleSave" class="profile-form stack" novalidate>
       <div class="profile-photo">
         <!-- New photo first, then the saved photo, otherwise the initials -->
-        <img v-if="previewUrl || profile?.photoUrl" :src="previewUrl || profile?.photoUrl" alt="Your profile photo"
-          class="profile-avatar" />
+        <img v-if="shownPhoto" :src="shownPhoto" alt="Your profile photo" class="profile-avatar" />
         <span v-else class="profile-avatar">{{ getInitials(username || email || '?') }}</span>
 
-        <!-- The label works as the button: clicking it opens the hidden file picker -->
-        <label class="btn btn-ghost change-photo">
-          <img :src="cameraIcon" alt="" width="16" height="16" />
-          Change photo
-          <input type="file" accept="image/*" class="visually-hidden" @change="handlePhotoChange" />
-        </label>
+        <div class="photo-buttons">
+          <!-- The label works as the button: clicking it opens the hidden file picker -->
+          <label class="btn btn-ghost change-photo">
+            <img :src="cameraIcon" alt="" width="16" height="16" />
+            Change photo
+            <input type="file" accept="image/*" class="visually-hidden" @change="handlePhotoChange" />
+          </label>
+
+          <!-- Only when there's a photo to remove. It's saved with the Save button, like a new photo -->
+          <button v-if="shownPhoto" type="button" class="btn btn-ghost change-photo" @click="removePhoto">
+            <img :src="trashIcon" alt="" width="16" height="16" />
+            Remove photo
+          </button>
+        </div>
       </div>
 
       <FormField label="Username">
@@ -123,6 +131,14 @@ const handleSave = (event) => {
   font-family: var(--font-title);
   font-size: 24px;
   object-fit: cover;
+}
+
+/* Change photo and Remove photo side by side, wrapping onto two lines on a narrow phone */
+.photo-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 
 .change-photo {

@@ -1,4 +1,4 @@
-import { onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 
 import { auth } from "@/firebase";
 import { refreshProfile, useAuth } from "@/composables/useAuth";
@@ -17,6 +17,7 @@ export function useEditProfile() {
     const email = ref(userEmail.value);
     const photoFile = ref(null); // A new profile photo the user picked, or null
     const previewUrl = ref(""); // Temporary address to show the new photo before saving
+    const isPhotoRemoved = ref(false); // true after "Remove photo", until Save
     const isSaving = ref(false);
     const errorMessage = ref("");
     const successMessage = ref("");
@@ -41,6 +42,16 @@ export function useEditProfile() {
         }
     });
 
+    // The photo at the top of the page: the new one, else the saved one (unless "Remove photo" was clicked).
+    // Empty means the initials show instead
+    const shownPhoto = computed(() => previewUrl.value || (isPhotoRemoved.value ? "" : profile.value?.photoUrl));
+
+    // "Remove photo": forget a new photo, and take the saved one off when Save is clicked
+    const removePhoto = () => {
+        photoFile.value = null;
+        isPhotoRemoved.value = true;
+    };
+
     // Called when the user picks a photo with "Change photo"
     const choosePhoto = (file) => {
         errorMessage.value = "";
@@ -53,6 +64,7 @@ export function useEditProfile() {
             return;
         }
         photoFile.value = file;
+        isPhotoRemoved.value = false;
     };
 
     // Saves the name and photo, and starts the email change if the email is different
@@ -68,12 +80,16 @@ export function useEditProfile() {
             // Upload a new photo first, so we can save its address on the profile
             if (photoFile.value) {
                 changes.photoUrl = await uploadProfilePicture(userId, photoFile.value);
+            } else if (isPhotoRemoved.value) {
+                // null: no photo, so the initials show everywhere again
+                changes.photoUrl = null;
             }
 
             await updateUserProfile(userId, changes);
             // Load the profile again, so the new name and photo show everywhere (e.g. the nav)
             await refreshProfile();
             photoFile.value = null;
+            isPhotoRemoved.value = false;
 
             const emailChanged = email.value.trim() !== userEmail.value;
             if (emailChanged) {
@@ -96,12 +112,14 @@ export function useEditProfile() {
         profile,
         username,
         email,
-        previewUrl,
+        isGoogleAccount,
+        shownPhoto,
         isGoogleAccount,
         isSaving,
         errorMessage,
         successMessage,
         choosePhoto,
+        removePhoto,
         save,
     };
 }
