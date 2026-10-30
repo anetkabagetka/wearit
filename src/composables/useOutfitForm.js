@@ -3,13 +3,15 @@ import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
 import { getWardrobe, listItems } from "@/services/wardrobes";
-import { addOutfit } from "@/services/outfits";
+import { addOutfit, getOutfit, updateOutfit } from "@/services/outfits";
 import { outfitCostPerWear } from "@/utils/costPerWear";
 import { categoryOptions, defaultTags } from "@/utils/itemOptions";
 
-// State and actions for the Create outfit page: pick items, name the outfit, save it
-export function useOutfitForm() {
+// State and actions for the outfit form: pick items, name the outfit, save it.
+// Without an outfitId it creates a new outfit, with an outfitId it edits that outfit
+export function useOutfitForm(outfitId = null) {
     const router = useRouter();
+    const isEditing = outfitId !== null;
 
     const items = ref([]); // Every item in the wardrobe, to pick from
     const pickedIds = ref([]); // IDs of the picked items, in the order they were picked
@@ -19,6 +21,7 @@ export function useOutfitForm() {
     const search = ref("");
     const category = ref("all"); // The chosen chip: "all" or a category like "Tops"
     const isLoading = ref(true);
+    const isNotFound = ref(false); // true when the outfit in the address doesn't exist
     const isSaving = ref(false);
     const errorMessage = ref("");
     const pickError = ref(""); // Shown when Save is clicked with fewer than 2 items
@@ -36,9 +39,10 @@ export function useOutfitForm() {
         categoryOptions.filter((option) => items.value.some((item) => item.category === option)),
     );
 
-    // Tags to pick from: the usual ones plus every tag already used on an item. new Set removes duplicates
+    // Tags to pick from: the usual ones, every tag already used on an item, and the outfit's own.
+    // new Set removes duplicates
     const tagOptions = computed(() => [
-        ...new Set([...defaultTags, ...items.value.flatMap((item) => item.tags ?? [])]),
+        ...new Set([...defaultTags, ...items.value.flatMap((item) => item.tags ?? []), ...tags.value]),
     ]);
 
     // Items that match the search bar and the chosen chip
@@ -62,17 +66,32 @@ export function useOutfitForm() {
         pickError.value = "";
     };
 
-    // Loads the wardrobe's currency and its items
+    // Loads the wardrobe's currency and its items, and when editing also the outfit itself
     const load = async () => {
         try {
             const userId = auth.currentUser.uid;
-            // Promise.all loads both at the same time instead of one after the other
-            const [wardrobe, savedItems] = await Promise.all([getWardrobe(userId), listItems(userId)]);
+            // Promise.all loads all three at the same time instead of one after the other
+            const [wardrobe, savedItems, savedOutfit] = await Promise.all([
+                getWardrobe(userId),
+                listItems(userId),
+                isEditing ? getOutfit(userId, outfitId) : null,
+            ]);
             if (wardrobe?.currency) {
                 currency.value = wardrobe.currency;
             }
             // Sold, donated and given away items aren't in the wardrobe anymore, so they can't be picked
             items.value = savedItems.filter((item) => !item.removedAs);
+
+            if (isEditing) {
+                if (!savedOutfit) {
+                    isNotFound.value = true;
+                    return;
+                }
+                name.value = savedOutfit.name;
+                tags.value = savedOutfit.tags ?? [];
+                // Only items that are still in the wardrobe stay picked
+                pickedIds.value = savedOutfit.itemIds.filter((id) => items.value.some((item) => item.id === id));
+            }
         } catch {
             errorMessage.value = "Could not load your wardrobe. Please refresh the page.";
         } finally {
@@ -80,7 +99,7 @@ export function useOutfitForm() {
         }
     };
 
-    // Saves the outfit, then opens the Outfits tab of the Wardrobe page
+    // Saves the outfit. A new one opens the Outfits tab, a changed one goes back to its own page
     const save = async () => {
         if (pickedIds.value.length < 2) {
             pickError.value = "Pick at least 2 items.";
@@ -91,12 +110,20 @@ export function useOutfitForm() {
         errorMessage.value = "";
 
         try {
-            await addOutfit(auth.currentUser.uid, {
+            const userId = auth.currentUser.uid;
+            const outfit = {
                 name: name.value.trim(),
                 itemIds: pickedIds.value,
                 tags: tags.value,
-            });
-            await router.push({ name: "wardrobe", query: { tab: "outfits" } });
+            };
+
+            if (isEditing) {
+                await updateOutfit(userId, outfitId, outfit);
+                await router.push({ name: "outfit", params: { outfitId } });
+            } else {
+                await addOutfit(userId, outfit);
+                await router.push({ name: "wardrobe", query: { tab: "outfits" } });
+            }
         } catch {
             errorMessage.value = "Could not save the outfit. Please try again.";
         } finally {
@@ -107,12 +134,14 @@ export function useOutfitForm() {
     onMounted(load);
 
     return {
+        isEditing,
         name,
         tags,
         currency,
         search,
         category,
         isLoading,
+        isNotFound,
         isSaving,
         errorMessage,
         pickError,

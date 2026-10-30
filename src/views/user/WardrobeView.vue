@@ -110,10 +110,13 @@ const cpwRangeText = computed(() => {
                         aria-label="Search your outfits" />
                 </label>
 
-                <p class="field-label">
-                    {{ visibleOutfits.length }} {{ visibleOutfits.length === 1 ? 'outfit' : 'outfits' }} · sorted by
-                    CPW, lowest first
-                </p>
+                <!-- A toolbar row like on the Items tab, so the line has the same space above and below -->
+                <div class="toolbar count-row">
+                    <p class="field-label">
+                        {{ visibleOutfits.length }} {{ visibleOutfits.length === 1 ? 'outfit' : 'outfits' }} · sorted
+                        by CPW, lowest first
+                    </p>
+                </div>
 
                 <ul class="outfit-grid">
                     <li v-for="outfit in visibleOutfits" :key="outfit.id">
@@ -242,6 +245,10 @@ const cpwRangeText = computed(() => {
     justify-content: space-between;
     align-items: center;
     gap: 16px;
+}
+
+.count-row {
+    min-height: 38px;
 }
 
 .view-toggle {

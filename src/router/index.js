@@ -191,6 +191,24 @@ const router = createRouter({
     },
 
     {
+      path: "/outfit/:outfitId",
+      name: "outfit",
+      component: () => import("@/views/user/OutfitDetailView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: "/edit-outfit/:outfitId",
+      name: "edit-outfit",
+      component: () => import("@/views/user/EditOutfitView.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
       path: "/edit-item/:itemId",
       name: "edit-item",
       component: () => import("@/views/user/EditItemView.vue"),

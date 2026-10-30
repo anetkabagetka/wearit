@@ -23,8 +23,8 @@ const itemCount = computed(() => {
 </script>
 
 <template>
-    <!-- Like ItemCard, with the collage instead of one photo -->
-    <article class="outfit-card">
+    <!-- Like ItemCard, with the collage instead of one photo. Clicking it opens the outfit's page -->
+    <RouterLink :to="{ name: 'outfit', params: { outfitId: outfit.id } }" class="outfit-card">
         <OutfitCollage :items="outfit.items" class="outfit-card-photo" />
 
         <div class="outfit-card-info">
@@ -35,7 +35,7 @@ const itemCount = computed(() => {
             </span>
             <span class="caption">{{ formatWears(outfit.timesWorn) }} · {{ itemCount }}</span>
         </div>
-    </article>
+    </RouterLink>
 </template>
 
 <style scoped>

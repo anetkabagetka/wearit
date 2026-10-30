@@ -132,7 +132,8 @@ const isActive = (...paths) => paths.some((path) => route.path.startsWith(path))
       <img :src="homeIcon" alt="" width="24" height="24" />
       Home
     </RouterLink>
-    <RouterLink to="/wardrobe" class="tab" :class="{ 'tab-active': isActive('/wardrobe', '/item', '/edit-item') }">
+    <RouterLink to="/wardrobe" class="tab"
+      :class="{ 'tab-active': isActive('/wardrobe', '/item', '/edit-item', '/outfit', '/create-outfit', '/edit-outfit') }">
       <img :src="hangerIcon" alt="" width="24" height="24" />
       Wardrobe
     </RouterLink>
