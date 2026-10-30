@@ -6,30 +6,20 @@ import CpwCard from '@/components/ui/CpwCard.vue'
 import ItemCard from '@/components/items/ItemCard.vue'
 import ItemRow from '@/components/items/ItemRow.vue'
 import OutfitRow from '@/components/outfits/OutfitRow.vue'
-import OutfitCollage from '@/components/outfits/OutfitCollage.vue'
-import OutfitLoggedSummary from '@/components/outfits/OutfitLoggedSummary.vue'
-import AppDialog from '@/components/ui/AppDialog.vue'
-import RemoveItemDialog from '@/components/items/RemoveItemDialog.vue'
-import ItemRemovedDialog from '@/components/items/ItemRemovedDialog.vue'
-import ItemLoggedSummary from '@/components/items/ItemLoggedSummary.vue'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
+import DashboardStats from '@/components/dashboard/DashboardStats.vue'
+import WearOrSellTip from '@/components/dashboard/WearOrSellTip.vue'
+import LogWearDialog from '@/components/dashboard/LogWearDialog.vue'
+import SellOrDonateDialog from '@/components/dashboard/SellOrDonateDialog.vue'
 
 import { useAuth } from '@/composables/useAuth'
 import { useDashboard } from '@/composables/useDashboard'
-import { costPerWear, outfitCostPerWear } from '@/utils/wardrobe/costPerWear'
-import { toJsDate } from '@/utils/format/formatDate'
 import { formatMoney } from '@/utils/format/formatMoney'
-import { formatWears } from '@/utils/format/formatWears'
-import { categoryOptions, mainCategory } from '@/utils/wardrobe/itemOptions'
-import { wornToday } from '@/utils/wardrobe/wornToday'
-import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import shirtIcon from '@/assets/icons/shirt.svg'
 import plusIcon from '@/assets/icons/plus.svg'
 import searchIcon from '@/assets/icons/search.svg'
-import closeIcon from '@/assets/icons/close.svg'
 import bellIcon from '@/assets/icons/bell.svg'
-import leafIcon from '@/assets/icons/leaf.svg'
 
 // Take the profile and userEmail from the useAuth composable
 const { profile, userEmail } = useAuth()
@@ -65,144 +55,18 @@ const averageFormula = computed(() => {
     return `${spent} spent ÷ ${totalWears.value} wears across your wardrobe`
 })
 
-// e.g. "+12% vs September" or "-20% vs September". Last month's name comes from a date one month back
-const monthCompareText = computed(() => {
-    const lastMonth = new Date()
-    lastMonth.setDate(1)
-    lastMonth.setMonth(lastMonth.getMonth() - 1)
-    const monthName = lastMonth.toLocaleString('en-GB', { month: 'long' })
-
-    // Can't compare with 0 (dividing by 0), so just say nothing was logged
-    if (wearsLastMonth.value === 0) {
-        return `Nothing logged in ${monthName}`
-    }
-    const percent = Math.round(((wearsThisMonth.value - wearsLastMonth.value) / wearsLastMonth.value) * 100)
-    return `${percent >= 0 ? '+' : ''}${percent}% vs ${monthName}`
-})
-
-// "Log a wear" pop-up: open or not, the search text, the chosen chip, and the item that was just logged
+// "Log a wear" pop-up (LogWearDialog). leastOnly is true when it's opened from "Wear them or sell them":
+// then it only lists the 3 least worn items
 const isLogOpen = ref(false)
-const logSearch = ref('')
-const logCategory = ref('recent') // "recent" shows everything, "outfits" the outfits, or a category like "Tops"
-const loggedItem = ref(null)
-const loggedOutfitId = ref(null) // The outfit that was just logged, or null
-const loggedOutfitItems = ref([]) // Its items that got a wear
-const cpwBefore = ref(0) // The logged item's cost per wear before this wear, for "was €4.20"
-// true when it was opened from "Wear them or sell them": then it only lists the 3 least worn items
-const onlyLeastWorn = ref(false)
+const logLeastOnly = ref(false)
 
-// The category chips in the pop-up: only categories that are in the wardrobe, in the usual order
-const logCategories = computed(() =>
-    categoryOptions.filter((category) => items.value.some((item) => mainCategory(item.category) === category)),
-)
-
-// Items in the pop-up that match its search and chip, the most recently worn first.
-// Never worn items count as worn in 1970 (date 0), so they go last
-const logList = computed(() => {
-    if (onlyLeastWorn.value) {
-        return leastWorn.value
-    }
-    const text = logSearch.value.toLowerCase()
-    return items.value
-        .filter((item) => item.name.toLowerCase().includes(text))
-        .filter((item) => logCategory.value === 'recent' || mainCategory(item.category) === logCategory.value)
-        .sort((a, b) => toJsDate(b.lastWornAt ?? 0) - toJsDate(a.lastWornAt ?? 0))
-})
-
-// Outfits under the Outfits chip that match the search, the most recently worn first.
-// Outfits whose items all left the wardrobe can't be worn, so they're left out
-const logOutfits = computed(() => {
-    const text = logSearch.value.toLowerCase()
-    return outfitsWithItems.value
-        .filter((outfit) => outfit.items.length > 0 && outfit.name.toLowerCase().includes(text))
-        .sort((a, b) => toJsDate(b.lastWornAt ?? 0) - toJsDate(a.lastWornAt ?? 0))
-})
-
-// The outfit that was just logged, with its items and its new numbers
-const loggedOutfit = computed(() => outfitsWithItems.value.find((outfit) => outfit.id === loggedOutfitId.value))
-
-// Opens the pop-up fresh: empty search, "Recent" chip, back to the list. "Log another wear" uses it too
-// leastOnly is true for the "Log a wear" button in "Wear them or sell them"
 const openLogWear = (leastOnly) => {
-    onlyLeastWorn.value = leastOnly
-    logSearch.value = ''
-    logCategory.value = 'recent'
-    loggedItem.value = null
-    loggedOutfitId.value = null
+    logLeastOnly.value = leastOnly
     isLogOpen.value = true
 }
 
-// A small pop-up on top of "Log a wear" when the item's wear is already logged today
-const wornTodayItem = ref(null)
-const isWornTodayOpen = ref(false)
-
-// Logs the wear, then shows "Wear logged" with the new cost per wear.
-// "Log a wear" works once a day per item, so a second one today only opens the "Already logged" pop-up
-const logWear = async (item) => {
-    if (wornToday(item)) {
-        wornTodayItem.value = item
-        isWornTodayOpen.value = true
-        return
-    }
-    cpwBefore.value = costPerWear(item.price, item.timesWorn)
-    if (await wearItem(item)) {
-        loggedItem.value = item
-    }
-}
-
-// "Log wear" on an outfit: a wear for the outfit and its items, then "Outfit logged".
-// When every item was already worn today, only the "Already logged" pop-up opens
-const logOutfit = async (outfit) => {
-    if (outfit.items.every(wornToday)) {
-        wornTodayItem.value = outfit
-        isWornTodayOpen.value = true
-        return
-    }
-    cpwBefore.value = outfitCostPerWear(outfit.items)
-    const logged = await wearOutfit(outfit)
-    if (logged) {
-        loggedOutfitItems.value = logged
-        loggedOutfitId.value = outfit.id
-    }
-}
-
-
-
-// "Sell or donate" in "Wear them or sell them": first pick one of the 3 least worn items,
-// then the same "Remove from wardrobe" pop-up as on the item page
-const isPickOpen = ref(false)
-const pickedId = ref('')
-const itemToRemove = ref(null) // The picked item, kept here while the second pop-up is open
-const isRemoveOpen = ref(false)
-const isRemoving = ref(false)
-
-// Opens the first pop-up, with the least worn item already selected
-const openSellOrDonate = () => {
-    pickedId.value = leastWorn.value[0].id
-    isPickOpen.value = true
-}
-
-// "Next": close the first pop-up and open "Remove from wardrobe" for the picked item
-const goToRemove = () => {
-    itemToRemove.value = leastWorn.value.find((item) => item.id === pickedId.value)
-    isPickOpen.value = false
-    isRemoveOpen.value = true
-}
-
-// "Confirm" in "Remove from wardrobe": the item leaves the wardrobe and the lists on this page,
-// then "Marked as sold" (ItemRemovedDialog) says what happened
-const isRemovedOpen = ref(false)
-const removedReason = ref('sold')
-
-const handleRemove = async (reason, salePrice) => {
-    isRemoving.value = true
-    if (await removeItem(itemToRemove.value, reason, salePrice)) {
-        isRemoveOpen.value = false
-        removedReason.value = reason
-        isRemovedOpen.value = true
-    }
-    isRemoving.value = false
-}
+// "Sell or donate" in "Wear them or sell them" (SellOrDonateDialog)
+const isSellOpen = ref(false)
 </script>
 
 <template>
@@ -218,6 +82,7 @@ const handleRemove = async (reason, salePrice) => {
             </RouterLink>
         </div>
 
+        <!-- While "Log a wear" is open, the message shows inside it instead -->
         <p v-if="errorMessage && !isLogOpen" class="form-error" role="alert">{{ errorMessage }}</p>
 
         <LoadingSkeleton v-if="isLoading" variant="rows" />
@@ -273,29 +138,9 @@ const handleRemove = async (reason, salePrice) => {
 
             <!-- Right column: numbers, most worn and least worn -->
             <div class="stack">
-                <div class="stats">
-                    <div class="stat-card">
-                        <span class="field-label">Total items</span>
-                        <strong class="stat-value">{{ items.length }}</strong>
-                        <span class="caption">+{{ addedThisMonth }} this month</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="field-label">Wardrobe value</span>
-                        <strong class="stat-value">{{ formatMoney(totalSpent, currency, { wholeNumbers: true })
-                            }}</strong>
-                        <span class="caption">Total purchase price</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="field-label">Wears this month</span>
-                        <strong class="stat-value">{{ wearsThisMonth }}</strong>
-                        <span class="caption">{{ monthCompareText }}</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="field-label">Not worn in 90 days</span>
-                        <strong class="stat-value">{{ notWornLately }}</strong>
-                        <span class="caption">Wear them or sell them</span>
-                    </div>
-                </div>
+                <DashboardStats :item-count="items.length" :added-this-month="addedThisMonth" :total-spent="totalSpent"
+                    :currency="currency" :wears-this-month="wearsThisMonth" :wears-last-month="wearsLastMonth"
+                    :not-worn-lately="notWornLately" />
 
                 <section>
                     <h2 class="title-m">Most worn</h2>
@@ -307,180 +152,16 @@ const handleRemove = async (reason, salePrice) => {
                     <ItemRow v-for="item in leastWorn" :key="item.id" :item="item" :currency="currency" />
                 </section>
 
-                <!-- A nudge to wear the least worn items, or let them go -->
-                <div class="tip-box stack-small">
-                    <h2 class="tip-title">
-                        <img :src="leafIcon" alt="" width="20" height="20" />
-                        Wear them or sell them!
-                    </h2>
-                    <p class="notes">These are worn the least, so every wear lowers their cost per wear the most.</p>
-                    <!-- Both buttons only offer the 3 least worn items listed above -->
-                    <div class="tip-buttons">
-                        <button type="button" class="btn btn-primary" @click="openLogWear(true)">Log a wear</button>
-                        <button type="button" class="btn btn-secondary" @click="openSellOrDonate">
-                            Sell or donate
-                        </button>
-                    </div>
-                </div>
+                <WearOrSellTip @log-wear="openLogWear(true)" @sell="isSellOpen = true" />
             </div>
         </div>
 
-        <!-- Log a wear: pick an item from the list, then see its new cost per wear -->
-        <AppDialog v-model="isLogOpen">
-            <div class="stack">
-                <div class="section-header">
-                    <h2 class="title-m">{{ loggedItem ? 'Wear logged' : loggedOutfit ? 'Outfit logged' : 'Log a wear' }}
-                    </h2>
-                    <button type="button" class="back-button" aria-label="Close" @click="isLogOpen = false">
-                        <img :src="closeIcon" alt="" />
-                    </button>
-                </div>
+        <LogWearDialog v-model="isLogOpen" :items="items" :outfits="outfitsWithItems" :least-worn="leastWorn"
+            :least-only="logLeastOnly" :currency="currency" :goal="goal" :error-message="errorMessage"
+            :wear-item="wearItem" :wear-outfit="wearOutfit" />
 
-                <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
-
-                <!-- After logging: the item and its new cost per wear -->
-                <template v-if="loggedItem">
-                    <ItemLoggedSummary :item="loggedItem" :cpw-before="cpwBefore" :currency="currency" :goal="goal" />
-
-                    <div class="stack-small">
-                        <button type="button" class="btn btn-primary" @click="isLogOpen = false">Done</button>
-                        <button type="button" class="btn btn-secondary" @click="openLogWear(onlyLeastWorn)">
-                            Log another wear
-                        </button>
-                    </div>
-                </template>
-
-                <!-- After logging an outfit: its new cost per wear, and the items that were skipped -->
-                <template v-else-if="loggedOutfit">
-                    <OutfitLoggedSummary :outfit="loggedOutfit" :items="loggedOutfit.items"
-                        :logged-items="loggedOutfitItems" :cpw-before="cpwBefore" :currency="currency" />
-
-                    <div class="stack-small">
-                        <button type="button" class="btn btn-primary" @click="isLogOpen = false">Done</button>
-                        <button type="button" class="btn btn-secondary" @click="openLogWear(false)">
-                            Log another wear
-                        </button>
-                    </div>
-                </template>
-
-                <!-- Before logging: search and the list of items -->
-                <template v-else>
-                    <p v-if="onlyLeastWorn" class="notes">Your 3 least worn items. Every wear lowers their cost per
-                        wear the most.</p>
-
-                    <!-- Search and chips only for the whole wardrobe -->
-                    <label v-if="!onlyLeastWorn" class="input-icon search">
-                        <img :src="searchIcon" alt="" width="20" height="20" />
-                        <input v-model="logSearch" type="text" :maxlength="fieldLimits.search"
-                            :placeholder="logCategory === 'outfits' ? 'Search outfit to log...' : 'Search item to log...'"
-                            :aria-label="logCategory === 'outfits' ? 'Search outfit to log' : 'Search item to log'" />
-                    </label>
-
-                    <div v-if="!onlyLeastWorn" class="chips">
-                        <label class="chip">
-                            <input v-model="logCategory" type="radio" name="log-category" value="recent" />
-                            Recent
-                        </label>
-                        <!-- Only when there are outfits -->
-                        <label v-if="outfitsWithItems.length" class="chip">
-                            <input v-model="logCategory" type="radio" name="log-category" value="outfits" />
-                            Outfits
-                        </label>
-                        <label v-for="category in logCategories" :key="category" class="chip">
-                            <input v-model="logCategory" type="radio" name="log-category" :value="category" />
-                            {{ category }}
-                        </label>
-                    </div>
-
-                    <ul v-if="logCategory !== 'outfits'" class="log-list">
-                        <li v-for="item in logList" :key="item.id" class="log-row">
-                            <img v-if="item.photoUrl" :src="item.photoUrl" alt="" class="log-row-photo" />
-                            <!-- Gray box when the item has no photo -->
-                            <div v-else class="log-row-photo"></div>
-                            <span class="log-row-text">
-                                <span class="logged-name">{{ item.name }}</span>
-                                <span class="caption">
-                                    {{ formatMoney(costPerWear(item.price, item.timesWorn), currency) }} per wear ·
-                                    {{ formatWears(item.timesWorn) }}
-                                </span>
-                            </span>
-                            <button type="button" class="btn btn-secondary" @click="logWear(item)">Log wear</button>
-                        </li>
-                    </ul>
-                    <p v-if="logCategory !== 'outfits' && logList.length === 0" class="caption">No items match.</p>
-
-                    <!-- The Outfits chip: each outfit with its photos, like the items -->
-                    <ul v-if="logCategory === 'outfits'" class="log-list">
-                        <li v-for="outfit in logOutfits" :key="outfit.id" class="log-row">
-                            <OutfitCollage :items="outfit.items" :photo-url="outfit.photoUrl" class="log-row-photo" />
-                            <span class="log-row-text">
-                                <span class="logged-name">{{ outfit.name }}</span>
-                                <span class="caption">
-                                    {{ formatMoney(outfitCostPerWear(outfit.items), currency) }} per wear ·
-                                    {{ formatWears(outfit.timesWorn) }}
-                                </span>
-                            </span>
-                            <button type="button" class="btn btn-secondary" @click="logOutfit(outfit)">Log wear</button>
-                        </li>
-                    </ul>
-                    <p v-if="logCategory === 'outfits' && logOutfits.length === 0" class="caption">
-                        No outfits match.
-                    </p>
-                </template>
-            </div>
-        </AppDialog>
-
-
-        <!-- On top of "Log a wear": this item's wear is already logged today -->
-        <AppDialog v-model="isWornTodayOpen">
-            <div class="stack">
-                <h2 class="title-m">Already logged today</h2>
-                <!-- itemIds: it's an outfit, and every item in it was already worn today -->
-                <p v-if="wornTodayItem?.itemIds" class="notes">Every item in {{ wornTodayItem.name }} is already
-                    logged today. You can log the outfit again tomorrow.</p>
-                <p v-else class="notes">You already logged a wear of {{ wornTodayItem?.name }} today. You can log the
-                    next
-                    one tomorrow.</p>
-                <button type="button" class="btn btn-primary" autofocus @click="isWornTodayOpen = false">OK</button>
-            </div>
-        </AppDialog>
-
-        <!-- Sell or donate, step 1: which of the 3 least worn items -->
-        <AppDialog v-model="isPickOpen">
-            <form class="stack" @submit.prevent="goToRemove">
-                <div class="section-header">
-                    <h2 class="title-m">Sell or donate</h2>
-                    <button type="button" class="back-button" aria-label="Close" @click="isPickOpen = false">
-                        <img :src="closeIcon" alt="" />
-                    </button>
-                </div>
-                <p class="notes">Which of your least worn items is leaving your wardrobe?</p>
-
-                <!-- Option rows like in "Remove from wardrobe", with the item's photo in front -->
-                <fieldset class="stack-small">
-                    <label v-for="item in leastWorn" :key="item.id" class="option-row">
-                        <img v-if="item.photoUrl" :src="item.photoUrl" alt="" class="log-row-photo" />
-                        <div v-else class="log-row-photo"></div>
-                        <span class="option-row-text">
-                            <span class="option-row-label">{{ item.name }}</span>
-                            <span class="option-row-description">
-                                {{ formatWears(item.timesWorn) }} ·
-                                {{ formatMoney(costPerWear(item.price, item.timesWorn), currency) }} per wear
-                            </span>
-                        </span>
-                        <input v-model="pickedId" type="radio" name="remove-item" :value="item.id" />
-                    </label>
-                </fieldset>
-
-                <button type="submit" class="btn btn-primary">Next</button>
-            </form>
-        </AppDialog>
-
-        <!-- Sell or donate, step 2: the same pop-up as "Mark as sold or donated" on the item page -->
-        <RemoveItemDialog v-model="isRemoveOpen" :item="itemToRemove" :currency="currency" :is-saving="isRemoving"
-            @confirm="handleRemove" />
-
-        <ItemRemovedDialog v-model="isRemovedOpen" :item="itemToRemove" :reason="removedReason" />
+        <SellOrDonateDialog v-model="isSellOpen" :least-worn="leastWorn" :currency="currency"
+            :remove-item="removeItem" />
     </main>
 </template>
 
@@ -563,69 +244,5 @@ const handleRemove = async (reason, salePrice) => {
     .added-grid {
         grid-template-columns: repeat(5, minmax(0, 1fr));
     }
-}
-
-/* The black circle with a check mark in "Wear logged" */
-.logged-name {
-    font-family: var(--font-title);
-    font-size: 15px;
-    color: var(--black);
-}
-
-.log-list {
-    list-style: none;
-}
-
-/* Like ListRow: one row per item with a gray line under it */
-.log-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--light-gray);
-}
-
-.log-row-text {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-/* Small photo at the start of each row in the pop-up */
-.log-row-photo {
-    flex-shrink: 0;
-    width: 40px;
-    height: 48px;
-    border-radius: 4px;
-    background-color: var(--light-gray);
-    object-fit: cover;
-}
-
-/* The gray "Wear them or sell them!" box */
-.tip-box {
-    padding: 16px;
-    border-radius: 8px;
-    background-color: var(--subtle-gray);
-}
-
-.tip-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 18px;
-}
-
-.notes {
-    font-size: 13px;
-    line-height: 1.4;
-    color: var(--gray);
-}
-
-.tip-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
 }
 </style>

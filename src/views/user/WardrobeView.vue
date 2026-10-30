@@ -6,20 +6,17 @@ import Navigation from '@/components/layout/Navigation.vue'
 import ItemCard from '@/components/items/ItemCard.vue'
 import ItemRow from '@/components/items/ItemRow.vue'
 import OutfitCard from '@/components/outfits/OutfitCard.vue'
-import AppDialog from '@/components/ui/AppDialog.vue'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
+import WardrobeFiltersDialog from '@/components/wardrobe/WardrobeFiltersDialog.vue'
+import FilterButton from '@/components/wardrobe/FilterButton.vue'
+import ViewToggle from '@/components/wardrobe/ViewToggle.vue'
 
 import { useWardrobe } from '@/composables/useWardrobe'
-import { formatMoney } from '@/utils/format/formatMoney'
 import { categoryOptions, colorOptions, cpwSliderMax, seasonOptions } from '@/utils/wardrobe/itemOptions'
 import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import plusIcon from '@/assets/icons/plus.svg'
 import searchIcon from '@/assets/icons/search.svg'
-import gridIcon from '@/assets/icons/grid.svg'
-import listIcon from '@/assets/icons/list.svg'
-import filterIcon from '@/assets/icons/filter.svg'
-import closeIcon from '@/assets/icons/close.svg'
 
 const {
     items,
@@ -81,14 +78,6 @@ const activeFilterCount = computed(() => {
     return (isCpwFiltered.value ? 1 : 0) + pickedGroups.length
 })
 
-// e.g. "Show items between €2 and €30 per wear". At the top of the slider it says "€50+"
-const cpwRangeText = computed(() => {
-    const { minCpw, maxCpw } = shownFilters.value
-    const min = formatMoney(minCpw, currency.value, { wholeNumbers: true })
-    const max = formatMoney(maxCpw, currency.value, { wholeNumbers: true })
-    return `Show ${shownWord.value} between ${min} and ${maxCpw === cpwSliderMax ? `${max}+` : max} per wear`
-})
-
 // How many the open tab shows, for the button at the bottom of the pop-up, e.g. "Show 6 outfits"
 const shownCount = computed(() => (tab.value === 'outfits' ? visibleOutfits.value.length : visibleItems.value.length))
 
@@ -145,11 +134,7 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
                 </label>
 
                 <!-- The same Filters button as on the Items tab, with the outfits' own filters -->
-                <button type="button" class="chip filter-button" :class="{ 'chip-selected': activeFilterCount > 0 }"
-                    @click="isFiltersOpen = true">
-                    Filters{{ activeFilterCount > 0 ? ` · ${activeFilterCount}` : '' }}
-                    <img :src="filterIcon" alt="" width="16" height="16" />
-                </button>
+                <FilterButton :count="activeFilterCount" @click="isFiltersOpen = true" />
 
                 <!-- A toolbar row like on the Items tab, so the line has the same space above and below -->
                 <div class="toolbar count-row">
@@ -184,12 +169,7 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
                     aria-label="Search your wardrobe" />
             </label>
 
-            <!-- Opens the Filters pop-up. Turns black and shows how many filters are on, e.g. "Filters · 2" -->
-            <button type="button" class="chip filter-button" :class="{ 'chip-selected': activeFilterCount > 0 }"
-                @click="isFiltersOpen = true">
-                Filters{{ activeFilterCount > 0 ? ` · ${activeFilterCount}` : '' }}
-                <img :src="filterIcon" alt="" width="16" height="16" />
-            </button>
+            <FilterButton :count="activeFilterCount" @click="isFiltersOpen = true" />
 
             <div class="toolbar">
                 <p class="field-label">
@@ -197,17 +177,7 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
                     first
                 </p>
 
-                <!-- Grid / list switch. Same trick as .chip: the radio is hidden, the label is what you see -->
-                <div class="view-toggle">
-                    <label>
-                        <input v-model="view" type="radio" name="view" value="grid" />
-                        <img :src="gridIcon" alt="Grid view" width="18" height="18" />
-                    </label>
-                    <label>
-                        <input v-model="view" type="radio" name="view" value="list" />
-                        <img :src="listIcon" alt="List view" width="18" height="18" />
-                    </label>
-                </div>
+                <ViewToggle v-model="view" />
             </div>
 
             <ul v-if="view === 'grid'" class="item-grid">
@@ -222,48 +192,9 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
             </ul>
         </template>
 
-        <!-- Changes show on the page right away, the button at the bottom just closes the pop-up -->
-        <AppDialog v-model="isFiltersOpen">
-            <div class="stack">
-                <div class="toolbar">
-                    <h2 class="title-m">Filters</h2>
-                    <button type="button" class="back-button" aria-label="Close" @click="isFiltersOpen = false">
-                        <img :src="closeIcon" alt="" />
-                    </button>
-                </div>
-
-                <fieldset class="filter-group">
-                    <legend>Cost per wear</legend>
-                    <label class="range-field">
-                        <span class="caption">From</span>
-                        <input v-model.number="shownFilters.minCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
-                    </label>
-                    <label class="range-field">
-                        <span class="caption">To</span>
-                        <input v-model.number="shownFilters.maxCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
-                    </label>
-                    <p class="caption">{{ cpwRangeText }}</p>
-                </fieldset>
-
-                <!-- Same chips as the tags in the item form: a hidden checkbox inside each label -->
-                <fieldset v-for="group in filterGroups" :key="group.key" class="filter-group">
-                    <legend>{{ group.title }}</legend>
-                    <div class="chips">
-                        <label v-for="option in group.options" :key="option" class="chip">
-                            <input v-model="shownFilters[group.key]" type="checkbox" :value="option" />
-                            {{ option }}
-                        </label>
-                    </div>
-                </fieldset>
-
-                <div class="filter-buttons">
-                    <button type="button" class="btn btn-secondary" @click="resetShownFilters">Reset</button>
-                    <button type="button" class="btn btn-primary" @click="isFiltersOpen = false">
-                        Show {{ shownCount }} {{ shownCount === 1 ? shownWord.slice(0, -1) : shownWord }}
-                    </button>
-                </div>
-            </div>
-        </AppDialog>
+        <!-- Shows the open tab's filters -->
+        <WardrobeFiltersDialog v-model="isFiltersOpen" :filters="shownFilters" :groups="filterGroups" :word="shownWord"
+            :shown-count="shownCount" :currency="currency" @reset="resetShownFilters" />
     </main>
 </template>
 
@@ -293,44 +224,6 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
 
 .count-row {
     min-height: 38px;
-}
-
-.view-toggle {
-    display: flex;
-    gap: 2px;
-    padding: 2px;
-    border: 1px solid var(--light-gray);
-    border-radius: 4px;
-
-    label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-}
-
-/*  chosen view gets a black square, invert(1) turns its black icon white */
-.view-toggle label:has(input:checked) {
-    background-color: var(--black);
-
-    img {
-        filter: var(--icon-on-black-filter);
-    }
-}
-
-.view-toggle label:has(input:focus-visible) {
-    outline: 2px solid var(--black);
-    outline-offset: 2px;
 }
 
 .wardrobe-tabs {
@@ -394,46 +287,4 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
     }
 }
 
-.filter-button {
-    align-self: flex-start;
-    gap: 4px;
-    font-family: inherit;
-    cursor: pointer;
-}
-
-.filter-button.chip-selected img {
-    filter: var(--icon-on-black-filter);
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    color: var(--black);
-
-    legend {
-        margin-bottom: 8px;
-        font-family: var(--font-title);
-        font-size: 18px;
-    }
-}
-
-.range-field {
-    display: grid;
-    grid-template-columns: 40px 1fr;
-    align-items: center;
-    gap: 8px;
-
-    input {
-        padding: 0;
-        border: none;
-        accent-color: var(--black);
-    }
-}
-
-.filter-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
 </style>

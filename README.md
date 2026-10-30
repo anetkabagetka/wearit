@@ -1,35 +1,36 @@
-# 👗 wearit
+# wearit
 
-**Know what every outfit really costs.** wearit is a cost-per-wear wardrobe app: add your clothes, log what you wear, and watch each piece get cheaper with every wear.
+wearit is a cost-per-wear wardrobe app. You add your clothes, log what you wear, and see each piece get cheaper the more you wear it.
 
-🔗 **Live:** [wearit.site](https://wearit.site) or [wearit-c77ac.web.app](https://wearit-c77ac.web.app)
+Live at [wearit.site](https://wearit.site) (also [wearit-c77ac.web.app](https://wearit-c77ac.web.app)).
 
-## ✨ Features
+## Features
 
-- **Wardrobe:** clothes with photo, brand, category, color, season and tags. Accessories can be more specific (gloves, hat, cap, ring, necklace, earrings, bag). Grid or list, search, and filters by cost per wear, category, brand, color, season and tags.
-- **Cost per wear:** price ÷ wears for every item, with progress towards your own goal.
-- **Log a wear:** one tap, once a day per item (it opens up again at midnight), with a full wear history. A pop-up confirms each wear and shows the new cost per wear.
-- **Outfits:** put 2 or more items together and log them all at once. Add your own photo, or let the app show a collage of its items. An outfit's cost per wear is its items' added up. Filter them by tags.
-- **Insights:** spending, the cost-per-wear trend, categories, brands, when you wear clothes, and your most worn outfits.
-- **Sold, donated or given away:** the item leaves the wardrobe but keeps its history, and a pop-up confirms what happened.
-- **Push notifications:** reminders for clothes you don't wear, a weekly summary, and goal milestones.
-- **Your way:** light, dark or system theme (saved as soon as you pick it), and 6 currencies (EUR, DKK, GBP, USD, CZK, SEK).
-- **No lost edits:** forms ask before you leave with changes you haven't saved.
-- **Admin:** see all users, change roles, delete accounts.
+- **Wardrobe** – each item has a photo, brand, category, colour, season and tags. Accessories can be more specific (gloves, hat, cap, ring, necklace, earrings, bag). Switch between grid and list, search, and filter by cost per wear, category, brand, colour, season or tags.
+- **Cost per wear** – price divided by wears, with progress towards a goal you set yourself.
+- **Logging wears** – one tap, once a day per item (it resets at midnight). Every wear is kept in the item's history, and you see the new cost per wear straight away.
+- **Outfits** – group two or more items and log them together. An outfit can have its own photo, otherwise it shows a collage of its items. Its cost per wear is the sum of its items'.
+- **Insights** – spending, how cost per wear changes over time, categories, brands, which days you wear things, and your most worn outfits.
+- **Selling, donating, giving away** – the item leaves the wardrobe but its history stays.
+- **Push notifications** – reminders about clothes you haven't worn, a weekly summary, and a note when an item hits your goal.
+- **Settings** – light, dark or system theme, and six currencies (EUR, DKK, GBP, USD, CZK, SEK).
+- **Admin** – see all users, change roles, delete accounts.
 
-## 🧰 Tech stack
+Forms warn you before you leave with unsaved changes.
+
+## Tech stack
 
 | | |
 |---|---|
-| **Frontend** | Vue 3 (`<script setup>`), Vue Router, Vite, plain JavaScript |
-| **Backend** | Firebase: Authentication (email + Google), Cloud Firestore, Cloud Functions, Cloud Messaging, Hosting |
-| **Photos** | Cloudinary (unsigned uploads) |
-| **Charts** | Chart.js + vue-chartjs |
-| **Code quality** | oxlint + ESLint, oxfmt |
+| Frontend | Vue 3 (`<script setup>`), Vue Router, Vite, plain JavaScript |
+| Backend | Firebase: Authentication (email and Google), Firestore, Cloud Functions, Cloud Messaging, Hosting |
+| Photos | Cloudinary (unsigned uploads) |
+| Charts | Chart.js with vue-chartjs |
+| Linting and formatting | oxlint, ESLint, oxfmt |
 
-## 🚀 Getting started
+## Getting started
 
-You need Node.js 22.18+ (or 24.12+), and the Firebase CLI to deploy.
+You need Node.js 22.18+ or 24.12+. Deploying also needs the Firebase CLI.
 
 ```bash
 git clone https://github.com/anetkabagetka/wearit.git
@@ -38,7 +39,7 @@ npm install
 npm run dev
 ```
 
-Create a `.env` file in the project root first. The values come from the Firebase console (Project settings → Your apps, and Cloud Messaging → Web Push certificates for the VAPID key) and from Cloudinary:
+Before running it, add a `.env` file in the project root. The Firebase values are in the Firebase console under Project settings → Your apps, and the VAPID key under Cloud Messaging → Web Push certificates. The last two come from Cloudinary.
 
 ```env
 VITE_FIREBASE_API_KEY=
@@ -52,39 +53,39 @@ VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 ```
 
-## 📜 Scripts
+## Scripts
 
-| Command | What it does |
+| Command | |
 |---|---|
-| `npm run dev` | Starts the dev server |
-| `npm run build` | Builds the website into `dist/` |
-| `npm run preview` | Serves the built website locally |
-| `npm run lint` | Checks and fixes the code (oxlint + ESLint) |
-| `npm run format` | Formats `src/` with oxfmt |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Build into `dist/` |
+| `npm run preview` | Serve the build locally |
+| `npm run lint` | Lint and fix (oxlint and ESLint) |
+| `npm run format` | Format `src/` with oxfmt |
 
-## 🗂️ Project structure
+## Project structure
 
 ```
 wearit/
 ├── src/
 │   ├── views/          pages: landing, auth/, user/ (items/, outfits/, settings/), admin/
-│   ├── components/     shared UI: layout/, ui/, items/, outfits/, landing/
-│   ├── composables/    each page's state and actions: useWardrobe, items/, outfits/, settings/
-│   ├── services/       Firestore and Cloudinary calls only: wardrobes, outfits, users…
-│   ├── utils/          small helpers: format/, forms/, wardrobe/, theme.js
-│   ├── router/         the routes and who can open them
-│   ├── styles/         main.css with the light and dark colours
-│   ├── assets/         logo, icons, landing photos
-│   └── firebase.js     connects to Firebase with the values from .env
-├── functions/          Cloud Functions for the push notifications
+│   ├── components/     layout/, ui/, items/, outfits/, landing/, plus dashboard/, wardrobe/ and insights/ for the bigger pages
+│   ├── composables/    page state and actions: useWardrobe, items/, outfits/, settings/
+│   ├── services/       the only code that calls Firestore or Cloudinary
+│   ├── utils/          helpers: format/, forms/, wardrobe/, theme.js, charts.js
+│   ├── router/         routes and access checks
+│   ├── styles/         main.css, including the light and dark colours
+│   ├── assets/         logo, icons, photos
+│   └── firebase.js     Firebase setup, using the values from .env
+├── functions/          Cloud Functions for push notifications
 ├── public/             favicon and the push notification service worker
-├── firestore.rules     who may read and change what
-└── firebase.json       Firestore, Functions and Hosting setup
+├── firestore.rules     Firestore security rules
+└── firebase.json       Firestore, Functions and Hosting config
 ```
 
-## 🏗️ Architecture
+## How it fits together
 
-Each layer has one job: **views** show things, **composables** hold the state and actions, **services** are the only code that talks to Firebase or Cloudinary.
+Views and components handle what you see, composables hold the state and actions, and services are the only place that talks to Firebase or Cloudinary.
 
 ```mermaid
 flowchart LR
@@ -98,27 +99,27 @@ flowchart LR
     FN --> FCM["Cloud Messaging"]
 ```
 
-The router checks every page before it opens: guests go to login, users who haven't finished onboarding go to onboarding, and only admins can open `/admin`.
+The router checks each page before opening it. Guests are sent to log in, users who haven't finished onboarding are sent there, and only admins can open `/admin`.
 
-## 🧭 Pages
+## Pages
 
 | Area | Pages |
 |---|---|
-| **Public** | Landing, About us, Contact & support |
-| **Account** | Log in, Sign up and onboarding (4 steps), Reset password |
-| **App** | Home, Wardrobe (Items and Outfits), Item, Add / edit item, Outfit, Create / edit outfit, Insights |
-| **Settings** | Settings, Edit profile, Change password, Currency, Notifications, Theme, Delete account |
-| **Admin** | Users |
+| Public | Landing, About us, Contact & support |
+| Account | Log in, Sign up with 4-step onboarding, Reset password |
+| App | Home, Wardrobe (items and outfits), Item, Add/edit item, Outfit, Create/edit outfit, Insights |
+| Settings | Settings, Edit profile, Change password, Currency, Notifications, Theme, Delete account |
+| Admin | Users |
 
-## 🗄️ Database
+## Database
 
-Cloud Firestore. Every user has one profile and one wardrobe with the same ID; their clothes and outfits live inside the wardrobe.
+Firestore. Each user has a profile and a wardrobe with the same ID, and their items and outfits live inside the wardrobe.
 
 ```
 users/{uid}                  profile and settings
-wardrobes/{uid}              currency and goal, same ID as the user
-├── items/{itemId}           the clothes
-└── outfits/{outfitId}       groups of items, linked by itemIds
+wardrobes/{uid}              currency and goal
+├── items/{itemId}           clothes
+└── outfits/{outfitId}       outfits, pointing to their items by ID
 ```
 
 ```mermaid
@@ -150,7 +151,7 @@ erDiagram
     }
     ITEM {
         string name
-        string category "Tops, Shoes... or an accessory kind like Hat"
+        string category "Tops, Shoes... or an accessory like Hat"
         string brand
         string color
         string season
@@ -170,9 +171,9 @@ erDiagram
     }
     OUTFIT {
         string name
-        array itemIds "its items, in picked order"
+        array itemIds "in the order they were picked"
         array tags
-        string photoUrl "Cloudinary, or null for the item collage"
+        string photoUrl "Cloudinary, or null for the collage"
         number timesWorn
         timestamp lastWornAt
         array wornDates
@@ -181,39 +182,41 @@ erDiagram
     }
 ```
 
-- **Accessory kinds** (Gloves, Hat, Bag…) are saved as the `category` itself; filters, Insights and the outfit picker count them all as Accessories.
-- **Cost per wear** is never saved: it's worked out from `price` and `timesWorn` (an outfit: its items' costs added up).
-- **A wear** adds 1 to `timesWorn`, sets `lastWornAt` and adds the date to `wornDates`. Logging an outfit does that for the outfit and its items in one batch, skipping items already worn today.
-- **Outfits only store item IDs**, so an outfit always uses its items' latest numbers. Sold, donated or deleted items drop out of it. An outfit's own `photoUrl` is shown instead of the item collage when it has one.
-- **Sold, donated or given away** items stay saved with `removedAs`, so their history and final cost per wear are kept.
-- **Deleting an account** removes the profile, wardrobe, items and outfits in one batch.
-- **Photos** are in Cloudinary (`wearit/profile-pictures/{uid}`, `wearit/wardrobes/{uid}/items` and `wearit/wardrobes/{uid}/outfits`); Firestore only keeps their `photoUrl`.
+A few things worth knowing:
 
-## 🔐 Security rules
+- Cost per wear isn't stored. It's calculated from `price` and `timesWorn`, and for outfits by adding up the items.
+- Logging a wear adds 1 to `timesWorn`, sets `lastWornAt` and adds the date to `wornDates`. Logging an outfit does this for the outfit and all its items in one batch, skipping items already worn that day.
+- Outfits only store item IDs, so they always use the items' current numbers. Sold, donated or deleted items drop out.
+- Accessory kinds like Hat or Bag are saved as the `category`. Filters, Insights and the outfit picker group them under Accessories.
+- Sold, donated and given-away items aren't deleted, they get a `removedAs` field so their history is kept.
+- Deleting an account removes the profile, wardrobe, items and outfits in one batch.
+- Photos live in Cloudinary (`wearit/profile-pictures/{uid}`, `wearit/wardrobes/{uid}/items`, `wearit/wardrobes/{uid}/outfits`). Firestore only stores the URL.
 
-- Everyone can only read and change their own profile, wardrobe, items and outfits.
-- A new profile always starts as `"user"`, and users can't change their own role.
-- Admins can read all profiles and wardrobes, change roles, and delete users.
+## Security rules
 
-## 🔔 Cloud Functions
+- Users can only read and change their own profile, wardrobe, items and outfits.
+- New profiles always start with the `"user"` role, and users can't change their own role.
+- Admins can read all profiles and wardrobes, change roles and delete users.
 
-| Function | When | What it sends |
+## Cloud Functions
+
+| Function | Runs | Sends |
 |---|---|---|
-| `dailyReminders` | Every day, 09:00 (Copenhagen) | A reminder about clothes not worn for a while |
-| `weeklySummary` | Mondays, 08:00 | Last week's wears and the average cost per wear |
-| `goalMilestone` | When an item is saved | A cheer when an item reaches the cost-per-wear goal |
+| `dailyReminders` | Every day at 09:00 (Copenhagen time) | A reminder about clothes you haven't worn in a while |
+| `weeklySummary` | Mondays at 08:00 | Last week's wears and your average cost per wear |
+| `goalMilestone` | When an item is saved | A message when an item reaches your cost-per-wear goal |
 
-Each one only goes to users who turned it on in Settings → Notifications.
+Notifications only go to users who turned them on in Settings → Notifications.
 
-## ☁️ Deploy
+## Deploying
 
 ```bash
 npm run build
 firebase deploy --only hosting
 ```
 
-Rules and functions deploy separately with `firebase deploy --only firestore:rules` and `firebase deploy --only functions`.
+Rules and functions are deployed separately with `firebase deploy --only firestore:rules` and `firebase deploy --only functions`.
 
-## 👩‍💻 Author
+## Author
 
 Made by [anetkabagetka](https://github.com/anetkabagetka).

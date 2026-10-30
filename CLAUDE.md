@@ -23,13 +23,14 @@ Follow the coding conventions in @AGENTS.md.
   - `ui/` – generic building blocks: `AppDialog`, `FormField`, `ListRow`, `CpwCard`, `PhotoUpload`, `CurrencyPicker`…
   - `items/` and `outfits/` – cards, rows, forms and dialogs for items and outfits
   - `landing/` – `HeroSlideshow`
+  - `dashboard/`, `wardrobe/`, `insights/` – the parts of one page each (e.g. `LogWearDialog`, `WardrobeFiltersDialog`, `WearHeatmap`), so the page files stay short
 - `src/composables/` – reactive state and UI actions. Shared ones and one-per-page ones (`useAuth`, `useDropdown`, `useWardrobe`, `useDashboard`, `useInsights`, `useOnboarding`, `useAdminUsers`) sit at the root; `items/`, `outfits/` and `settings/` hold the rest
 - `src/services/` – external API calls only: Firestore (`users.js`, `wardrobes.js`, `outfits.js`) and Cloudinary (`cloudinary.js`)
 - `src/utils/` – pure helpers, grouped by area:
   - `format/` – `formatDate`, `formatMoney`, `formatWears`, `getInitials`
   - `forms/` – `isFormValid`, `validationMessage`, `authErrorMessage`, `passwordRules`
   - `wardrobe/` – `costPerWear`, `wornToday`, `itemOptions` (category/color/season/tag choices), `currencyOptions`
-  - `theme.js` at the root
+  - `theme.js` and `charts.js` (Chart.js setup and the chart colours) at the root
 - New files go in the subfolder of their area; import them with the full `@/` path (no `index.js` re-exports)
 - `src/router/index.js` – routes and the global guard
 - `src/firebase.js` – Firebase init; config comes from `VITE_FIREBASE_*` env vars in `.env`
