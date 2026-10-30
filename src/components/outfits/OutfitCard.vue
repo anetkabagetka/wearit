@@ -25,7 +25,7 @@ const itemCount = computed(() => {
 <template>
     <!-- Like ItemCard, with the collage instead of one photo. Clicking it opens the outfit's page -->
     <RouterLink :to="{ name: 'outfit', params: { outfitId: outfit.id } }" class="outfit-card">
-        <OutfitCollage :items="outfit.items" class="outfit-card-photo" />
+        <OutfitCollage :items="outfit.items" :photo-url="outfit.photoUrl" class="outfit-card-photo" />
 
         <div class="outfit-card-info">
             <span class="outfit-card-name">{{ outfit.name }}</span>

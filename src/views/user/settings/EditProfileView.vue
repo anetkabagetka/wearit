@@ -1,8 +1,10 @@
 <script setup>
 import Navigation from '@/components/layout/Navigation.vue'
 import FormField from '@/components/ui/FormField.vue'
+import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 
 import { useEditProfile } from '@/composables/settings/useEditProfile'
+import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { isFormValid } from '@/utils/forms/isFormValid'
 import { getInitials } from '@/utils/format/getInitials'
 
@@ -23,7 +25,11 @@ const {
   choosePhoto,
   removePhoto,
   save,
+  hasUnsavedChanges,
 } = useEditProfile()
+
+// Asks before leaving when there are changes that aren't saved yet
+const { isLeaveOpen, confirmLeave } = useUnsavedChanges(hasUnsavedChanges)
 
 // The file input gives a list of files, we only need the first one.
 // Clearing it lets the user pick the same file again later
@@ -99,6 +105,8 @@ const handleSave = (event) => {
       <p v-if="successMessage" class="caption" role="status">{{ successMessage }}</p>
       <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
     </form>
+    <UnsavedChangesDialog v-model="isLeaveOpen" @leave="confirmLeave" />
+
   </main>
 </template>
 

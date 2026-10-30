@@ -21,6 +21,7 @@ export function addOutfit(userId, outfit) {
         name: outfit.name,
         itemIds: outfit.itemIds, // The IDs of its items, in the order they were picked
         tags: outfit.tags ?? [],
+        photoUrl: outfit.photoUrl ?? null, // The user's own photo of the outfit, or null to show its items
         timesWorn: 0, // The outfit's own wears. Its items still count their own wears too
         lastWornAt: null,
         wornDates: [],
@@ -52,12 +53,13 @@ export async function getOutfit(userId, outfitId) {
     };
 }
 
-// Saves a changed name, items or tags. The outfit's wears stay as they were
+// Saves a changed name, items, tags or photo. The outfit's wears stay as they were
 export function updateOutfit(userId, outfitId, outfit) {
     return updateDoc(doc(db, "wardrobes", userId, "outfits", outfitId), {
         name: outfit.name,
         itemIds: outfit.itemIds,
         tags: outfit.tags ?? [],
+        photoUrl: outfit.photoUrl ?? null,
         updatedAt: serverTimestamp(),
     });
 }

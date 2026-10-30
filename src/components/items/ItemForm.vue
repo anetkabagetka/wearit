@@ -6,8 +6,10 @@ import FormField from '@/components/ui/FormField.vue'
 import PhotoUpload from '@/components/ui/PhotoUpload.vue'
 import CpwCard from '@/components/ui/CpwCard.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
+import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 
 import { useItemForm } from '@/composables/items/useItemForm'
+import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { isFormValid } from '@/utils/forms/isFormValid'
 import { getCurrencySymbol } from '@/utils/format/formatMoney'
 import { accessoryOptions, clothingOptions, colorOptions, seasonOptions } from '@/utils/wardrobe/itemOptions'
@@ -38,7 +40,11 @@ const {
   addTag,
   save,
   remove,
+  hasUnsavedChanges,
 } = useItemForm(props.itemId)
+
+// Asks before leaving when there are changes that aren't saved yet
+const { isLeaveOpen, confirmLeave } = useUnsavedChanges(hasUnsavedChanges)
 
 // true while the "Delete item?" pop-up is open
 const isDeleteOpen = ref(false)
@@ -252,6 +258,8 @@ const handleSave = (event) => {
     </form>
 
     <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
+    <UnsavedChangesDialog v-model="isLeaveOpen" @leave="confirmLeave" />
+
   </div>
 </template>
 

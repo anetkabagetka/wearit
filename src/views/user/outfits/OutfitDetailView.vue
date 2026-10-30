@@ -174,7 +174,7 @@ const handleLogWear = async () => {
         <div v-else-if="outfit" class="split split-top">
             <!-- Left column: the photos, its items and the wear history -->
             <div class="stack">
-                <OutfitCollage :items="outfitItems" class="outfit-photo" />
+                <OutfitCollage :items="outfitItems" :photo-url="outfit.photoUrl" class="outfit-photo" />
 
                 <!-- Each row opens that item's page -->
                 <section>

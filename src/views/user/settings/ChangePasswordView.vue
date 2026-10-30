@@ -3,8 +3,10 @@ import { ref } from 'vue'
 
 import Navigation from '@/components/layout/Navigation.vue'
 import FormField from '@/components/ui/FormField.vue'
+import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 
 import { useChangePassword } from '@/composables/settings/useChangePassword'
+import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { useAuth } from '@/composables/useAuth'
 import { isFormValid } from '@/utils/forms/isFormValid'
 import { PASSWORD_HINT, PASSWORD_PATTERN } from '@/utils/forms/passwordRules'
@@ -24,7 +26,11 @@ const {
   errorMessage,
   successMessage,
   save,
+  hasUnsavedChanges,
 } = useChangePassword()
+
+// Asks before leaving when there are changes that aren't saved yet
+const { isLeaveOpen, confirmLeave } = useUnsavedChanges(hasUnsavedChanges)
 
 // Don't show an old error from another page, e.g. a failed login
 useAuth().clearError()
@@ -134,6 +140,8 @@ const handleSave = (event) => {
       <p v-if="successMessage" class="caption" role="status">{{ successMessage }}</p>
       <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
     </form>
+    <UnsavedChangesDialog v-model="isLeaveOpen" @leave="confirmLeave" />
+
   </main>
 </template>
 

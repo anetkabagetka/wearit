@@ -11,7 +11,8 @@ import settingsIcon from '@/assets/icons/settings.svg'
 import lightPreview from '@/assets/theme-light.webp'
 import darkPreview from '@/assets/theme-dark.webp'
 
-const { theme, isSaving, errorMessage, save } = useThemeSettings()
+// Picking a theme switches the colours and saves it right away, there's no Save button
+const { theme, errorMessage, save } = useThemeSettings()
 
 // The three choices: what gets saved, their text and their icon
 const themeOptions = [
@@ -31,7 +32,7 @@ const themeOptions = [
       <h1 class="title-m">Theme</h1>
     </div>
 
-    <form @submit.prevent="save" class="theme-form stack">
+    <form @submit.prevent class="theme-form stack">
       <!-- The same option rows as the goals on onboarding: icon, text, and the radio button on the right -->
       <fieldset class="stack-small">
         <label v-for="option in themeOptions" :key="option.value" class="option-row">
@@ -40,7 +41,7 @@ const themeOptions = [
             <span class="option-row-label">{{ option.label }}</span>
             <span class="option-row-description">{{ option.description }}</span>
           </span>
-          <input v-model="theme" type="radio" name="theme" :value="option.value" />
+          <input v-model="theme" type="radio" name="theme" :value="option.value" @change="save" />
         </label>
       </fieldset>
 
@@ -57,10 +58,6 @@ const themeOptions = [
           </div>
         </div>
       </div>
-
-      <button type="submit" :disabled="isSaving" class="btn btn-primary">
-        {{ isSaving ? 'Saving...' : 'Save' }}
-      </button>
 
       <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
     </form>

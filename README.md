@@ -184,7 +184,7 @@ erDiagram
 - **Outfits only store item IDs**, so an outfit always uses its items' latest numbers. Sold, donated or deleted items drop out of it.
 - **Sold, donated or given away** items stay saved with `removedAs`, so their history and final cost per wear are kept.
 - **Deleting an account** removes the profile, wardrobe, items and outfits in one batch.
-- **Photos** are in Cloudinary (`wearit/profile-pictures/{uid}` and `wearit/wardrobes/{uid}/items`); Firestore only keeps their `photoUrl`.
+- **Photos** are in Cloudinary (`wearit/profile-pictures/{uid}`, `wearit/wardrobes/{uid}/items` and `wearit/wardrobes/{uid}/outfits`); Firestore only keeps their `photoUrl`.
 
 ## 🔐 Security rules
 

@@ -33,3 +33,8 @@ export function uploadProfilePicture(userId, file) {
 export function uploadItemPhoto(userId, file) {
     return uploadImage(file, `wearit/wardrobes/${userId}/items`);
 }
+
+// Outfits' own photos go to wearit/wardrobes/{userId}/outfits
+export function uploadOutfitPhoto(userId, file) {
+    return uploadImage(file, `wearit/wardrobes/${userId}/outfits`);
+}

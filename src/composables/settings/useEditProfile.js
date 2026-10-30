@@ -15,12 +15,25 @@ export function useEditProfile() {
     // Start with what's saved now
     const username = ref(profile.value?.username ?? "");
     const email = ref(userEmail.value);
+    // The last saved email. A new email only becomes userEmail after its link is clicked,
+    // so after Save we remember it here, or the page would think it still has unsaved changes
+    const savedEmail = ref(userEmail.value);
     const photoFile = ref(null); // A new profile photo the user picked, or null
     const previewUrl = ref(""); // Temporary address to show the new photo before saving
     const isPhotoRemoved = ref(false); // true after "Remove photo", until Save
     const isSaving = ref(false);
     const errorMessage = ref("");
     const successMessage = ref("");
+
+    // true when something was changed and not saved yet (see useUnsavedChanges)
+    const hasUnsavedChanges = computed(
+        () =>
+            !isSaving.value &&
+            (username.value.trim() !== (profile.value?.username ?? "") ||
+                email.value.trim() !== savedEmail.value ||
+                photoFile.value !== null ||
+                isPhotoRemoved.value),
+    );
 
     // Google accounts log in with Google, so their email can only be changed at Google
     const isGoogleAccount = auth.currentUser?.providerData.some(
@@ -94,6 +107,7 @@ export function useEditProfile() {
             const emailChanged = email.value.trim() !== userEmail.value;
             if (emailChanged) {
                 await changeEmail(email.value.trim());
+                savedEmail.value = email.value.trim();
                 successMessage.value = `Saved. We sent a link to ${email.value.trim()}. Your email changes after you click it.`;
             } else {
                 successMessage.value = "Your profile is saved.";
@@ -121,5 +135,6 @@ export function useEditProfile() {
         choosePhoto,
         removePhoto,
         save,
+        hasUnsavedChanges,
     };
 }

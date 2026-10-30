@@ -1,11 +1,15 @@
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
 import { getWardrobe, listItems } from "@/services/wardrobes";
 import { addOutfit, getOutfit, updateOutfit } from "@/services/outfits";
+import { uploadOutfitPhoto } from "@/services/cloudinary";
 import { outfitCostPerWear } from "@/utils/wardrobe/costPerWear";
 import { categoryOptions, defaultTags, mainCategory } from "@/utils/wardrobe/itemOptions";
+
+// Largest photo we accept, in megabytes
+const MAX_SIZE_MB = 10;
 
 // State and actions for the outfit form: pick items, name the outfit, save it.
 // Without an outfitId it creates a new outfit, with an outfitId it edits that outfit
@@ -25,6 +29,12 @@ export function useOutfitForm(outfitId = null) {
     const isSaving = ref(false);
     const errorMessage = ref("");
     const pickError = ref(""); // Shown when Save is clicked with fewer than 2 items
+    const photoFile = ref(null); // A new photo of the outfit the user picked, or null
+    const previewUrl = ref(""); // A temporary local address for photoFile, to show it before it's saved
+    const savedPhotoUrl = ref(null); // The photo the outfit already has (edit only)
+    const isPhotoRemoved = ref(false); // true after "Remove photo", until Save
+    // Name, items and tags when the page opened, as text, to spot changes. Empty until an outfit loads
+    const savedForm = ref(JSON.stringify({ name: "", itemIds: [], tags: [] }));
 
     // The picked items themselves, in the order they were picked
     const pickedItems = computed(() =>
@@ -55,6 +65,55 @@ export function useOutfitForm(outfitId = null) {
     });
 
     const isPicked = (item) => pickedIds.value.includes(item.id);
+
+    // The parts of the form that get saved, as text, so two versions are easy to compare
+    const formText = () => JSON.stringify({ name: name.value, itemIds: pickedIds.value, tags: tags.value });
+
+    // true when something was changed and not saved yet (see useUnsavedChanges).
+    // While saving it's false, so opening the outfit after Save isn't stopped
+    const hasUnsavedChanges = computed(
+        () => !isSaving.value && (photoFile.value !== null || isPhotoRemoved.value || formText() !== savedForm.value),
+    );
+
+    // Shows the chosen photo right away. The old temporary address is freed first,
+    // so the browser doesn't keep old photos in memory
+    watch(photoFile, (file) => {
+        if (previewUrl.value) {
+            URL.revokeObjectURL(previewUrl.value);
+        }
+        previewUrl.value = file ? URL.createObjectURL(file) : "";
+    });
+
+    onBeforeUnmount(() => {
+        if (previewUrl.value) {
+            URL.revokeObjectURL(previewUrl.value);
+        }
+    });
+
+    // The outfit's own photo: the new one, else the saved one (unless "Remove photo" was clicked).
+    // Empty means the collage of its items shows instead
+    const shownPhoto = computed(() => previewUrl.value || (isPhotoRemoved.value ? "" : savedPhotoUrl.value) || "");
+
+    // Called when the user picks a photo with "Add your own photo"
+    const choosePhoto = (file) => {
+        errorMessage.value = "";
+
+        if (!file) {
+            return;
+        }
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+            errorMessage.value = `Please choose a photo smaller than ${MAX_SIZE_MB} MB.`;
+            return;
+        }
+        photoFile.value = file;
+        isPhotoRemoved.value = false;
+    };
+
+    // "Remove photo": forget a new photo, and take the saved one off when Save is clicked
+    const removePhoto = () => {
+        photoFile.value = null;
+        isPhotoRemoved.value = true;
+    };
 
     // "Add" puts an item in the outfit, "Added" takes it out again
     const togglePick = (item) => {
@@ -89,9 +148,11 @@ export function useOutfitForm(outfitId = null) {
                 }
                 name.value = savedOutfit.name;
                 tags.value = savedOutfit.tags ?? [];
+                savedPhotoUrl.value = savedOutfit.photoUrl ?? null;
                 // Only items that are still in the wardrobe stay picked
                 pickedIds.value = savedOutfit.itemIds.filter((id) => items.value.some((item) => item.id === id));
             }
+            savedForm.value = formText();
         } catch {
             errorMessage.value = "Could not load your wardrobe. Please refresh the page.";
         } finally {
@@ -111,10 +172,18 @@ export function useOutfitForm(outfitId = null) {
 
         try {
             const userId = auth.currentUser.uid;
+
+            // Keep the old photo unless the user picked a new one or removed it
+            let photoUrl = isPhotoRemoved.value ? null : savedPhotoUrl.value;
+            if (photoFile.value) {
+                photoUrl = await uploadOutfitPhoto(userId, photoFile.value);
+            }
+
             const outfit = {
                 name: name.value.trim(),
                 itemIds: pickedIds.value,
                 tags: tags.value,
+                photoUrl,
             };
 
             if (isEditing) {
@@ -145,6 +214,9 @@ export function useOutfitForm(outfitId = null) {
         isSaving,
         errorMessage,
         pickError,
+        shownPhoto,
+        choosePhoto,
+        removePhoto,
         pickedItems,
         outfitCpw,
         categories,
@@ -153,5 +225,6 @@ export function useOutfitForm(outfitId = null) {
         isPicked,
         togglePick,
         save,
+        hasUnsavedChanges,
     };
 }

@@ -5,11 +5,15 @@ import { useRouter } from 'vue-router'
 import FormField from '@/components/ui/FormField.vue'
 import CpwCard from '@/components/ui/CpwCard.vue'
 import OutfitCollage from '@/components/outfits/OutfitCollage.vue'
+import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 
 import { useOutfitForm } from '@/composables/outfits/useOutfitForm'
+import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { isFormValid } from '@/utils/forms/isFormValid'
 
+import cameraIcon from '@/assets/icons/camera.svg'
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
+import trashIcon from '@/assets/icons/trash.svg'
 import searchIcon from '@/assets/icons/search.svg'
 import checkIcon from '@/assets/icons/check.svg'
 
@@ -33,6 +37,9 @@ const {
     isSaving,
     errorMessage,
     pickError,
+    shownPhoto,
+    choosePhoto,
+    removePhoto,
     pickedItems,
     outfitCpw,
     categories,
@@ -41,7 +48,11 @@ const {
     isPicked,
     togglePick,
     save,
+    hasUnsavedChanges,
 } = useOutfitForm(props.outfitId)
+
+// Asks before leaving when there are changes that aren't saved yet
+const { isLeaveOpen, confirmLeave } = useUnsavedChanges(hasUnsavedChanges)
 
 // The line under the price in the cost card, e.g. "Sum of its 4 items' cost per wear. Drops with every wear."
 const formulaText = computed(() => {
@@ -51,6 +62,12 @@ const formulaText = computed(() => {
     }
     return `Sum of its ${count} items' cost per wear. Drops with every wear.`
 })
+
+// The picked file goes to choosePhoto. Clearing the input lets the same file be picked again
+const handlePhotoChange = (event) => {
+    choosePhoto(event.target.files[0])
+    event.target.value = ''
+}
 
 const handleSave = (event) => {
     // Stop here if the name is empty, FormField shows what to fix
@@ -138,7 +155,23 @@ const handleSave = (event) => {
                     </p>
                 </div>
 
-                <OutfitCollage :items="pickedItems" class="outfit-preview-photo" />
+                <OutfitCollage :items="pickedItems" :photo-url="shownPhoto" class="outfit-preview-photo" />
+
+                <!-- Optional: the user's own photo of the outfit, shown instead of its items' photos.
+                     It's uploaded with the Save button -->
+                <div class="photo-buttons">
+                    <!-- The label works as the button: clicking it opens the hidden file picker -->
+                    <label class="btn btn-ghost photo-button">
+                        <img :src="cameraIcon" alt="" width="16" height="16" />
+                        {{ shownPhoto ? 'Change photo' : 'Add your own photo' }}
+                        <input type="file" accept="image/*" class="visually-hidden" @change="handlePhotoChange" />
+                    </label>
+
+                    <button v-if="shownPhoto" type="button" class="btn btn-ghost photo-button" @click="removePhoto">
+                        <img :src="trashIcon" alt="" width="16" height="16" />
+                        Remove photo
+                    </button>
+                </div>
 
                 <FormField label="Outfit name">
                     <input v-model="name" type="text" placeholder="e.g. Office Monday" required />
@@ -176,6 +209,8 @@ const handleSave = (event) => {
         </form>
 
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
+        <UnsavedChangesDialog v-model="isLeaveOpen" @leave="confirmLeave" />
+
     </div>
 </template>
 
@@ -227,6 +262,26 @@ const handleSave = (event) => {
 
 .outfit-preview-photo {
     height: 260px;
+}
+
+.photo-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.photo-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
 }
 
 @media (min-width: 900px) {

@@ -1,4 +1,4 @@
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
@@ -55,6 +55,14 @@ export function useItemForm(itemId = null) {
     const isNotFound = ref(false); // true when the item in the address doesn't exist
     const isSaving = ref(false);
     const errorMessage = ref("");
+    // The form as it was when the page opened, as text, to compare with what's in it now
+    const savedForm = ref(JSON.stringify(emptyItem()));
+
+    // true when something was changed and not saved yet (see useUnsavedChanges).
+    // While saving it's false, so going to the wardrobe after Save isn't stopped
+    const hasUnsavedChanges = computed(
+        () => !isSaving.value && (photoFile.value !== null || JSON.stringify(item.value) !== savedForm.value),
+    );
 
     // Loads the wardrobe's currency and goal, and when editing also the item itself
     const load = async () => {
@@ -76,6 +84,7 @@ export function useItemForm(itemId = null) {
                 }
 
                 item.value = toFormItem(savedItem);
+                savedForm.value = JSON.stringify(item.value);
                 savedPhotoUrl.value = savedItem.photoUrl ?? null;
                 // Show the item's own tags as chips too, also ones the user added themselves.
                 // new Set removes duplicates
@@ -162,6 +171,7 @@ export function useItemForm(itemId = null) {
         errorMessage,
         addTag,
         save,
+        hasUnsavedChanges,
         remove,
     };
 }

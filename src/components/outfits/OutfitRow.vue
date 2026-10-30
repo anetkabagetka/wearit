@@ -25,7 +25,7 @@ const itemCount = computed(() => {
 
 <template>
     <RouterLink :to="{ name: 'outfit', params: { outfitId: outfit.id } }" class="outfit-row">
-        <OutfitCollage :items="outfit.items" class="outfit-row-photo" />
+        <OutfitCollage :items="outfit.items" :photo-url="outfit.photoUrl" class="outfit-row-photo" />
 
         <span class="outfit-row-text">
             <span class="outfit-row-name">{{ outfit.name }}</span>

@@ -26,6 +26,11 @@ export function useChangePassword() {
             : "",
     );
 
+    // true while something is typed and not saved yet (see useUnsavedChanges)
+    const hasUnsavedChanges = computed(
+        () => !isSaving.value && Boolean(currentPassword.value || newPassword.value || confirmPassword.value),
+    );
+
     // Changes the password, then empties the fields and shows a success message
     const save = async () => {
         checkPasswordsMatch.value = true;
@@ -61,5 +66,6 @@ export function useChangePassword() {
         errorMessage,
         successMessage,
         save,
+        hasUnsavedChanges,
     };
 }

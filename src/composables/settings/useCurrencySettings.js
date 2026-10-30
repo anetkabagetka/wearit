@@ -1,4 +1,4 @@
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
@@ -31,6 +31,10 @@ export function useCurrencySettings() {
             isLoading.value = false;
         }
     };
+
+    // true when another currency is picked and not saved yet (see useUnsavedChanges).
+    // While saving it's false, so going back to settings after converting isn't stopped
+    const hasUnsavedChanges = computed(() => !isSaving.value && currency.value !== savedCurrency.value);
 
     // The "Convert all your prices?" pop-up on the page (AppDialog)
     const isConfirmOpen = ref(false);
@@ -84,6 +88,7 @@ export function useCurrencySettings() {
         isSaving,
         errorMessage,
         save,
+        hasUnsavedChanges,
         savedCurrency,
         isConfirmOpen,
         convertAndSave,

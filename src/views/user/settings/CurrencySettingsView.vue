@@ -2,14 +2,19 @@
 import Navigation from '@/components/layout/Navigation.vue'
 import CurrencyPicker from '@/components/ui/CurrencyPicker.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
+import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 
 import { useCurrencySettings } from '@/composables/settings/useCurrencySettings'
+import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { RATES_DATE } from '@/utils/wardrobe/currencyOptions'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 
-const { currency, isLoading, isSaving, errorMessage, save, savedCurrency, isConfirmOpen, convertAndSave } =
+const { currency, isLoading, isSaving, errorMessage, save, savedCurrency, isConfirmOpen, convertAndSave, hasUnsavedChanges } =
     useCurrencySettings()
+
+// Asks before leaving when there are changes that aren't saved yet
+const { isLeaveOpen, confirmLeave } = useUnsavedChanges(hasUnsavedChanges)
 </script>
 
 <template>
@@ -61,6 +66,8 @@ const { currency, isLoading, isSaving, errorMessage, save, savedCurrency, isConf
                 </div>
             </div>
         </AppDialog>
+        <UnsavedChangesDialog v-model="isLeaveOpen" @leave="confirmLeave" />
+
     </main>
 </template>
 

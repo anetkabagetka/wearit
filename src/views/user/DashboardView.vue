@@ -410,7 +410,7 @@ const handleRemove = async (reason, salePrice) => {
                     <!-- The Outfits chip: each outfit with its photos, like the items -->
                     <ul v-if="logCategory === 'outfits'" class="log-list">
                         <li v-for="outfit in logOutfits" :key="outfit.id" class="log-row">
-                            <OutfitCollage :items="outfit.items" class="log-row-photo" />
+                            <OutfitCollage :items="outfit.items" :photo-url="outfit.photoUrl" class="log-row-photo" />
                             <span class="log-row-text">
                                 <span class="logged-name">{{ outfit.name }}</span>
                                 <span class="caption">

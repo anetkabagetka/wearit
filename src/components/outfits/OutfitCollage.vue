@@ -1,10 +1,12 @@
 <script setup>
 import { computed } from "vue";
 
-// The picture of an outfit: the photos of its first 4 items next to each other
+// The picture of an outfit: the user's own photo of it when there is one,
+// otherwise the photos of its first 4 items next to each other.
 // 2 items = two columns, 3 = one tall photo and two small ones, 4 or more = 2 × 2
 const props = defineProps({
     items: { type: Array, default: () => [] },
+    photoUrl: { type: String, default: "" }, // The outfit's own photo
 });
 
 const shownItems = computed(() => props.items.slice(0, 4));
@@ -12,7 +14,11 @@ const shownItems = computed(() => props.items.slice(0, 4));
 
 <template>
     <!-- The page that uses it sets the height, e.g. class="outfit-card-photo" -->
-    <div class="collage" :class="`collage-${shownItems.length}`">
+    <div v-if="photoUrl" class="collage">
+        <img :src="photoUrl" alt="" class="collage-photo" />
+    </div>
+
+    <div v-else class="collage" :class="`collage-${shownItems.length}`">
         <template v-for="item in shownItems" :key="item.id">
             <img v-if="item.photoUrl" :src="item.photoUrl" alt="" class="collage-photo" />
             <!-- Gray box when the item has no photo -->
