@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { useWardrobe } from "@/composables/useWardrobe";
 import { averageCostPerWear, costPerWear } from "@/utils/costPerWear";
 import { toJsDate } from "@/utils/formatDate";
+import { mainCategory } from "@/utils/itemOptions";
 
 // The period chips at the top. "text" finishes sentences like "124 items this year"
 export const periodOptions = [
@@ -135,12 +136,14 @@ export function useInsights() {
     );
 
     // Items per category, biggest first, with their share in %. The donut has 4 grays,
-    // so with more than 4 categories the smallest ones are added up as "Other"
-    const categoryCount = computed(() => new Set(periodItems.value.map((item) => item.category)).size);
+    // so with more than 4 categories the smallest ones are added up as "Other".
+    // A hat, a bag or a ring all count as Accessories
+    const categoryCount = computed(() => new Set(periodItems.value.map((item) => mainCategory(item.category))).size);
     const categories = computed(() => {
         const counts = {};
         for (const item of periodItems.value) {
-            counts[item.category] = (counts[item.category] ?? 0) + 1;
+            const category = mainCategory(item.category);
+            counts[category] = (counts[category] ?? 0) + 1;
         }
 
         let list = Object.entries(counts)

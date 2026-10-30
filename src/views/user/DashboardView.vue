@@ -17,7 +17,7 @@ import { costPerWear, outfitCostPerWear } from '@/utils/costPerWear'
 import { toJsDate } from '@/utils/formatDate'
 import { formatMoney } from '@/utils/formatMoney'
 import { formatWears } from '@/utils/formatWears'
-import { categoryOptions } from '@/utils/itemOptions'
+import { categoryOptions, mainCategory } from '@/utils/itemOptions'
 import { wornToday } from '@/utils/wornToday'
 
 import shirtIcon from '@/assets/icons/shirt.svg'
@@ -90,7 +90,7 @@ const onlyLeastWorn = ref(false)
 
 // The category chips in the pop-up: only categories that are in the wardrobe, in the usual order
 const logCategories = computed(() =>
-    categoryOptions.filter((category) => items.value.some((item) => item.category === category)),
+    categoryOptions.filter((category) => items.value.some((item) => mainCategory(item.category) === category)),
 )
 
 // Items in the pop-up that match its search and chip, the most recently worn first.
@@ -102,7 +102,7 @@ const logList = computed(() => {
     const text = logSearch.value.toLowerCase()
     return items.value
         .filter((item) => item.name.toLowerCase().includes(text))
-        .filter((item) => logCategory.value === 'recent' || item.category === logCategory.value)
+        .filter((item) => logCategory.value === 'recent' || mainCategory(item.category) === logCategory.value)
         .sort((a, b) => toJsDate(b.lastWornAt ?? 0) - toJsDate(a.lastWornAt ?? 0))
 })
 

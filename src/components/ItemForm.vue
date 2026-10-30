@@ -10,7 +10,7 @@ import AppDialog from '@/components/AppDialog.vue'
 import { useItemForm } from '@/composables/useItemForm'
 import { isFormValid } from '@/utils/isFormValid'
 import { getCurrencySymbol } from '@/utils/formatMoney'
-import { categoryOptions, colorOptions, seasonOptions } from '@/utils/itemOptions'
+import { accessoryOptions, clothingOptions, colorOptions, seasonOptions } from '@/utils/itemOptions'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import plusIcon from '@/assets/icons/plus.svg'
@@ -138,7 +138,10 @@ const handleSave = (event) => {
           <FormField label="Category">
             <select v-model="item.category" required>
               <option value="" disabled>Select category</option>
-              <option v-for="category in categoryOptions" :key="category">{{ category }}</option>
+              <option v-for="category in clothingOptions" :key="category">{{ category }}</option>
+              <optgroup label="Accessories">
+                <option v-for="accessory in accessoryOptions" :key="accessory">{{ accessory }}</option>
+              </optgroup>
             </select>
           </FormField>
 

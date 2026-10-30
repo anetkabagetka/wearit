@@ -4,7 +4,7 @@ import { auth } from "@/firebase";
 import { getWardrobe, listItems, markItemRemoved, markItemWorn } from "@/services/wardrobes";
 import { listOutfits, logOutfitWear } from "@/services/outfits";
 import { costPerWear, outfitCostPerWear } from "@/utils/costPerWear";
-import { cpwSliderMax } from "@/utils/itemOptions";
+import { cpwSliderMax, mainCategory } from "@/utils/itemOptions";
 import { wornToday } from "@/utils/wornToday";
 
 // What the Filters pop-up starts with. Empty lists mean "show everything"
@@ -16,6 +16,7 @@ function emptyFilters() {
         brands: [],
         colors: [],
         seasons: [],
+        tags: [],
     };
 }
 
@@ -55,16 +56,18 @@ export function useWardrobe() {
 
     // Does an item fit everything picked in the Filters pop-up?
     const matchesFilters = (item) => {
-        const { minCpw, maxCpw, categories, brands, colors, seasons } = filters.value;
+        const { minCpw, maxCpw, categories, brands, colors, seasons, tags } = filters.value;
         const cpw = costPerWear(item.price, item.timesWorn);
 
         return (
             cpw >= minCpw &&
             (maxCpw === cpwSliderMax || cpw <= maxCpw) && // At the top of the slider there's no upper limit
-            isPicked(categories, item.category) &&
+            isPicked(categories, mainCategory(item.category)) && // A hat counts as Accessories
             isPicked(brands, item.brand) &&
             isPicked(colors, item.color) &&
-            isPicked(seasons, item.season)
+            isPicked(seasons, item.season) &&
+            // Like on the Outfits tab: with Work picked, items with the Work tag count
+            (tags.length === 0 || tags.some((tag) => (item.tags ?? []).includes(tag)))
         );
     };
 
@@ -79,6 +82,9 @@ export function useWardrobe() {
 
     // Every brand in the wardrobe once, A to Z, for the Brand chips. new Set removes duplicates
     const brandOptions = computed(() => [...new Set(items.value.map((item) => item.brand).filter(Boolean))].sort());
+
+    // Every tag used on an item once, A to Z, for the Tags chips on the Items tab
+    const itemTagOptions = computed(() => [...new Set(items.value.flatMap((item) => item.tags ?? []))].sort());
 
     // Outfits with their items filled in, in the order they were picked.
     // filter(Boolean) leaves out items that were deleted, sold, donated or given away
@@ -220,6 +226,7 @@ export function useWardrobe() {
         search,
         filters,
         brandOptions,
+        itemTagOptions,
         resetFilters,
         visibleItems,
         outfits,

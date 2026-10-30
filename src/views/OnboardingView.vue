@@ -12,7 +12,7 @@ import CurrencyPicker from '@/components/CurrencyPicker.vue'
 import { useOnboarding } from '@/composables/useOnboarding'
 import { formatMoney } from '@/utils/formatMoney'
 import { isFormValid } from '@/utils/isFormValid'
-import { categoryOptions } from '@/utils/itemOptions'
+import { accessoryOptions, clothingOptions } from '@/utils/itemOptions'
 import { findCurrency } from '@/utils/currencyOptions'
 
 import moneyIcon from '@/assets/icons/money.svg'
@@ -137,7 +137,10 @@ const previewFormula = computed(() => {
                         <FormField label="Category">
                             <select v-model="item.category" required>
                                 <option value="" disabled>Select</option>
-                                <option v-for="category in categoryOptions" :key="category">{{ category }}</option>
+                                <option v-for="category in clothingOptions" :key="category">{{ category }}</option>
+                                <optgroup label="Accessories">
+                                    <option v-for="accessory in accessoryOptions" :key="accessory">{{ accessory }}</option>
+                                </optgroup>
                             </select>
                         </FormField>
 

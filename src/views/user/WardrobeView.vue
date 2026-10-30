@@ -28,6 +28,7 @@ const {
     search,
     filters,
     brandOptions,
+    itemTagOptions,
     resetFilters,
     visibleItems,
     visibleOutfits,
@@ -53,7 +54,7 @@ const shownFilters = computed(() => (tab.value === 'outfits' ? outfitFilters.val
 const shownWord = computed(() => tab.value)
 
 // The chip groups in the pop-up: their title, their choices, and which list in the filters they fill.
-// Brand is left out while no item has a brand, Tags while no outfit has a tag
+// Brand is left out while no item has a brand, Tags while nothing on the open tab has a tag
 const filterGroups = computed(() => {
     const groups =
         tab.value === 'outfits'
@@ -63,6 +64,7 @@ const filterGroups = computed(() => {
                 { title: 'Brand', key: 'brands', options: brandOptions.value },
                 { title: 'Color', key: 'colors', options: colorOptions },
                 { title: 'Season', key: 'seasons', options: seasonOptions },
+                { title: 'Tags', key: 'tags', options: itemTagOptions.value },
             ]
     return groups.filter((group) => group.options.length > 0)
 })

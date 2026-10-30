@@ -5,7 +5,7 @@ import { auth } from "@/firebase";
 import { getWardrobe, listItems } from "@/services/wardrobes";
 import { addOutfit, getOutfit, updateOutfit } from "@/services/outfits";
 import { outfitCostPerWear } from "@/utils/costPerWear";
-import { categoryOptions, defaultTags } from "@/utils/itemOptions";
+import { categoryOptions, defaultTags, mainCategory } from "@/utils/itemOptions";
 
 // State and actions for the outfit form: pick items, name the outfit, save it.
 // Without an outfitId it creates a new outfit, with an outfitId it edits that outfit
@@ -36,7 +36,7 @@ export function useOutfitForm(outfitId = null) {
 
     // The category chips: only categories that are in the wardrobe, in the usual order
     const categories = computed(() =>
-        categoryOptions.filter((option) => items.value.some((item) => item.category === option)),
+        categoryOptions.filter((option) => items.value.some((item) => mainCategory(item.category) === option)),
     );
 
     // Tags to pick from: the usual ones, every tag already used on an item, and the outfit's own.
@@ -51,7 +51,7 @@ export function useOutfitForm(outfitId = null) {
 
         return items.value
             .filter((item) => `${item.name} ${item.brand ?? ""}`.toLowerCase().includes(text))
-            .filter((item) => category.value === "all" || item.category === category.value);
+            .filter((item) => category.value === "all" || mainCategory(item.category) === category.value);
     });
 
     const isPicked = (item) => pickedIds.value.includes(item.id);
