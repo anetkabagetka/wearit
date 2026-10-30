@@ -118,7 +118,9 @@ import moneyIcon from "@/assets/icons/money.svg"
 <style scoped>
 .about-banner {
     width: 100%;
-    height: 400px;
+    /* The photo is 1440×400, so 28vw shows all of it. It never gets shorter than 200px (phones)
+       or taller than 400px (wide screens) */
+    height: clamp(200px, 28vw, 400px);
     display: block;
     object-fit: cover;
 }
