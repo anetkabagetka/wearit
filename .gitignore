@@ -28,13 +28,6 @@ coverage
 
 .eslintcache
 
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
-
-# Vitest
-__screenshots__/
-
 # Vite
 *.timestamp-*-*.mjs
 
@@ -44,3 +37,4 @@ node_modules
 .claude
 functions/node_modules
 functions/package-lock.json
+.firebase/
