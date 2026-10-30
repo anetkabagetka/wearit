@@ -7,6 +7,7 @@ import ItemCard from '@/components/items/ItemCard.vue'
 import ItemRow from '@/components/items/ItemRow.vue'
 import OutfitCard from '@/components/outfits/OutfitCard.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useWardrobe } from '@/composables/useWardrobe'
 import { formatMoney } from '@/utils/format/formatMoney'
@@ -124,7 +125,7 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
         <!-- Shown above, everything, so the items stay visible if only one "wear" fails -->
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
-        <p v-if="isLoading">Loading your wardrobe...</p>
+        <LoadingSkeleton v-if="isLoading" variant="cards" />
 
         <!-- The Outfits tab -->
         <template v-else-if="tab === 'outfits'">

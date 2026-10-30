@@ -12,6 +12,7 @@ import AppDialog from '@/components/ui/AppDialog.vue'
 import RemoveItemDialog from '@/components/items/RemoveItemDialog.vue'
 import ItemRemovedDialog from '@/components/items/ItemRemovedDialog.vue'
 import ItemLoggedSummary from '@/components/items/ItemLoggedSummary.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useAuth } from '@/composables/useAuth'
 import { useDashboard } from '@/composables/useDashboard'
@@ -219,7 +220,7 @@ const handleRemove = async (reason, salePrice) => {
 
         <p v-if="errorMessage && !isLogOpen" class="form-error" role="alert">{{ errorMessage }}</p>
 
-        <p v-if="isLoading">Loading your wardrobe...</p>
+        <LoadingSkeleton v-if="isLoading" variant="rows" />
 
         <!-- A brand new wardrobe: nothing to count yet -->
         <div v-else-if="items.length === 0" class="stack-small">

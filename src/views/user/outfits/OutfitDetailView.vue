@@ -9,6 +9,7 @@ import ItemRow from '@/components/items/ItemRow.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
 import OutfitCollage from '@/components/outfits/OutfitCollage.vue'
 import OutfitLoggedSummary from '@/components/outfits/OutfitLoggedSummary.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useOutfitDetail } from '@/composables/outfits/useOutfitDetail'
 import { useDropdown } from '@/composables/useDropdown'
@@ -166,23 +167,24 @@ const handleLogWear = async () => {
 
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
-        <p v-if="isLoading">Loading...</p>
+        <LoadingSkeleton v-if="isLoading" variant="detail" />
 
         <p v-else-if="isNotFound">This outfit doesn't exist anymore.</p>
 
         <!-- Two columns on wide screens, one column on phones, like the item page -->
-        <div v-else-if="outfit" class="split split-top">
-            <!-- Left column: the photos, its items and the wear history -->
-            <div class="stack">
+        <div v-else-if="outfit" class="split split-top detail-layout">
+            <!-- Left column: the photos, its items and the wear history.
+                 On phones both columns become one list (see the CSS) -->
+            <div class="stack detail-column">
                 <OutfitCollage :items="outfitItems" :photo-url="outfit.photoUrl" class="outfit-photo" />
 
                 <!-- Each row opens that item's page -->
-                <section>
+                <section class="phone-order-1">
                     <h2 class="title-m">In this outfit</h2>
                     <ItemRow v-for="item in outfitItems" :key="item.id" :item="item" :currency="currency" />
                 </section>
 
-                <section class="stack-small">
+                <section class="stack-small phone-order-3">
                     <div class="section-header">
                         <h2 class="title-m">Wear history</h2>
                         <button v-if="wearHistory.length > 5 && !showAllWears" type="button" class="see-all"
@@ -205,7 +207,7 @@ const handleLogWear = async () => {
             </div>
 
             <!-- Right column: name, cost per wear, log outfit, metrics, manage -->
-            <div class="stack">
+            <div class="stack detail-column">
                 <div class="stack-small">
                     <h2 class="outfit-name">{{ outfit.name }}</h2>
                     <p class="caption">{{ metaText }}</p>
@@ -228,7 +230,7 @@ const handleLogWear = async () => {
                     <p class="caption log-hint">{{ nextWearText }}</p>
                 </div>
 
-                <section class="stack-small">
+                <section class="stack-small phone-order-2">
                     <h2 class="title-m">Key metrics</h2>
                     <div class="stats">
                         <div class="stat-card">
@@ -260,7 +262,7 @@ const handleLogWear = async () => {
                     </div>
                 </section>
 
-                <section>
+                <section class="phone-order-2">
                     <h2 class="title-m">Manage</h2>
                     <ListRow :icon="editIcon" label="Edit outfit"
                         :to="{ name: 'edit-outfit', params: { outfitId: outfit.id } }" />
@@ -390,5 +392,30 @@ const handleLogWear = async () => {
 
 .wear-row-value {
     color: var(--gray);
+}
+
+/* Phones: the two columns become one list (display: contents), so the order can be mixed:
+   photo, name, cost per wear and "Log outfit" first (order 0), then its items (1),
+   key metrics and manage (2), and the wear history last (3) */
+@media (max-width: 767px) {
+    .detail-layout {
+        gap: 16px;
+    }
+
+    .detail-column {
+        display: contents;
+    }
+
+    .phone-order-1 {
+        order: 1;
+    }
+
+    .phone-order-2 {
+        order: 2;
+    }
+
+    .phone-order-3 {
+        order: 3;
+    }
 }
 </style>

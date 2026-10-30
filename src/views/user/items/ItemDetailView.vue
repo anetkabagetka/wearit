@@ -10,6 +10,7 @@ import AppDialog from '@/components/ui/AppDialog.vue'
 import RemoveItemDialog from '@/components/items/RemoveItemDialog.vue'
 import ItemRemovedDialog from '@/components/items/ItemRemovedDialog.vue'
 import ItemLoggedSummary from '@/components/items/ItemLoggedSummary.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useItemDetail } from '@/composables/items/useItemDetail'
 import { useDropdown } from '@/composables/useDropdown'
@@ -186,18 +187,18 @@ const removedText = computed(() => {
 
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
-        <p v-if="isLoading">Loading...</p>
+        <LoadingSkeleton v-if="isLoading" variant="detail" />
 
         <p v-else-if="isNotFound">This item doesn't exist anymore.</p>
 
         <!-- Two columns on wide screens, one column on phones -->
-        <div v-else-if="item" class="split split-top">
-            <!-- Left column: photo and notes -->
-            <div class="stack">
+        <div v-else-if="item" class="split split-top detail-layout">
+            <!-- Left column: photo and notes. On phones both columns become one list (see the CSS) -->
+            <div class="stack detail-column">
                 <img v-if="item.photoUrl" :src="item.photoUrl" :alt="item.name" class="item-photo" />
                 <!-- Gray box when the item has no photo -->
                 <div v-else class="item-photo"></div>
-                <section class="stack-small">
+                <section class="stack-small later-on-phone">
                     <div class="section-header">
                         <h2 class="title-m">Wear history</h2>
                         <button v-if="wearHistory.length > 5 && !showAllWears" type="button" class="see-all"
@@ -218,14 +219,14 @@ const removedText = computed(() => {
                     </ul>
                 </section>
 
-                <section v-if="item.notes" class="stack-small">
+                <section v-if="item.notes" class="stack-small later-on-phone">
                     <h2 class="title-m">Notes & condition</h2>
                     <p class="notes">{{ item.notes }}</p>
                 </section>
             </div>
 
             <!-- Right column: name, cost per wear, log a wear, metrics, manage -->
-            <div class="stack">
+            <div class="stack detail-column">
                 <div class="stack-small">
                     <h2 class="item-name">{{ item.name }}</h2>
                     <p class="caption">{{ metaText }}</p>
@@ -424,5 +425,21 @@ const removedText = computed(() => {
 
 .wear-row-value {
     color: var(--gray);
+}
+
+/* Phones: the two columns become one list (display: contents), so the name, cost per wear and
+   "Log a wear" come right after the photo. Wear history and notes move to the end with order */
+@media (max-width: 767px) {
+    .detail-layout {
+        gap: 16px;
+    }
+
+    .detail-column {
+        display: contents;
+    }
+
+    .later-on-phone {
+        order: 1;
+    }
 }
 </style>

@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 
 import Navigation from "@/components/layout/Navigation.vue";
 import AppDialog from "@/components/ui/AppDialog.vue";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton.vue";
 import { useAdminUsers } from "@/composables/useAdminUsers";
 import { useAuth } from "@/composables/useAuth";
 import { useDropdown } from "@/composables/useDropdown";
@@ -86,7 +87,7 @@ const initials = (name) => getInitials(name);
 
     <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
-    <p v-if="isLoading">Loading users...</p>
+    <LoadingSkeleton v-if="isLoading" variant="rows" />
 
     <template v-else>
       <div class="stats">

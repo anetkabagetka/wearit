@@ -3,6 +3,7 @@ import Navigation from '@/components/layout/Navigation.vue'
 import CurrencyPicker from '@/components/ui/CurrencyPicker.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
 import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useCurrencySettings } from '@/composables/settings/useCurrencySettings'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
@@ -27,7 +28,7 @@ const { isLeaveOpen, confirmLeave } = useUnsavedChanges(hasUnsavedChanges)
             <h1 class="title-m">Currency</h1>
         </div>
 
-        <p v-if="isLoading">Loading...</p>
+        <LoadingSkeleton v-if="isLoading" variant="rows" />
 
         <form v-else @submit.prevent="save" class="currency-form stack">
             <p>Used for prices and cost per wear across your wardrobe.</p>

@@ -7,6 +7,7 @@ import PhotoUpload from '@/components/ui/PhotoUpload.vue'
 import CpwCard from '@/components/ui/CpwCard.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
 import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useItemForm } from '@/composables/items/useItemForm'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
@@ -114,7 +115,7 @@ const handleSave = (event) => {
       </div>
     </AppDialog>
 
-    <p v-if="isLoading">Loading...</p>
+    <LoadingSkeleton v-if="isLoading" variant="detail" />
 
     <p v-else-if="isNotFound">
       This item doesn't exist anymore.

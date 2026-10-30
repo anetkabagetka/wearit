@@ -7,6 +7,7 @@ import Navigation from '@/components/layout/Navigation.vue'
 import ItemRow from '@/components/items/ItemRow.vue'
 import OutfitRow from '@/components/outfits/OutfitRow.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { periodOptions, useInsights } from '@/composables/useInsights'
 import { formatDate } from '@/utils/format/formatDate'
@@ -167,7 +168,7 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
-        <p v-if="isLoading">Loading your wardrobe...</p>
+        <LoadingSkeleton v-if="isLoading" variant="rows" />
 
         <!-- A brand new wardrobe: nothing to count yet -->
         <div v-else-if="items.length === 0" class="stack-small">

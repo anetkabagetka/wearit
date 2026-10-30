@@ -6,6 +6,7 @@ import FormField from '@/components/ui/FormField.vue'
 import CpwCard from '@/components/ui/CpwCard.vue'
 import OutfitCollage from '@/components/outfits/OutfitCollage.vue'
 import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton.vue'
 
 import { useOutfitForm } from '@/composables/outfits/useOutfitForm'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
@@ -88,7 +89,7 @@ const handleSave = (event) => {
             <h1 class="title-m">{{ isEditing ? 'Edit outfit' : 'Create outfit' }}</h1>
         </div>
 
-        <p v-if="isLoading">Loading...</p>
+        <LoadingSkeleton v-if="isLoading" variant="detail" />
 
         <p v-else-if="isNotFound">
             This outfit doesn't exist anymore.
