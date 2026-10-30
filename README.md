@@ -6,14 +6,15 @@
 
 ## ✨ Features
 
-- **Wardrobe:** clothes with photo, brand, category, color, season and tags. Grid or list, search and filters.
+- **Wardrobe:** clothes with photo, brand, category, color, season and tags. Accessories can be more specific (gloves, hat, cap, ring, necklace, earrings, bag). Grid or list, search, and filters by cost per wear, category, brand, color, season and tags.
 - **Cost per wear:** price ÷ wears for every item, with progress towards your own goal.
-- **Log a wear:** one tap, once a day per item, with a full wear history.
-- **Outfits:** put 2 or more items together and log them all at once. An outfit's cost per wear is its items' added up.
+- **Log a wear:** one tap, once a day per item (it opens up again at midnight), with a full wear history. A pop-up confirms each wear and shows the new cost per wear.
+- **Outfits:** put 2 or more items together and log them all at once. Add your own photo, or let the app show a collage of its items. An outfit's cost per wear is its items' added up. Filter them by tags.
 - **Insights:** spending, the cost-per-wear trend, categories, brands, when you wear clothes, and your most worn outfits.
-- **Sold, donated or given away:** the item leaves the wardrobe but keeps its history.
+- **Sold, donated or given away:** the item leaves the wardrobe but keeps its history, and a pop-up confirms what happened.
 - **Push notifications:** reminders for clothes you don't wear, a weekly summary, and goal milestones.
-- **Your way:** light or dark theme, and 6 currencies (EUR, DKK, GBP, USD, CZK, SEK).
+- **Your way:** light, dark or system theme (saved as soon as you pick it), and 6 currencies (EUR, DKK, GBP, USD, CZK, SEK).
+- **No lost edits:** forms ask before you leave with changes you haven't saved.
 - **Admin:** see all users, change roles, delete accounts.
 
 ## 🧰 Tech stack
@@ -106,7 +107,7 @@ The router checks every page before it opens: guests go to login, users who have
 | **Public** | Landing, About us, Contact & support |
 | **Account** | Log in, Sign up and onboarding (4 steps), Reset password |
 | **App** | Home, Wardrobe (Items and Outfits), Item, Add / edit item, Outfit, Create / edit outfit, Insights |
-| **Settings** | Profile, Edit profile, Change password, Currency, Notifications, Theme, Delete account |
+| **Settings** | Settings, Edit profile, Change password, Currency, Notifications, Theme, Delete account |
 | **Admin** | Users |
 
 ## 🗄️ Database
@@ -149,7 +150,7 @@ erDiagram
     }
     ITEM {
         string name
-        string category
+        string category "Tops, Shoes... or an accessory kind like Hat"
         string brand
         string color
         string season
@@ -171,6 +172,7 @@ erDiagram
         string name
         array itemIds "its items, in picked order"
         array tags
+        string photoUrl "Cloudinary, or null for the item collage"
         number timesWorn
         timestamp lastWornAt
         array wornDates
@@ -179,9 +181,10 @@ erDiagram
     }
 ```
 
+- **Accessory kinds** (Gloves, Hat, Bag…) are saved as the `category` itself; filters, Insights and the outfit picker count them all as Accessories.
 - **Cost per wear** is never saved: it's worked out from `price` and `timesWorn` (an outfit: its items' costs added up).
 - **A wear** adds 1 to `timesWorn`, sets `lastWornAt` and adds the date to `wornDates`. Logging an outfit does that for the outfit and its items in one batch, skipping items already worn today.
-- **Outfits only store item IDs**, so an outfit always uses its items' latest numbers. Sold, donated or deleted items drop out of it.
+- **Outfits only store item IDs**, so an outfit always uses its items' latest numbers. Sold, donated or deleted items drop out of it. An outfit's own `photoUrl` is shown instead of the item collage when it has one.
 - **Sold, donated or given away** items stay saved with `removedAs`, so their history and final cost per wear are kept.
 - **Deleting an account** removes the profile, wardrobe, items and outfits in one batch.
 - **Photos** are in Cloudinary (`wearit/profile-pictures/{uid}`, `wearit/wardrobes/{uid}/items` and `wearit/wardrobes/{uid}/outfits`); Firestore only keeps their `photoUrl`.
