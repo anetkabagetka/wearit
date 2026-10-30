@@ -37,9 +37,9 @@ const handleLogout = async () => {
   router.push({ name: "landing" });
 };
 
-// true when the page you're on belongs to this tab, so the tab is black instead of gray.
-// startsWith also counts the pages under it: /settings/theme belongs to Settings, /item/... to Wardrobe
-const isActive = (...paths) => paths.some((path) => route.path.startsWith(path));
+// true when the page you're on belongs to this tab. Each route says its tab in meta.tab (router/index.js),
+// so /settings/theme counts as Settings and /item/... as Wardrobe
+const isActive = (tab) => route.meta.tab === tab;
 </script>
 <template>
   <!-- Wide screens: the header at the top, logged in or not -->
@@ -48,30 +48,32 @@ const isActive = (...paths) => paths.some((path) => route.path.startsWith(path))
       <nav>
         <template v-if="isSignedIn">
           <img :src="logo" alt="WearIt logo" class="logo" />
-          <RouterLink to="/dashboard">
+          <RouterLink to="/dashboard" :class="{ active: isActive('home') }">
             <img :src="homeIcon" alt="Home" />
             Home
           </RouterLink>
-          <RouterLink to="/wardrobe">
+          <RouterLink to="/wardrobe" :class="{ active: isActive('wardrobe') }">
             <img :src="hangerIcon" alt="Wardrobe" />
             Wardrobe
           </RouterLink>
-          <RouterLink to="/insights">
+          <RouterLink to="/insights" :class="{ active: isActive('insights') }">
             <img :src="chartIcon" alt="Insights" />
             Insights
           </RouterLink>
-          <RouterLink to="/settings">
+          <RouterLink to="/settings" :class="{ active: isActive('settings') }">
             <img :src="settingsIcon" alt="Settings" />
             Settings
           </RouterLink>
-          <RouterLink v-if="isAdmin" to="/admin">Admin</RouterLink>
+          <RouterLink v-if="isAdmin" to="/admin" :class="{ active: isActive('admin') }">Admin</RouterLink>
         </template>
         <template v-else>
           <RouterLink to="/" class="logo">
             <img :src="logo" alt="WearIt logo" />
           </RouterLink>
-          <RouterLink to="/about-us">About us</RouterLink>
-          <RouterLink to="/support-contact">Contact / Support</RouterLink>
+          <RouterLink to="/about-us" :class="{ active: isActive('about') }">About us</RouterLink>
+          <RouterLink to="/support-contact" :class="{ active: isActive('support') }">
+            Contact / Support
+          </RouterLink>
         </template>
       </nav>
       <div class="auth-links">
@@ -128,23 +130,22 @@ const isActive = (...paths) => paths.some((path) => route.path.startsWith(path))
   <!-- Phones and tablets, logged in: the tab bar at the bottom of the screen.
        Log out, and Admin for admins, are on the Settings page -->
   <nav v-if="isSignedIn" class="tab-bar" aria-label="Main menu">
-    <RouterLink to="/dashboard" class="tab" :class="{ 'tab-active': isActive('/dashboard') }">
+    <RouterLink to="/dashboard" class="tab" :class="{ 'tab-active': isActive('home') }">
       <img :src="homeIcon" alt="" width="24" height="24" />
       Home
     </RouterLink>
-    <RouterLink to="/wardrobe" class="tab"
-      :class="{ 'tab-active': isActive('/wardrobe', '/item', '/edit-item', '/outfit', '/create-outfit', '/edit-outfit') }">
+    <RouterLink to="/wardrobe" class="tab" :class="{ 'tab-active': isActive('wardrobe') }">
       <img :src="hangerIcon" alt="" width="24" height="24" />
       Wardrobe
     </RouterLink>
     <RouterLink :to="{ name: 'add-item' }" class="tab-add" aria-label="Add item">
       <img :src="plusIcon" alt="" width="24" height="24" />
     </RouterLink>
-    <RouterLink to="/insights" class="tab" :class="{ 'tab-active': isActive('/insights') }">
+    <RouterLink to="/insights" class="tab" :class="{ 'tab-active': isActive('insights') }">
       <img :src="chartIcon" alt="" width="24" height="24" />
       Insights
     </RouterLink>
-    <RouterLink to="/settings" class="tab" :class="{ 'tab-active': isActive('/settings') }">
+    <RouterLink to="/settings" class="tab" :class="{ 'tab-active': isActive('settings') }">
       <img :src="settingsIcon" alt="" width="24" height="24" />
       Settings
     </RouterLink>
@@ -166,7 +167,7 @@ header {
 nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 8px;
 
   a {
     display: flex;
@@ -175,6 +176,23 @@ nav {
     text-decoration: none;
     color: var(--black);
   }
+}
+
+/* Space between the logo and the first link's border */
+.desktop-header nav .logo {
+  margin-right: 24px;
+}
+
+/* Header links. The border is see-through, so the links don't move when it turns black */
+.desktop-header nav a:not(.logo) {
+  padding: 12px 16px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+/* The link of the page you're on gets a black border */
+.desktop-header nav a.active {
+  border-color: var(--black);
 }
 
 .logo {

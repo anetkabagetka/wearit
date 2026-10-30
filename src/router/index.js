@@ -26,12 +26,18 @@ const router = createRouter({
       path: "/about-us",
       name: "about",
       component: () => import("@/views/AboutView.vue"),
+      meta: {
+        tab: "about",
+      },
     },
 
     {
       path: "/support-contact",
       name: "support-contact",
       component: () => import("@/views/ContactView.vue"),
+      meta: {
+        tab: "support",
+      },
     },
 
     {
@@ -77,11 +83,14 @@ const router = createRouter({
       },
     },
 
+    // meta.tab = which nav link gets highlighted on this page (Navigation.vue).
+    // Pages under a section, like an item or a settings page, use their section's tab
     {
       path: "/dashboard",
       name: "dashboard",
       component: () => import("@/views/user/DashboardView.vue"),
       meta: {
+        tab: "home",
         requiresAuth: true,
       },
     },
@@ -91,6 +100,7 @@ const router = createRouter({
       name: "wardrobe",
       component: () => import("@/views/user/WardrobeView.vue"),
       meta: {
+        tab: "wardrobe",
         requiresAuth: true,
       },
     },
@@ -100,6 +110,7 @@ const router = createRouter({
       name: "insights",
       component: () => import("@/views/user/InsightsView.vue"),
       meta: {
+        tab: "insights",
         requiresAuth: true,
       },
     },
@@ -109,6 +120,7 @@ const router = createRouter({
       name: "settings",
       component: () => import("@/views/user/settings/MainSettingsView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -118,6 +130,7 @@ const router = createRouter({
       name: "settings-edit-profile",
       component: () => import("@/views/user/settings/EditProfileView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -127,6 +140,7 @@ const router = createRouter({
       name: "settings-change-password",
       component: () => import("@/views/user/settings/ChangePasswordView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -136,6 +150,7 @@ const router = createRouter({
       name: "settings-delete-account",
       component: () => import("@/views/user/settings/DeleteAccountView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -145,6 +160,7 @@ const router = createRouter({
       name: "settings-currency",
       component: () => import("@/views/user/settings/CurrencySettingsView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -154,6 +170,7 @@ const router = createRouter({
       name: "settings-notifications",
       component: () => import("@/views/user/settings/NotificationSettingsView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -163,6 +180,7 @@ const router = createRouter({
       name: "settings-theme",
       component: () => import("@/views/user/settings/ThemeSettingsView.vue"),
       meta: {
+        tab: "settings",
         requiresAuth: true,
       },
     },
@@ -172,6 +190,7 @@ const router = createRouter({
       name: "item",
       component: () => import("@/views/user/ItemDetailView.vue"),
       meta: {
+        tab: "wardrobe",
         requiresAuth: true,
       },
     },
@@ -190,6 +209,7 @@ const router = createRouter({
       name: "create-outfit",
       component: () => import("@/views/user/CreateOutfitView.vue"),
       meta: {
+        tab: "wardrobe",
         requiresAuth: true,
       },
     },
@@ -199,6 +219,7 @@ const router = createRouter({
       name: "outfit",
       component: () => import("@/views/user/OutfitDetailView.vue"),
       meta: {
+        tab: "wardrobe",
         requiresAuth: true,
       },
     },
@@ -208,6 +229,7 @@ const router = createRouter({
       name: "edit-outfit",
       component: () => import("@/views/user/EditOutfitView.vue"),
       meta: {
+        tab: "wardrobe",
         requiresAuth: true,
       },
     },
@@ -217,6 +239,7 @@ const router = createRouter({
       name: "edit-item",
       component: () => import("@/views/user/EditItemView.vue"),
       meta: {
+        tab: "wardrobe",
         requiresAuth: true,
       },
     },
@@ -235,6 +258,7 @@ const router = createRouter({
       name: "admin",
       component: () => import("@/views/admin/AdminView.vue"),
       meta: {
+        tab: "admin",
         requiresAuth: true,
         requiresAdmin: true,
       },
