@@ -7,6 +7,7 @@ import { useAdminUsers } from "@/composables/useAdminUsers";
 import { useAuth } from "@/composables/useAuth";
 import { useDropdown } from "@/composables/useDropdown";
 import { getInitials } from '@/utils/format/getInitials'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import chevronLeftIcon from "@/assets/icons/chevron-left.svg";
 import searchIcon from "@/assets/icons/search.svg";
@@ -109,7 +110,7 @@ const initials = (name) => getInitials(name);
       <div class="stack-small">
         <label class="input-icon search">
           <img :src="searchIcon" alt="" width="20" height="20" />
-          <input type="text" v-model="search" placeholder="Search users" aria-label="Search users" />
+          <input type="text" v-model="search" placeholder="Search users" :maxlength="fieldLimits.search" aria-label="Search users" />
         </label>
 
         <div class="chips">

@@ -4,6 +4,7 @@ import Footer from '@/components/layout/Footer.vue'
 import FormField from '@/components/ui/FormField.vue'
 
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import chevronRightIcon from '@/assets/icons/chevron-right.svg'
@@ -57,7 +58,7 @@ const handleSend = (event) => {
 
                         <form @submit.prevent="handleSend" class="stack" novalidate>
                             <FormField label="Name">
-                                <input v-model="name" type="text" autocomplete="name" placeholder="Your name"
+                                <input v-model="name" type="text" autocomplete="name" placeholder="Your name" :maxlength="fieldLimits.name"
                                     required />
                             </FormField>
 
@@ -65,7 +66,7 @@ const handleSend = (event) => {
                                 <span class="input-icon">
                                     <img :src="mailIcon" alt="" />
                                     <input v-model="email" type="email" autocomplete="email"
-                                        placeholder="user@example.com" required />
+                                        placeholder="user@example.com" required :maxlength="fieldLimits.email" />
                                 </span>
                             </FormField>
 
@@ -80,7 +81,7 @@ const handleSend = (event) => {
                             </FormField>
 
                             <FormField label="Message">
-                                <textarea v-model="message" placeholder="Tell us what's going on..."
+                                <textarea v-model="message" placeholder="Tell us what's going on..." :maxlength="fieldLimits.message"
                                     required></textarea>
                             </FormField>
 

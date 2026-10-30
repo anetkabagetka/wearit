@@ -7,6 +7,7 @@ import FormField from '@/components/ui/FormField.vue'
 
 import { useAuth } from '@/composables/useAuth'
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import lockIcon from '@/assets/icons/lock.svg'
@@ -84,7 +85,7 @@ const handleGoogleSignup = async () => {
                     <FormField label="Username">
                         <span class="input-icon">
                             <img :src="userIcon" alt="" />
-                            <input v-model="username" type="text" autocomplete="username" placeholder="User123"
+                            <input v-model="username" type="text" autocomplete="username" placeholder="User123" :maxlength="fieldLimits.username"
                                 required />
                         </span>
                     </FormField>

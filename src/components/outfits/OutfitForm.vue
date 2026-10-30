@@ -10,6 +10,7 @@ import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 import { useOutfitForm } from '@/composables/outfits/useOutfitForm'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import cameraIcon from '@/assets/icons/camera.svg'
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
@@ -107,7 +108,7 @@ const handleSave = (event) => {
 
                 <label class="input-icon search">
                     <img :src="searchIcon" alt="" width="20" height="20" />
-                    <input v-model="search" type="text" placeholder="Search your wardrobe"
+                    <input v-model="search" type="text" placeholder="Search your wardrobe" :maxlength="fieldLimits.search"
                         aria-label="Search your wardrobe" />
                 </label>
 
@@ -174,7 +175,8 @@ const handleSave = (event) => {
                 </div>
 
                 <FormField label="Outfit name">
-                    <input v-model="name" type="text" placeholder="e.g. Office Monday" required />
+                    <input v-model="name" type="text" placeholder="e.g. Office Monday" required
+                        :maxlength="fieldLimits.outfitName" />
                 </FormField>
             </section>
 

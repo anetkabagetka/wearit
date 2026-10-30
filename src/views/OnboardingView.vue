@@ -12,6 +12,7 @@ import CurrencyPicker from '@/components/ui/CurrencyPicker.vue'
 import { useOnboarding } from '@/composables/useOnboarding'
 import { formatMoney } from '@/utils/format/formatMoney'
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits, todayText } from '@/utils/forms/fieldLimits'
 import { accessoryOptions, clothingOptions } from '@/utils/wardrobe/itemOptions'
 import { findCurrency } from '@/utils/wardrobe/currencyOptions'
 
@@ -130,7 +131,8 @@ const previewFormula = computed(() => {
                     <PhotoUpload v-model="photoFile" />
 
                     <FormField label="Name">
-                        <input v-model="item.name" type="text" placeholder="Wool blazer" required />
+                        <input v-model="item.name" type="text" placeholder="Wool blazer" required
+                            :maxlength="fieldLimits.itemName" />
                     </FormField>
 
                     <div class="field-row">
@@ -145,25 +147,25 @@ const previewFormula = computed(() => {
                         </FormField>
 
                         <FormField label="Brand">
-                            <input v-model="item.brand" type="text" placeholder="COS" />
+                            <input v-model="item.brand" type="text" placeholder="COS" :maxlength="fieldLimits.brand" />
                         </FormField>
                     </div>
 
                     <FormField label="Purchase price">
                         <span class="input-icon">
                             <span class="input-prefix">{{ selectedCurrency.symbol }}</span>
-                            <input v-model.number="item.price" type="number" min="0" step="0.01" placeholder="126.00"
+                            <input v-model.number="item.price" type="number" min="0" :max="fieldLimits.price" step="0.01" placeholder="126.00"
                                 required @wheel="$event.target.blur()" />
                         </span>
                     </FormField>
 
                     <div class="field-row">
                         <FormField label="Purchase date">
-                            <input v-model="item.purchaseDate" type="date" />
+                            <input v-model="item.purchaseDate" type="date" :max="todayText()" />
                         </FormField>
 
                         <FormField label="Times worn so far">
-                            <input v-model.number="item.timesWorn" type="number" min="0" step="1" placeholder="0"
+                            <input v-model.number="item.timesWorn" type="number" min="0" :max="fieldLimits.timesWorn" step="1" placeholder="0"
                                 @wheel="$event.target.blur()" />
                         </FormField>
                     </div>

@@ -6,6 +6,7 @@ import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 import { useEditProfile } from '@/composables/settings/useEditProfile'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 import { getInitials } from '@/utils/format/getInitials'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
@@ -82,7 +83,7 @@ const handleSave = (event) => {
       <FormField label="Username">
         <span class="input-icon">
           <img :src="userIcon" alt="" />
-          <input v-model="username" type="text" autocomplete="username" required />
+          <input v-model="username" type="text" autocomplete="username" required :maxlength="fieldLimits.username" />
         </span>
       </FormField>
 
@@ -90,7 +91,8 @@ const handleSave = (event) => {
         <FormField label="Email">
           <span class="input-icon">
             <img :src="mailIcon" alt="" />
-            <input v-model="email" type="email" autocomplete="email" required :readonly="isGoogleAccount" />
+            <input v-model="email" type="email" autocomplete="email" required :readonly="isGoogleAccount"
+              :maxlength="fieldLimits.email" />
           </span>
         </FormField>
         <p class="caption">

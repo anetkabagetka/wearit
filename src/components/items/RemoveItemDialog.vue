@@ -7,6 +7,7 @@ import FormField from '@/components/ui/FormField.vue'
 import { costPerWear } from '@/utils/wardrobe/costPerWear'
 import { formatMoney, getCurrencySymbol } from '@/utils/format/formatMoney'
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 import { removeOptions } from '@/utils/wardrobe/itemOptions'
 
 import closeIcon from '@/assets/icons/close.svg'
@@ -86,7 +87,7 @@ const handleConfirm = (event) => {
                 <FormField label="Sale price">
                     <span class="input-icon">
                         <span class="input-prefix">{{ getCurrencySymbol(currency) }}</span>
-                        <input v-model.number="salePrice" type="number" min="0" step="0.01" placeholder="0.00"
+                        <input v-model.number="salePrice" type="number" min="0" :max="fieldLimits.price" step="0.01" placeholder="0.00"
                             required />
                     </span>
                 </FormField>

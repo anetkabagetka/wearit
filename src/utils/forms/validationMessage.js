@@ -24,10 +24,12 @@ export function getValidationMessage(control) {
         return `Must be at least ${control.min}.`;
     }
     if (validity.rangeOverflow) {
-        return `Must be ${control.max} or less.`;
+        // A date input's max is today, e.g. the purchase date
+        return control.type === "date" ? "The date can't be in the future." : `Must be ${control.max} or less.`;
     }
     if (validity.stepMismatch) {
-        return "Please use at most 2 decimal places.";
+        // step="1" means whole numbers only, e.g. times worn
+        return control.step === "1" ? "Please use a whole number." : "Please use at most 2 decimal places.";
     }
     if (validity.patternMismatch) {
         // The input's title attribute explains what the pattern expects

@@ -21,6 +21,7 @@ import { formatMoney } from '@/utils/format/formatMoney'
 import { formatWears } from '@/utils/format/formatWears'
 import { categoryOptions, mainCategory } from '@/utils/wardrobe/itemOptions'
 import { wornToday } from '@/utils/wardrobe/wornToday'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import shirtIcon from '@/assets/icons/shirt.svg'
 import plusIcon from '@/assets/icons/plus.svg'
@@ -369,7 +370,7 @@ const handleRemove = async (reason, salePrice) => {
                     <!-- Search and chips only for the whole wardrobe -->
                     <label v-if="!onlyLeastWorn" class="input-icon search">
                         <img :src="searchIcon" alt="" width="20" height="20" />
-                        <input v-model="logSearch" type="text"
+                        <input v-model="logSearch" type="text" :maxlength="fieldLimits.search"
                             :placeholder="logCategory === 'outfits' ? 'Search outfit to log...' : 'Search item to log...'"
                             :aria-label="logCategory === 'outfits' ? 'Search outfit to log' : 'Search item to log'" />
                     </label>

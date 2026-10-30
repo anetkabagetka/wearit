@@ -11,6 +11,7 @@ import AppDialog from '@/components/ui/AppDialog.vue'
 import { useWardrobe } from '@/composables/useWardrobe'
 import { formatMoney } from '@/utils/format/formatMoney'
 import { categoryOptions, colorOptions, cpwSliderMax, seasonOptions } from '@/utils/wardrobe/itemOptions'
+import { fieldLimits } from '@/utils/forms/fieldLimits'
 
 import plusIcon from '@/assets/icons/plus.svg'
 import searchIcon from '@/assets/icons/search.svg'
@@ -138,7 +139,7 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
             <template v-else>
                 <label class="input-icon search">
                     <img :src="searchIcon" alt="" width="20" height="20" />
-                    <input v-model="search" type="text" placeholder="Search your outfits"
+                    <input v-model="search" type="text" placeholder="Search your outfits" :maxlength="fieldLimits.search"
                         aria-label="Search your outfits" />
                 </label>
 
@@ -178,7 +179,7 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
         <template v-else>
             <label class="input-icon search">
                 <img :src="searchIcon" alt="" width="20" height="20" />
-                <input v-model="search" type="text" placeholder="Search your wardrobe"
+                <input v-model="search" type="text" placeholder="Search your wardrobe" :maxlength="fieldLimits.search"
                     aria-label="Search your wardrobe" />
             </label>
 

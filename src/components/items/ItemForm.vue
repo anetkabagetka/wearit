@@ -11,6 +11,7 @@ import UnsavedChangesDialog from '@/components/ui/UnsavedChangesDialog.vue'
 import { useItemForm } from '@/composables/items/useItemForm'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { isFormValid } from '@/utils/forms/isFormValid'
+import { fieldLimits, todayText } from '@/utils/forms/fieldLimits'
 import { getCurrencySymbol } from '@/utils/format/formatMoney'
 import { accessoryOptions, clothingOptions, colorOptions, seasonOptions } from '@/utils/wardrobe/itemOptions'
 
@@ -134,11 +135,12 @@ const handleSave = (event) => {
           <h2 class="title-m">Basic info</h2>
 
           <FormField label="Name / description">
-            <input v-model="item.name" type="text" placeholder="e.g. Wool blazer" required />
+            <input v-model="item.name" type="text" placeholder="e.g. Wool blazer" required
+              :maxlength="fieldLimits.itemName" />
           </FormField>
 
           <FormField label="Brand">
-            <input v-model="item.brand" type="text" placeholder="e.g. COS" />
+            <input v-model="item.brand" type="text" placeholder="e.g. COS" :maxlength="fieldLimits.brand" />
           </FormField>
 
           <FormField label="Category">
@@ -173,7 +175,7 @@ const handleSave = (event) => {
           <h2 class="title-m">Notes & condition</h2>
 
           <FormField label="Notes">
-            <textarea v-model="item.notes" rows="4" placeholder="Add your notes."></textarea>
+            <textarea v-model="item.notes" rows="4" placeholder="Add your notes." :maxlength="fieldLimits.notes"></textarea>
           </FormField>
         </section>
       </div>
@@ -187,7 +189,7 @@ const handleSave = (event) => {
             <FormField label="Purchase price">
               <span class="input-icon">
                 <span class="input-prefix">{{ getCurrencySymbol(currency) }}</span>
-                <input v-model.number="item.price" type="number" min="0" step="0.01" placeholder="0.00" required
+                <input v-model.number="item.price" type="number" min="0" :max="fieldLimits.price" step="0.01" placeholder="0.00" required
                   @wheel="$event.target.blur()" />
               </span>
             </FormField>
@@ -201,11 +203,11 @@ const handleSave = (event) => {
 
           <div class="field-row">
             <FormField label="Date of purchase">
-              <input v-model="item.purchaseDate" type="date" />
+              <input v-model="item.purchaseDate" type="date" :max="todayText()" />
             </FormField>
 
             <FormField label="Times worn so far">
-              <input v-model.number="item.timesWorn" type="number" min="0" step="1" placeholder="0"
+              <input v-model.number="item.timesWorn" type="number" min="0" :max="fieldLimits.timesWorn" step="1" placeholder="0"
                 @wheel="$event.target.blur()" />
             </FormField>
           </div>
@@ -230,7 +232,7 @@ const handleSave = (event) => {
                 Add tag
               </button>
               <!-- Enter or leaving the field adds the tag -->
-              <input v-else ref="tagInput" v-model="newTag" type="text" class="tag-input" placeholder="New tag"
+              <input v-else ref="tagInput" v-model="newTag" type="text" class="tag-input" placeholder="New tag" :maxlength="fieldLimits.tag"
                 aria-label="New tag" @keydown.enter.prevent="confirmNewTag" @blur="confirmNewTag" />
             </div>
           </FormField>
@@ -241,7 +243,7 @@ const handleSave = (event) => {
           <h2 class="title-m">Notes & condition</h2>
 
           <FormField label="Notes">
-            <textarea v-model="item.notes" rows="4" placeholder="Add your notes."></textarea>
+            <textarea v-model="item.notes" rows="4" placeholder="Add your notes." :maxlength="fieldLimits.notes"></textarea>
           </FormField>
         </section>
 
