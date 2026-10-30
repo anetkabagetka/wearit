@@ -2,9 +2,10 @@ import { computed, onMounted, ref } from "vue";
 
 import { auth } from "@/firebase";
 import { getWardrobe, listItems, markItemRemoved, markItemWorn } from "@/services/wardrobes";
-import { listOutfits } from "@/services/outfits";
+import { listOutfits, logOutfitWear } from "@/services/outfits";
 import { costPerWear, outfitCostPerWear } from "@/utils/costPerWear";
 import { cpwSliderMax } from "@/utils/itemOptions";
+import { wornToday } from "@/utils/wornToday";
 
 // What the Filters pop-up starts with. Empty lists mean "show everything"
 function emptyFilters() {
@@ -16,6 +17,23 @@ function emptyFilters() {
         colors: [],
         seasons: [],
     };
+}
+
+// What the Filters pop-up starts with on the Outfits tab
+function emptyOutfitFilters() {
+    return {
+        minCpw: 0,
+        maxCpw: cpwSliderMax,
+        tags: [],
+    };
+}
+
+// One more wear on the page: the same three changes markItemWorn and logOutfitWear save
+function addWear(thing) {
+    thing.timesWorn = (thing.timesWorn || 0) + 1;
+    thing.lastWornAt = new Date();
+    // Things saved before wear history existed have no wornDates, ?? [] starts an empty list
+    thing.wornDates = [...(thing.wornDates ?? []), new Date()];
 }
 
 // true when nothing is picked in a list (so everything counts), or when the value is picked
@@ -33,6 +51,7 @@ export function useWardrobe() {
     const errorMessage = ref("");
     const search = ref("");
     const filters = ref(emptyFilters());
+    const outfitFilters = ref(emptyOutfitFilters()); // The Outfits tab has its own
 
     // Does an item fit everything picked in the Filters pop-up?
     const matchesFilters = (item) => {
@@ -70,13 +89,28 @@ export function useWardrobe() {
         })),
     );
 
-    // Outfits that match the search bar (by their name or an item in them), lowest cost per wear first
+    // Does an outfit fit everything picked in the Filters pop-up on the Outfits tab?
+    // isPicked with its tags: with Work picked, outfits with the Work tag count
+    const matchesOutfitFilters = (outfit) => {
+        const { minCpw, maxCpw, tags } = outfitFilters.value;
+        const cpw = outfitCostPerWear(outfit.items);
+
+        return (
+            cpw >= minCpw &&
+            (maxCpw === cpwSliderMax || cpw <= maxCpw) &&
+            (tags.length === 0 || tags.some((tag) => (outfit.tags ?? []).includes(tag)))
+        );
+    };
+
+    // Outfits that match the search bar (by their name or an item in them) and the filters, lowest cost per wear first
     const visibleOutfits = computed(() => {
         const text = search.value.toLowerCase();
 
         return outfitsWithItems.value
-            .filter((outfit) =>
-                [outfit.name, ...outfit.items.map((item) => item.name)].join(" ").toLowerCase().includes(text),
+            .filter(
+                (outfit) =>
+                    [outfit.name, ...outfit.items.map((item) => item.name)].join(" ").toLowerCase().includes(text) &&
+                    matchesOutfitFilters(outfit),
             )
             .sort((a, b) => outfitCostPerWear(a.items) - outfitCostPerWear(b.items));
     });
@@ -84,6 +118,13 @@ export function useWardrobe() {
     // "Reset" in the Filters pop-up
     const resetFilters = () => {
         filters.value = emptyFilters();
+    };
+
+    // Every tag used on an outfit once, A to Z, for the Tags chips on the Outfits tab
+    const outfitTagOptions = computed(() => [...new Set(outfits.value.flatMap((outfit) => outfit.tags ?? []))].sort());
+
+    const resetOutfitFilters = () => {
+        outfitFilters.value = emptyOutfitFilters();
     };
 
     // Loads the wardrobe (for the currency), all its items and all its outfits
@@ -118,16 +159,36 @@ export function useWardrobe() {
 
         try {
             await markItemWorn(auth.currentUser.uid, item.id);
-            item.timesWorn = (item.timesWorn || 0) + 1;
-            item.lastWornAt = new Date();
-            // Items saved before wear history existed have no wornDates, ?? [] starts an empty list
-            item.wornDates = [...(item.wornDates ?? []), new Date()];
+            addWear(item);
             return true;
         } catch {
             errorMessage.value = "Could not save the wear. Please try again.";
             return false;
         }
     }
+
+    // "Log wear" on an outfit: one more wear for the outfit and for its items, except items already
+    // worn today (one wear a day per item). Updates them on the page too.
+    // Returns the items that got a wear, or null when it couldn't be saved
+    const wearOutfit = async (outfit) => {
+        const itemsToLog = outfit.items.filter((item) => !wornToday(item));
+        errorMessage.value = "";
+
+        try {
+            await logOutfitWear(
+                auth.currentUser.uid,
+                outfit.id,
+                itemsToLog.map((item) => item.id),
+            );
+            // The saved outfit, not the copy with its items filled in, so the new wear stays on the page
+            addWear(outfits.value.find((saved) => saved.id === outfit.id));
+            itemsToLog.forEach(addWear);
+            return itemsToLog;
+        } catch {
+            errorMessage.value = "Could not save the wear. Please try again.";
+            return null;
+        }
+    };
 
     // Takes an item out of the wardrobe (sold, donated or given away), then out of the list on the page too.
     // The sale price is only saved when it was sold. Returns true when it worked
@@ -162,8 +223,13 @@ export function useWardrobe() {
         resetFilters,
         visibleItems,
         outfits,
+        outfitsWithItems,
         visibleOutfits,
+        outfitFilters,
+        outfitTagOptions,
+        resetOutfitFilters,
         wearItem,
+        wearOutfit,
         removeItem,
     }
 }

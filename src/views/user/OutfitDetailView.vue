@@ -8,6 +8,7 @@ import ListRow from '@/components/ListRow.vue'
 import ItemRow from '@/components/ItemRow.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import OutfitCollage from '@/components/OutfitCollage.vue'
+import OutfitLoggedSummary from '@/components/OutfitLoggedSummary.vue'
 
 import { useOutfitDetail } from '@/composables/useOutfitDetail'
 import { useDropdown } from '@/composables/useDropdown'
@@ -22,8 +23,6 @@ import shirtIcon from '@/assets/icons/shirt.svg'
 import trashIcon from '@/assets/icons/trash.svg'
 import moreIcon from '@/assets/icons/more.svg'
 import closeIcon from '@/assets/icons/close.svg'
-import checkIcon from '@/assets/icons/check.svg'
-import infoIcon from '@/assets/icons/info.svg'
 
 // The outfit's ID comes from the address, e.g. /outfit/abc123 → "abc123"
 const route = useRoute()
@@ -129,34 +128,6 @@ const handleLogWear = async () => {
         isLoggedOpen.value = true
     }
 }
-
-// Items that didn't get a wear because they were already worn today
-const skippedItems = computed(() => outfitItems.value.filter((item) => !loggedItems.value.includes(item)))
-
-// e.g. "Was €14.30 (↓ €0.37) · 3 of 4 items got a wear"
-const loggedFormula = computed(() => {
-    const before = formatMoney(cpwBefore.value, currency.value)
-    const drop = formatMoney(cpwBefore.value - outfitCpw.value, currency.value)
-    const logged = loggedItems.value.length
-    const total = outfitItems.value.length
-    const itemsText = logged === total ? `all ${total} items got a wear` : `${logged} of ${total} items got a wear`
-    return `Was ${before} (↓ ${drop}) · ${itemsText}`
-})
-
-// e.g. "Wool blazer was already logged today" or "Wool blazer and Leather loafers were already logged today"
-const skippedTitle = computed(() => {
-    const names = skippedItems.value.map((item) => item.name)
-    if (names.length === 1) {
-        return `${names[0]} was already logged today`
-    }
-    return `${names.slice(0, -1).join(', ')} and ${names.at(-1)} were already logged today`
-})
-
-const skippedText = computed(() => {
-    const logged = loggedItems.value.length
-    const skipped = skippedItems.value.length === 1 ? 'it was' : 'they were'
-    return `One wear a day per item, so ${skipped} skipped. The other ${logged} ${logged === 1 ? 'item' : 'items'} got a wear.`
-})
 </script>
 
 <template>
@@ -275,7 +246,7 @@ const skippedText = computed(() => {
                         <div class="stat-card">
                             <span class="field-label">Outfit value</span>
                             <strong class="stat-value">{{ formatMoney(totalPrice, currency, { wholeNumbers: true })
-                                }}</strong>
+                            }}</strong>
                             <span class="caption">Total purchase price</span>
                         </div>
                         <div class="stat-card">
@@ -334,27 +305,9 @@ const skippedText = computed(() => {
                             </button>
                         </div>
 
-                        <div class="logged-item">
-                            <span class="logged-check">
-                                <img :src="checkIcon" alt="" width="20" height="20" class="white-icon" />
-                            </span>
-                            <span class="stack-small">
-                                <span class="logged-name">{{ outfit.name }}</span>
-                                <span class="caption">Worn today · wear #{{ outfit.timesWorn }}</span>
-                            </span>
-                        </div>
-
-                        <CpwCard label="New outfit cost per wear" :price="outfitCpw" :times-worn="1"
-                            :currency="currency" :formula="loggedFormula" />
-
-                        <!-- The gray box from Home, only when some items were already worn today -->
-                        <div v-if="skippedItems.length" class="tip-box stack-small">
-                            <h4 class="tip-title">
-                                <img :src="infoIcon" alt="" width="20" height="20" />
-                                {{ skippedTitle }}
-                            </h4>
-                            <p class="notes">{{ skippedText }}</p>
-                        </div>
+                        <!-- The same as "Outfit logged" on Home -->
+                        <OutfitLoggedSummary :outfit="outfit" :items="outfitItems" :logged-items="loggedItems"
+                            :cpw-before="cpwBefore" :currency="currency" />
 
                         <button type="button" class="btn btn-primary" @click="isLoggedOpen = false">Done</button>
                     </div>
@@ -437,45 +390,5 @@ const skippedText = computed(() => {
 
 .wear-row-value {
     color: var(--gray);
-}
-
-.logged-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.logged-check {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--black);
-}
-
-.logged-name {
-    font-family: var(--font-title);
-    font-size: 15px;
-    color: var(--black);
-}
-
-.white-icon {
-    filter: var(--icon-on-black-filter);
-}
-
-.tip-box {
-    padding: 16px;
-    border-radius: 8px;
-    background-color: var(--subtle-gray);
-}
-
-.tip-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
 }
 </style>

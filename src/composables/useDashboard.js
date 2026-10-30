@@ -49,13 +49,24 @@ export function useDashboard() {
         () => items.value.filter((item) => !item.lastWornAt || toJsDate(item.lastWornAt) < Date.now() - ninetyDays).length,
     );
 
-    // The 5 items worn most recently, newest first. Items never logged as worn are left out
-    const recentlyWorn = computed(() =>
-        items.value
-            .filter((item) => item.lastWornAt)
-            .sort((a, b) => toJsDate(b.lastWornAt) - toJsDate(a.lastWornAt))
-            .slice(0, 5),
-    );
+    // The 5 things worn most recently, newest first: items and outfits together,
+    // e.g. { kind: "outfit", id: "abc", outfit } or { kind: "item", id: "xyz", item }.
+    // An item worn in an outfit on the same day shows as that outfit, not again on its own.
+    // Items and outfits never logged as worn are left out
+    const recentlyWorn = computed(() => {
+        const wornOutfits = wardrobe.outfitsWithItems.value.filter((outfit) => outfit.lastWornAt);
+        const sameDay = (a, b) => toJsDate(a).toDateString() === toJsDate(b).toDateString();
+        const wornInOutfit = (item) =>
+            wornOutfits.some((outfit) => outfit.itemIds.includes(item.id) && sameDay(outfit.lastWornAt, item.lastWornAt));
+
+        const worn = [
+            ...wornOutfits.map((outfit) => ({ kind: "outfit", id: outfit.id, wornAt: outfit.lastWornAt, outfit })),
+            ...items.value
+                .filter((item) => item.lastWornAt && !wornInOutfit(item))
+                .map((item) => ({ kind: "item", id: item.id, wornAt: item.lastWornAt, item })),
+        ];
+        return worn.sort((a, b) => toJsDate(b.wornAt) - toJsDate(a.wornAt)).slice(0, 5);
+    });
 
     // The 5 newest items. createdAt is set by Firestore when an item is saved
     const recentlyAdded = computed(() =>

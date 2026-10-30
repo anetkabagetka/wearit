@@ -126,6 +126,14 @@ export function useInsights() {
     // The 3 lowest, lowest first. slice(3) leaves out the highest 3, so no item is in both lists
     const lowestCpw = computed(() => byCpw.value.slice(3).slice(-3).reverse());
 
+    // The 3 outfits worn most often, all time. Outfits never worn are left out
+    const mostWornOutfits = computed(() =>
+        [...wardrobe.outfitsWithItems.value]
+            .filter((outfit) => outfit.timesWorn > 0)
+            .sort((a, b) => b.timesWorn - a.timesWorn)
+            .slice(0, 3),
+    );
+
     // Items per category, biggest first, with their share in %. The donut has 4 grays,
     // so with more than 4 categories the smallest ones are added up as "Other"
     const categoryCount = computed(() => new Set(periodItems.value.map((item) => item.category)).size);
@@ -202,6 +210,7 @@ export function useInsights() {
         cpwChange,
         highestCpw,
         lowestCpw,
+        mostWornOutfits,
         categoryCount,
         categories,
         brandSpend,

@@ -2,12 +2,14 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
-import { deleteItem, getItem, getWardrobe, markItemRemoved, markItemWorn } from "@/services/wardrobes";
+import { deleteItem, getWardrobe, listItems, markItemRemoved, markItemWorn } from "@/services/wardrobes";
+import { listOutfits } from "@/services/outfits";
 
 // State and actions for the item detail page: the item, the currency and goal, "Log a wear" and delete
 export function useItemDetail(itemId) {
     const router = useRouter();
     const item = ref(null);
+    const itemOutfits = ref([]); // The outfits this item is in, with their items filled in
     const currency = ref("");
     const goal = ref(null); // The target cost per wear set in onboarding, or null without a goal
     const isLoading = ref(true);
@@ -15,11 +17,17 @@ export function useItemDetail(itemId) {
     const isSaving = ref(false);
     const errorMessage = ref("");
 
-    // Loads the wardrobe (for the currency and goal) and the item at the same time
+    // Loads the wardrobe (for the currency and goal), all items and all outfits at the same time.
+    // All items, so the outfits this item is in can show their photos and cost per wear
     const load = async () => {
         try {
             const userId = auth.currentUser.uid;
-            const [wardrobe, savedItem] = await Promise.all([getWardrobe(userId), getItem(userId, itemId)]);
+            const [wardrobe, savedItems, savedOutfits] = await Promise.all([
+                getWardrobe(userId),
+                listItems(userId),
+                listOutfits(userId),
+            ]);
+            const savedItem = savedItems.find((saved) => saved.id === itemId);
 
             if (wardrobe?.currency) {
                 currency.value = wardrobe.currency;
@@ -31,6 +39,15 @@ export function useItemDetail(itemId) {
                 return;
             }
             item.value = savedItem;
+            // Outfits with this item in them. Their items that left the wardrobe drop out, like on the outfit page
+            itemOutfits.value = savedOutfits
+                .filter((outfit) => outfit.itemIds.includes(itemId))
+                .map((outfit) => ({
+                    ...outfit,
+                    items: outfit.itemIds
+                        .map((id) => savedItems.find((saved) => saved.id === id))
+                        .filter((saved) => saved && !saved.removedAs),
+                }));
         } catch {
             errorMessage.value = "Could not load the item. Please refresh the page.";
         } finally {
@@ -95,6 +112,7 @@ export function useItemDetail(itemId) {
 
     return {
         item,
+        itemOutfits,
         currency,
         goal,
         isLoading,

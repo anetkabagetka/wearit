@@ -5,6 +5,7 @@ import { Doughnut, Line } from 'vue-chartjs'
 
 import Navigation from '@/components/Navigation.vue'
 import ItemRow from '@/components/ItemRow.vue'
+import OutfitRow from '@/components/OutfitRow.vue'
 import ChartCard from '@/components/ChartCard.vue'
 
 import { periodOptions, useInsights } from '@/composables/useInsights'
@@ -30,6 +31,7 @@ const {
     cpwChange,
     highestCpw,
     lowestCpw,
+    mostWornOutfits,
     categoryCount,
     categories,
     brandSpend,
@@ -38,7 +40,7 @@ const {
     wearWeeks,
 } = useInsights()
 
-// The four chart gray colors from the Figma, and the colours of the guide lines and month names.
+// The four chart gray colors, and the colours of the guide lines and month names.
 // Chart.js draws on a <canvas> element, which can't use CSS variables like var(--black), so they're written out here:
 // the grays on a light page, the same grays the other way round in the dark theme
 const isDark = document.documentElement.dataset.theme === 'dark'
@@ -183,7 +185,8 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                     <div class="stats">
                         <div class="stat-card stat-card-inverse">
                             <span class="field-label">Total invested</span>
-                            <strong class="stat-value">{{ formatMoney(totalSpent, currency, { wholeNumbers: true }) }}</strong>
+                            <strong class="stat-value">{{ formatMoney(totalSpent, currency, { wholeNumbers: true })
+                                }}</strong>
                             <span class="caption">{{ itemsText }}</span>
                         </div>
                         <div class="stat-card">
@@ -209,6 +212,13 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                     <h2 class="title-m">Lowest CPW · favorites</h2>
                     <ItemRow v-for="item in lowestCpw" :key="item.id" :item="item" :currency="currency" />
                 </section>
+
+                <!-- All time, like the charts. Each row opens its outfit -->
+                <section v-if="mostWornOutfits.length">
+                    <h2 class="title-m">Most worn outfits</h2>
+                    <OutfitRow v-for="outfit in mostWornOutfits" :key="outfit.id" :outfit="outfit"
+                        :currency="currency" />
+                </section>
             </div>
 
             <!-- Right column: what's in the wardrobe, and when it's worn -->
@@ -222,7 +232,8 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                         <div class="donut-row">
                             <div class="donut">
                                 <Doughnut :data="donutData" :options="donutOptions" />
-                                <span class="donut-total">{{ periodItems.length }}<br />{{ periodItems.length === 1 ? 'item' : 'items' }}</span>
+                                <span class="donut-total">{{ periodItems.length }}<br />{{ periodItems.length === 1 ?
+                                    'item' : 'items' }}</span>
                             </div>
 
                             <ul class="legend">
@@ -241,9 +252,12 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                             <li v-for="(brand, index) in brandSpend" :key="brand.name" class="bar-row">
                                 <span class="bar-name" :title="brand.name">{{ brand.name }}</span>
                                 <span class="bar-track">
-                                    <span class="bar" :style="{ width: `${brand.width}%`, backgroundColor: colors.chart[index === 0 ? 0 : 1] }"></span>
+                                    <span class="bar"
+                                        :style="{ width: `${brand.width}%`, backgroundColor: colors.chart[index === 0 ? 0 : 1] }"></span>
                                 </span>
-                                <span class="caption bar-amount">{{ formatMoney(brand.amount, currency, { wholeNumbers: true }) }}</span>
+                                <span class="caption bar-amount">{{ formatMoney(brand.amount, currency, {
+                                    wholeNumbers:
+                                    true }) }}</span>
                             </li>
                         </ul>
                     </ChartCard>
@@ -255,7 +269,8 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                     <ChartCard title="When you wear clothes most" caption="Wears per weekday · last 4 weeks">
                         <!-- A grid of 7 columns: first the day names, then 4 weeks of days, one gray box each -->
                         <div class="heatmap">
-                            <span v-for="weekday in weekdays" :key="weekday" class="caption heatmap-day">{{ weekday }}</span>
+                            <span v-for="weekday in weekdays" :key="weekday" class="caption heatmap-day">{{ weekday
+                                }}</span>
                             <template v-for="week in wearWeeks" :key="week[0].date.getTime()">
                                 <span v-for="day in week" :key="day.date.getTime()" class="heat-cell"
                                     :class="{ 'heat-future': day.isFuture }"
@@ -265,7 +280,8 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
                         </div>
                         <div class="heat-legend caption">
                             Less
-                            <span v-for="gray in [...colors.chart].reverse()" :key="gray" class="swatch" :style="{ backgroundColor: gray }"></span>
+                            <span v-for="gray in [...colors.chart].reverse()" :key="gray" class="swatch"
+                                :style="{ backgroundColor: gray }"></span>
                             More
                         </div>
                     </ChartCard>

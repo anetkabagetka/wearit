@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import Navigation from '@/components/Navigation.vue'
 import CpwCard from '@/components/CpwCard.vue'
 import ListRow from '@/components/ListRow.vue'
+import OutfitRow from '@/components/OutfitRow.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import RemoveItemDialog from '@/components/RemoveItemDialog.vue'
 
@@ -26,7 +27,7 @@ import moreIcon from '@/assets/icons/more.svg'
 // The item's ID comes from the address, e.g. /item/abc123 → "abc123"
 const route = useRoute()
 
-const { item, currency, goal, isLoading, isNotFound, isSaving, errorMessage, logWear, remove, markRemoved } =
+const { item, itemOutfits, currency, goal, isLoading, isNotFound, isSaving, errorMessage, logWear, remove, markRemoved } =
     useItemDetail(route.params.itemId)
 
 // true while the "Delete item?" pop-up is open
@@ -230,7 +231,7 @@ const removedText = computed(() => {
                         <div class="stat-card">
                             <span class="field-label">Purchase price</span>
                             <strong class="stat-value">{{ formatMoney(item.price, currency, { wholeNumbers: true })
-                            }}</strong>
+                                }}</strong>
                             <span class="caption">
                                 {{ item.purchaseDate ? `Bought ${formatDate(item.purchaseDate)}` : 'No purchase date' }}
                             </span>
@@ -250,6 +251,13 @@ const removedText = computed(() => {
                             <span class="caption">Last 3 months</span>
                         </div>
                     </div>
+                </section>
+
+                <!-- The outfits this item is in. Each row opens its outfit -->
+                <section v-if="itemOutfits.length">
+                    <h2 class="title-m">In {{ itemOutfits.length }} {{ itemOutfits.length === 1 ? 'outfit' : 'outfits'
+                        }}</h2>
+                    <OutfitRow v-for="outfit in itemOutfits" :key="outfit.id" :outfit="outfit" :currency="currency" />
                 </section>
 
                 <section>

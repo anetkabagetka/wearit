@@ -19,8 +19,22 @@ import listIcon from '@/assets/icons/list.svg'
 import filterIcon from '@/assets/icons/filter.svg'
 import closeIcon from '@/assets/icons/close.svg'
 
-const { items, outfits, currency, isLoading, errorMessage, search, filters, brandOptions, resetFilters, visibleItems, visibleOutfits } =
-    useWardrobe()
+const {
+    items,
+    outfits,
+    currency,
+    isLoading,
+    errorMessage,
+    search,
+    filters,
+    brandOptions,
+    resetFilters,
+    visibleItems,
+    visibleOutfits,
+    outfitFilters,
+    outfitTagOptions,
+    resetOutfitFilters,
+} = useWardrobe()
 
 // "items" or "outfits". It's in the address (/wardrobe?tab=outfits), so Back and saving an outfit open the right tab
 const route = useRoute()
@@ -32,34 +46,50 @@ const view = ref('grid')
 // true while the Filters pop-up is open
 const isFiltersOpen = ref(false)
 
-// The chip groups in the pop-up: their title, their choices, and which list in filters they fill.
-// Brand is left out while no item has a brand
-const filterGroups = computed(() =>
-    [
-        { title: 'Category', key: 'categories', options: categoryOptions },
-        { title: 'Brand', key: 'brands', options: brandOptions.value },
-        { title: 'Color', key: 'colors', options: colorOptions },
-        { title: 'Season', key: 'seasons', options: seasonOptions },
-    ].filter((group) => group.options.length > 0),
-)
+// The Items tab and the Outfits tab each keep their own filters. The pop-up shows the open tab's
+const shownFilters = computed(() => (tab.value === 'outfits' ? outfitFilters.value : filters.value))
+
+// "items" or "outfits", for the texts in the pop-up
+const shownWord = computed(() => tab.value)
+
+// The chip groups in the pop-up: their title, their choices, and which list in the filters they fill.
+// Brand is left out while no item has a brand, Tags while no outfit has a tag
+const filterGroups = computed(() => {
+    const groups =
+        tab.value === 'outfits'
+            ? [{ title: 'Tags', key: 'tags', options: outfitTagOptions.value }]
+            : [
+                { title: 'Category', key: 'categories', options: categoryOptions },
+                { title: 'Brand', key: 'brands', options: brandOptions.value },
+                { title: 'Color', key: 'colors', options: colorOptions },
+                { title: 'Season', key: 'seasons', options: seasonOptions },
+            ]
+    return groups.filter((group) => group.options.length > 0)
+})
 
 // true when the CPW slider isn't at "everything"
-const isCpwFiltered = computed(() => filters.value.minCpw > 0 || filters.value.maxCpw < cpwSliderMax)
+const isCpwFiltered = computed(() => shownFilters.value.minCpw > 0 || shownFilters.value.maxCpw < cpwSliderMax)
 
 // How many filters are on, for the "Filters · 2" button: the CPW slider counts as one,
 // plus every group that has something picked
 const activeFilterCount = computed(() => {
-    const pickedGroups = filterGroups.value.filter((group) => filters.value[group.key].length > 0)
+    const pickedGroups = filterGroups.value.filter((group) => shownFilters.value[group.key].length > 0)
     return (isCpwFiltered.value ? 1 : 0) + pickedGroups.length
 })
 
 // e.g. "Show items between €2 and €30 per wear". At the top of the slider it says "€50+"
 const cpwRangeText = computed(() => {
-    const { minCpw, maxCpw } = filters.value
+    const { minCpw, maxCpw } = shownFilters.value
     const min = formatMoney(minCpw, currency.value, { wholeNumbers: true })
     const max = formatMoney(maxCpw, currency.value, { wholeNumbers: true })
-    return `Show items between ${min} and ${maxCpw === cpwSliderMax ? `${max}+` : max} per wear`
+    return `Show ${shownWord.value} between ${min} and ${maxCpw === cpwSliderMax ? `${max}+` : max} per wear`
 })
+
+// How many the open tab shows, for the button at the bottom of the pop-up, e.g. "Show 6 outfits"
+const shownCount = computed(() => (tab.value === 'outfits' ? visibleOutfits.value.length : visibleItems.value.length))
+
+// "Reset" in the pop-up resets only the open tab's filters
+const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() : resetFilters())
 </script>
 
 <template>
@@ -74,7 +104,7 @@ const cpwRangeText = computed(() => {
             </RouterLink>
         </div>
 
-        <!-- Items | Outfits, like the Figma: the open tab has a border -->
+        <!-- Items | Outfits: the open tab has a border -->
         <nav class="wardrobe-tabs" aria-label="Wardrobe">
             <RouterLink :to="{ name: 'wardrobe' }" class="btn tab-button"
                 :class="tab === 'items' ? 'btn-secondary' : 'btn-ghost'"
@@ -109,6 +139,13 @@ const cpwRangeText = computed(() => {
                     <input v-model="search" type="text" placeholder="Search your outfits"
                         aria-label="Search your outfits" />
                 </label>
+
+                <!-- The same Filters button as on the Items tab, with the outfits' own filters -->
+                <button type="button" class="chip filter-button" :class="{ 'chip-selected': activeFilterCount > 0 }"
+                    @click="isFiltersOpen = true">
+                    Filters{{ activeFilterCount > 0 ? ` · ${activeFilterCount}` : '' }}
+                    <img :src="filterIcon" alt="" width="16" height="16" />
+                </button>
 
                 <!-- A toolbar row like on the Items tab, so the line has the same space above and below -->
                 <div class="toolbar count-row">
@@ -192,11 +229,11 @@ const cpwRangeText = computed(() => {
                     <legend>Cost per wear</legend>
                     <label class="range-field">
                         <span class="caption">From</span>
-                        <input v-model.number="filters.minCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
+                        <input v-model.number="shownFilters.minCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
                     </label>
                     <label class="range-field">
                         <span class="caption">To</span>
-                        <input v-model.number="filters.maxCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
+                        <input v-model.number="shownFilters.maxCpw" type="range" min="0" :max="cpwSliderMax" step="1" />
                     </label>
                     <p class="caption">{{ cpwRangeText }}</p>
                 </fieldset>
@@ -206,16 +243,16 @@ const cpwRangeText = computed(() => {
                     <legend>{{ group.title }}</legend>
                     <div class="chips">
                         <label v-for="option in group.options" :key="option" class="chip">
-                            <input v-model="filters[group.key]" type="checkbox" :value="option" />
+                            <input v-model="shownFilters[group.key]" type="checkbox" :value="option" />
                             {{ option }}
                         </label>
                     </div>
                 </fieldset>
 
                 <div class="filter-buttons">
-                    <button type="button" class="btn btn-secondary" @click="resetFilters">Reset</button>
+                    <button type="button" class="btn btn-secondary" @click="resetShownFilters">Reset</button>
                     <button type="button" class="btn btn-primary" @click="isFiltersOpen = false">
-                        Show {{ visibleItems.length }} {{ visibleItems.length === 1 ? 'item' : 'items' }}
+                        Show {{ shownCount }} {{ shownCount === 1 ? shownWord.slice(0, -1) : shownWord }}
                     </button>
                 </div>
             </div>
@@ -294,7 +331,7 @@ const cpwRangeText = computed(() => {
     gap: 4px;
 }
 
-/* Smaller than a normal button, like the Figma's small buttons */
+/* Smaller than a normal button */
 .tab-button {
     padding: 8px 16px;
     font-size: 13px;
