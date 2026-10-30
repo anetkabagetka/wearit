@@ -7,9 +7,22 @@ const isOpen = defineModel({ type: Boolean, default: false })
 
 const dialog = ref(null)
 
-// <dialog> is built into the browser: showModal() opens it with a dark backdrop, close() closes it
+// Gives the pop-up a name for screen readers: its first heading, e.g. "Delete Wool blazer?".
+// aria-labelledby points to the heading's id, so it's read out when the pop-up opens
+const nameFromHeading = () => {
+    const heading = dialog.value.querySelector('h1, h2, h3')
+    if (!heading) {
+        return
+    }
+    heading.id ||= `dialog-title-${Math.random().toString(36).slice(2)}`
+    dialog.value.setAttribute('aria-labelledby', heading.id)
+}
+
+// <dialog> is built into the browser: showModal() opens it with a dark backdrop, close() closes it.
+// It also keeps the keyboard inside the pop-up, closes on Esc, and puts focus back where it was
 watch(isOpen, (open) => {
     if (open) {
+        nameFromHeading()
         dialog.value.showModal()
     } else {
         dialog.value.close()

@@ -67,7 +67,7 @@ const handleGoogleLogin = async () => {
         <section class="section">
             <div class="container container-narrow stack">
                 <div class="logo">
-                    <img :src="logo" alt="WearIt logo" />
+                    <img :src="logo" alt="wearit" />
                 </div>
                 <h1>Welcome back</h1>
                 <p>Log in to see your wardrobe and what every piece costs per wear.</p>

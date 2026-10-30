@@ -16,7 +16,7 @@ import moneyIcon from "@/assets/icons/money.svg"
 <template>
     <Navigation />
     <main>
-        <img :src="aboutBanner" alt="About Us" class="about-banner">
+        <img :src="aboutBanner" alt="White shirts hanging on a clothes rail" class="about-banner">
 
         <section class="section">
             <div class="container stack">
@@ -48,7 +48,7 @@ import moneyIcon from "@/assets/icons/money.svg"
                     <div class="feature-list">
                         <div class="feature">
                             <div class="feature-icon">
-                                <img :src="plusIcon" alt="Plus Icon">
+                                <img :src="plusIcon" alt="">
                             </div>
                             <div class="feature-text">
                                 <h4>1. Add what you own</h4>
@@ -57,7 +57,7 @@ import moneyIcon from "@/assets/icons/money.svg"
                         </div>
                         <div class="feature">
                             <div class="feature-icon">
-                                <img :src="shirtIcon" alt="Shirt Icon">
+                                <img :src="shirtIcon" alt="">
                             </div>
                             <div class="feature-text">
                                 <h4>2. Log every wear</h4>
@@ -66,7 +66,7 @@ import moneyIcon from "@/assets/icons/money.svg"
                         </div>
                         <div class="feature">
                             <div class="feature-icon">
-                                <img :src="chartIcon" alt="Chart Icon">
+                                <img :src="chartIcon" alt="">
                             </div>
                             <div class="feature-text">
                                 <h4>3. Watch your CPW drop</h4>
@@ -89,13 +89,13 @@ import moneyIcon from "@/assets/icons/money.svg"
 
                     <div class="feature-list">
                         <h4 class="feature-title">
-                            <img :src="leafIcon" alt="Leaf Icon"> Wear what you already own
+                            <img :src="leafIcon" alt=""> Wear what you already own
                         </h4>
                         <h4 class="feature-title">
-                            <img :src="lockIcon" alt="Lock Icon"> Your wardrobe data stays private
+                            <img :src="lockIcon" alt=""> Your wardrobe data stays private
                         </h4>
                         <h4 class="feature-title">
-                            <img :src="moneyIcon" alt="Money Icon"> No ads, no affiliate links
+                            <img :src="moneyIcon" alt=""> No ads, no affiliate links
                         </h4>
                     </div>
                 </div>

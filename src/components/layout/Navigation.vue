@@ -47,28 +47,28 @@ const isActive = (tab) => route.meta.tab === tab;
     <div class="container header-inner">
       <nav>
         <template v-if="isSignedIn">
-          <img :src="logo" alt="WearIt logo" class="logo" />
+          <img :src="logo" alt="wearit" class="logo" />
           <RouterLink to="/dashboard" :class="{ active: isActive('home') }">
-            <img :src="homeIcon" alt="Home" />
+            <img :src="homeIcon" alt="" />
             Home
           </RouterLink>
           <RouterLink to="/wardrobe" :class="{ active: isActive('wardrobe') }">
-            <img :src="hangerIcon" alt="Wardrobe" />
+            <img :src="hangerIcon" alt="" />
             Wardrobe
           </RouterLink>
           <RouterLink to="/insights" :class="{ active: isActive('insights') }">
-            <img :src="chartIcon" alt="Insights" />
+            <img :src="chartIcon" alt="" />
             Insights
           </RouterLink>
           <RouterLink to="/settings" :class="{ active: isActive('settings') }">
-            <img :src="settingsIcon" alt="Settings" />
+            <img :src="settingsIcon" alt="" />
             Settings
           </RouterLink>
           <RouterLink v-if="isAdmin" to="/admin" :class="{ active: isActive('admin') }">Admin</RouterLink>
         </template>
         <template v-else>
-          <RouterLink to="/" class="logo">
-            <img :src="logo" alt="WearIt logo" />
+          <RouterLink to="/" class="logo" aria-label="wearit, home page">
+            <img :src="logo" alt="wearit" />
           </RouterLink>
           <RouterLink to="/about-us" :class="{ active: isActive('about') }">About us</RouterLink>
           <RouterLink to="/support-contact" :class="{ active: isActive('support') }">
@@ -105,8 +105,8 @@ const isActive = (tab) => route.meta.tab === tab;
 
   <!-- Phones and tablets, logged out: the logo, Log in, and ☰ with the other links from the header above -->
   <header v-if="!isSignedIn" class="mobile-header">
-    <RouterLink to="/" class="logo">
-      <img :src="logo" alt="WearIt logo" />
+    <RouterLink to="/" class="logo" aria-label="wearit, home page">
+      <img :src="logo" alt="wearit" />
     </RouterLink>
 
     <div class="mobile-actions">

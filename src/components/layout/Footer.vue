@@ -6,7 +6,7 @@ import logo from '@/assets/wearitlogo.svg'
     <footer class="site-footer">
         <div class="container footer-inner">
             <div class="logo white">
-                <img :src="logo" alt="WearIt logo" />
+                <img :src="logo" alt="wearit" />
             </div>
             <div class="footer-links">
                 <RouterLink to="/about-us">About us</RouterLink>

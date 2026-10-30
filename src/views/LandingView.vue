@@ -56,7 +56,7 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
             <div class="feature-list">
               <div class="feature">
                 <div class="feature-icon">
-                  <img :src="moneyIcon" alt="Money Icon">
+                  <img :src="moneyIcon" alt="">
                 </div>
                 <div class="feature-text">
                   <h4>See your real cost per wear</h4>
@@ -69,7 +69,7 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
             </div>
             <div class="feature">
               <div class="feature-icon">
-                <img :src="chartIcon" alt="Chart Icon">
+                <img :src="chartIcon" alt="">
               </div>
               <div class="feature-text">
                 <h4>Insights that change how you shop</h4>
@@ -78,7 +78,7 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
             </div>
             <div class="feature">
               <div class="feature-icon">
-                <img :src="shirtIcon" alt="Shirt Icon">
+                <img :src="shirtIcon" alt="">
               </div>
               <div class="feature-text">
                 <h4>Log a wear in two taps</h4>
@@ -87,7 +87,7 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
             </div>
             <div class="feature">
               <div class="feature-icon">
-                <img :src="leafIcon" alt="Leaf Icon">
+                <img :src="leafIcon" alt="">
               </div>
               <div class="feature-text">
                 <h4>Buy less, wear more</h4>
@@ -106,12 +106,13 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
         <div class="feature-list reviews">
           <div class="feature">
             <div class="feature-text review">
-              <div class="stars">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
+              <!-- Read by screen readers as one rating; the stars themselves are hidden from them -->
+              <div class="stars" role="img" aria-label="5 out of 5 stars">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
               </div>
               <p>
                 “My €200 coat is down to €1.60 a wear. The €30 party top I wore once? Still €30.”
@@ -129,12 +130,13 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
           </div>
           <div class="feature">
             <div class="feature-text review">
-              <div class="stars">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
+              <!-- Read by screen readers as one rating; the stars themselves are hidden from them -->
+              <div class="stars" role="img" aria-label="5 out of 5 stars">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
               </div>
               <p>
                 “Seeing the cost per wear drop every time I log keeps me reaching for what I already own.”
@@ -152,12 +154,13 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
           </div>
           <div class="feature">
             <div class="feature-text review">
-              <div class="stars">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
-                <img :src="starIcon" alt="Star Icon">
+              <!-- Read by screen readers as one rating; the stars themselves are hidden from them -->
+              <div class="stars" role="img" aria-label="5 out of 5 stars">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
+                <img :src="starIcon" alt="">
               </div>
               <p>
                 “I sold 14 things I never wore and stopped impulse buying. My average CPW is €3.10.”
