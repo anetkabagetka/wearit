@@ -56,6 +56,23 @@ body {
     /* Set here so the dark theme can swap them */
     background-color: var(--white);
     color: var(--black);
+    /* Checked radio buttons, checkboxes and sliders are blue on iPhones by default. This makes them black
+       (white in the dark theme). It's passed down to every field on the page */
+    accent-color: var(--black);
+    /* iPhones flash a gray-blue box over links and buttons when you tap them */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Selected text gets a gray highlight instead of the browser's blue */
+::selection {
+    background-color: var(--light-gray);
+    color: var(--black);
+}
+
+/* Keyboard focus (Tab) shows a black outline (white in the dark theme) instead of the browser's blue one */
+:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
 }
 
 .logo {
@@ -110,6 +127,19 @@ h3 {
 a, button {
     text-decoration: none;
     font-size: inherit;
+    /* Without a colour, iPhones make button text blue (and browsers make links blue),
+       so they use the text colour around them. Classes like .btn-primary still set their own */
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+}
+
+/* A link inside text, e.g. "Back to your wardrobe" */
+.link {
+    color: var(--black);
+    text-decoration: underline;
 }
 
 .btn {
@@ -153,6 +183,17 @@ input, textarea, select {
     border: 1px solid var(--light-gray);
     /* The page's background, so fields look the same in both themes (dark ones would turn gray) */
     background-color: var(--white);
+    /* iPhones show the text of date fields and dropdowns in blue unless it gets a colour */
+    color: var(--black);
+}
+
+/* A field you're typing in gets a black border instead of the browser's blue ring.
+   Radios, checkboxes and sliders keep the black outline from :focus-visible above */
+input:not([type="radio"], [type="checkbox"], [type="range"]):focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--black);
 }
 
 input[type="number"] {
@@ -177,6 +218,19 @@ input[type="date"] {
 /* The date starts on the left, like the text in the other fields (iPhones put it in the middle) */
 input[type="date"]::-webkit-date-and-time-value {
     text-align: left;
+    /* iPhones draw the date in their own blue unless it gets the field's colour */
+    color: inherit;
+}
+
+/* A field the browser filled in itself (a saved email or password) gets a light blue background
+   on iPhones and in Chrome. The inset shadow covers it with the page's background, and the text
+   stays the normal colour */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--white) inset;
+    -webkit-text-fill-color: var(--black);
+    caret-color: var(--black);
 }
 
 form {
