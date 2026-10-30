@@ -124,7 +124,9 @@ const initials = (name) => getInitials(name);
 
         <ul class="user-list">
           <li v-for="user in visibleUsers" :key="user.id" class="user-row">
-            <span class="avatar">{{ initials(user.username || user.email || "?") }}</span>
+            <!-- Their profile photo, or the first letter of their name when they have none -->
+            <img v-if="user.photoUrl" :src="user.photoUrl" alt="" class="avatar" />
+            <span v-else class="avatar">{{ initials(user.username || user.email || "?") }}</span>
 
             <div class="user-text">
               <span>{{ user.username || "No username" }}</span>
@@ -258,6 +260,8 @@ const initials = (name) => getInitials(name);
   background-color: var(--light-gray);
   font-size: 13px;
   font-weight: 500;
+  /* Photos fill the circle without being squashed */
+  object-fit: cover;
 }
 
 /* min-width: 0 lets long emails get cut off with "..." instead of pushing the row wider */
