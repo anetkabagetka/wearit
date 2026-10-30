@@ -16,6 +16,10 @@ const router = createRouter({
       path: "/landing",
       name: "landing",
       component: () => import("@/views/LandingView.vue"),
+      // The landing page is for guests, so logged-in users who open the site go to their dashboard
+      meta: {
+        guestOnly: true,
+      },
     },
 
     {
@@ -244,7 +248,7 @@ router.beforeEach(async (to) => {
   // Get the current user from Firebase Authentication
   const user = auth.currentUser;
 
-  // Logged-in users can't open login or signup pages
+  // Logged-in users can't open the landing, login or signup pages
   if (to.meta.guestOnly && user) {
     return { name: "dashboard" };
   }
