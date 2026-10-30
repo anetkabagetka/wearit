@@ -37,7 +37,7 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6, hero7]
           </p>
           <div class="actions">
             <RouterLink to="/signup" class="btn btn-primary">Get started, it's free</RouterLink>
-            <RouterLink to="/about-us" class="btn btn-secondary">Log in</RouterLink>
+            <RouterLink to="/login" class="btn btn-secondary">Log in</RouterLink>
           </div>
           <CpwCard label="Example: wool blazer" :price="126" :times-worn="30"
             formula="€126 blazer ÷ 30 wears = €4.20" />
