@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import { auth } from "@/firebase";
 import { refreshProfile } from "@/composables/useAuth";
+import { isNewVersionError, reloadForNewVersion } from "@/utils/newVersion";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -302,6 +303,14 @@ router.beforeEach(async (to) => {
   }
 
   return true;
+});
+
+// A page's file couldn't be loaded because a new version was deployed while this tab was open.
+// Load the page the user was going to from the server, which brings the new version
+router.onError((error, to) => {
+  if (isNewVersionError(error)) {
+    reloadForNewVersion(to.fullPath);
+  }
 });
 
 export default router;

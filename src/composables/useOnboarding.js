@@ -53,14 +53,16 @@ export function useOnboarding() {
                 targetCostPerWear: targetCostPerWear.value,
                 item: withItem ? { ...item.value, photoUrl } : null,
             });
-            // Onboarding is done, so go straight to the dashboard
-            await router.push({ name: "dashboard" });
         } catch (error) {
             errorMessage.value =
                 error instanceof Error ? error.message : "Could not save your wardrobe.";
-        } finally {
             isSaving.value = false;
+            return;
         }
+
+        // Onboarding is done, so go straight to the dashboard. This is a separate step:
+        // if it fails, the wardrobe and first item must not be saved again, so isSaving stays true
+        await router.push({ name: "dashboard" });
     };
 
     return {

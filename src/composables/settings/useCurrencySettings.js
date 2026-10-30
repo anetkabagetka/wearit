@@ -69,15 +69,17 @@ export function useCurrencySettings() {
                     price: convertAmount(item.price || 0, from, to),
                 })),
             });
-
-            await router.push({ name: "settings" });
         } catch {
             // Close the pop-up, so the message on the page shows
             isConfirmOpen.value = false;
             errorMessage.value = "Could not change your currency. Nothing was changed, please try again.";
-        } finally {
             isSaving.value = false;
+            return;
         }
+
+        // Converted and saved. Going back to settings is a separate step: if it fails,
+        // the prices must not be converted a second time, so isSaving stays true
+        await router.push({ name: "settings" });
     };
 
     onMounted(load);

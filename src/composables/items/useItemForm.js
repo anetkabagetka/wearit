@@ -131,13 +131,16 @@ export function useItemForm(itemId = null) {
             } else {
                 await addItem(userId, { ...item.value, photoUrl });
             }
-            await router.push({ name: "wardrobe" });
         } catch (error) {
             errorMessage.value =
                 error instanceof Error ? error.message : "Could not save the item. Please try again.";
-        } finally {
             isSaving.value = false;
+            return;
         }
+
+        // Saved. Opening the wardrobe is a separate step: if it fails, the item must not be saved again.
+        // isSaving stays true, so Save stays disabled and "Leave without saving?" doesn't show
+        await router.push({ name: "wardrobe" });
     };
 
     // Deletes the item, then opens the wardrobe (edit only).

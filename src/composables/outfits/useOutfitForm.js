@@ -188,15 +188,21 @@ export function useOutfitForm(outfitId = null) {
 
             if (isEditing) {
                 await updateOutfit(userId, outfitId, outfit);
-                await router.push({ name: "outfit", params: { outfitId } });
             } else {
                 await addOutfit(userId, outfit);
-                await router.push({ name: "wardrobe", query: { tab: "outfits" } });
             }
         } catch {
             errorMessage.value = "Could not save the outfit. Please try again.";
-        } finally {
             isSaving.value = false;
+            return;
+        }
+
+        // Saved. Opening the next page is a separate step: if it fails, the outfit must not be saved again.
+        // isSaving stays true, so Save stays disabled and "Leave without saving?" doesn't show
+        if (isEditing) {
+            await router.push({ name: "outfit", params: { outfitId } });
+        } else {
+            await router.push({ name: "wardrobe", query: { tab: "outfits" } });
         }
     };
 
