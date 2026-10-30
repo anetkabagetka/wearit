@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from "vue";
 
-import CpwCard from "@/components/CpwCard.vue";
-import { outfitCostPerWear } from "@/utils/costPerWear";
-import { formatMoney } from "@/utils/formatMoney";
+import CpwCard from "@/components/ui/CpwCard.vue";
+import { outfitCostPerWear } from "@/utils/wardrobe/costPerWear";
+import { formatMoney } from "@/utils/format/formatMoney";
 
 import checkIcon from "@/assets/icons/check.svg";
 import infoIcon from "@/assets/icons/info.svg";

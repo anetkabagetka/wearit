@@ -1,10 +1,10 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
-import FormField from '@/components/FormField.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import FormField from '@/components/ui/FormField.vue'
 
-import { useEditProfile } from '@/composables/useEditProfile'
-import { isFormValid } from '@/utils/isFormValid'
-import { getInitials } from '@/utils/getInitials'
+import { useEditProfile } from '@/composables/settings/useEditProfile'
+import { isFormValid } from '@/utils/forms/isFormValid'
+import { getInitials } from '@/utils/format/getInitials'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import cameraIcon from '@/assets/icons/camera.svg'

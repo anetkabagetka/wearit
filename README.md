@@ -66,11 +66,11 @@ VITE_CLOUDINARY_UPLOAD_PRESET=
 ```
 wearit/
 ├── src/
-│   ├── views/          pages: landing, auth/, user/, user/settings/, admin/
-│   ├── components/     shared UI: ItemCard, OutfitCard, CpwCard, AppDialog, FormField…
-│   ├── composables/    each page's state and actions: useWardrobe, useOutfitDetail…
+│   ├── views/          pages: landing, auth/, user/ (items/, outfits/, settings/), admin/
+│   ├── components/     shared UI: layout/, ui/, items/, outfits/, landing/
+│   ├── composables/    each page's state and actions: useWardrobe, items/, outfits/, settings/
 │   ├── services/       Firestore and Cloudinary calls only: wardrobes, outfits, users…
-│   ├── utils/          small helpers: costPerWear, formatMoney, itemOptions…
+│   ├── utils/          small helpers: format/, forms/, wardrobe/, theme.js
 │   ├── router/         the routes and who can open them
 │   ├── styles/         main.css with the light and dark colours
 │   ├── assets/         logo, icons, landing photos

@@ -1,13 +1,13 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 
-import AppDialog from '@/components/AppDialog.vue'
-import FormField from '@/components/FormField.vue'
+import AppDialog from '@/components/ui/AppDialog.vue'
+import FormField from '@/components/ui/FormField.vue'
 
-import { costPerWear } from '@/utils/costPerWear'
-import { formatMoney, getCurrencySymbol } from '@/utils/formatMoney'
-import { isFormValid } from '@/utils/isFormValid'
-import { removeOptions } from '@/utils/itemOptions'
+import { costPerWear } from '@/utils/wardrobe/costPerWear'
+import { formatMoney, getCurrencySymbol } from '@/utils/format/formatMoney'
+import { isFormValid } from '@/utils/forms/isFormValid'
+import { removeOptions } from '@/utils/wardrobe/itemOptions'
 
 import closeIcon from '@/assets/icons/close.svg'
 

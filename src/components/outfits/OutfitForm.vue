@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-import FormField from '@/components/FormField.vue'
-import CpwCard from '@/components/CpwCard.vue'
-import OutfitCollage from '@/components/OutfitCollage.vue'
+import FormField from '@/components/ui/FormField.vue'
+import CpwCard from '@/components/ui/CpwCard.vue'
+import OutfitCollage from '@/components/outfits/OutfitCollage.vue'
 
-import { useOutfitForm } from '@/composables/useOutfitForm'
-import { isFormValid } from '@/utils/isFormValid'
+import { useOutfitForm } from '@/composables/outfits/useOutfitForm'
+import { isFormValid } from '@/utils/forms/isFormValid'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import searchIcon from '@/assets/icons/search.svg'

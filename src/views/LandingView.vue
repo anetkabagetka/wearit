@@ -1,8 +1,8 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
-import Footer from '@/components/Footer.vue'
-import CpwCard from '@/components/CpwCard.vue'
-import HeroSlideshow from '@/components/HeroSlideshow.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import Footer from '@/components/layout/Footer.vue'
+import CpwCard from '@/components/ui/CpwCard.vue'
+import HeroSlideshow from '@/components/landing/HeroSlideshow.vue'
 
 import hero1 from '@/assets/hero-1.webp'
 import hero2 from '@/assets/hero-2.webp'

@@ -1,13 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 
-import Navigation from '@/components/Navigation.vue'
-import FormField from '@/components/FormField.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import FormField from '@/components/ui/FormField.vue'
 
-import { useChangePassword } from '@/composables/useChangePassword'
+import { useChangePassword } from '@/composables/settings/useChangePassword'
 import { useAuth } from '@/composables/useAuth'
-import { isFormValid } from '@/utils/isFormValid'
-import { PASSWORD_HINT, PASSWORD_PATTERN } from '@/utils/passwordRules'
+import { isFormValid } from '@/utils/forms/isFormValid'
+import { PASSWORD_HINT, PASSWORD_PATTERN } from '@/utils/forms/passwordRules'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import lockIcon from '@/assets/icons/lock.svg'

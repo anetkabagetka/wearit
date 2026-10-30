@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from "vue";
 
-import { costPerWear } from "@/utils/costPerWear";
-import { formatMoney } from "@/utils/formatMoney";
+import { costPerWear } from "@/utils/wardrobe/costPerWear";
+import { formatMoney } from "@/utils/format/formatMoney";
 
 // The "CPW summary" card: cost per wear, how it's calculated,
 // and (only when a goal is set) a progress bar towards the goal

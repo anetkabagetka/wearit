@@ -1,7 +1,7 @@
 import { computed } from "vue";
 
 import { useWardrobe } from "@/composables/useWardrobe";
-import { toJsDate } from "@/utils/formatDate";
+import { toJsDate } from "@/utils/format/formatDate";
 
 const ninetyDays = 90 * 86400000; // 86400000 ms = 1 day
 

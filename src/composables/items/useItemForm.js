@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { auth } from "@/firebase";
 import { addItem, deleteItem, getItem, getWardrobe, updateItem } from "@/services/wardrobes";
 import { uploadItemPhoto } from "@/services/cloudinary";
-import { defaultTags } from "@/utils/itemOptions";
+import { defaultTags } from "@/utils/wardrobe/itemOptions";
 
 // An empty form, used when adding a new item
 function emptyItem() {

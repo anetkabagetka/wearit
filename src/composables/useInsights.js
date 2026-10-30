@@ -1,9 +1,9 @@
 import { computed, ref } from "vue";
 
 import { useWardrobe } from "@/composables/useWardrobe";
-import { averageCostPerWear, costPerWear } from "@/utils/costPerWear";
-import { toJsDate } from "@/utils/formatDate";
-import { mainCategory } from "@/utils/itemOptions";
+import { averageCostPerWear, costPerWear } from "@/utils/wardrobe/costPerWear";
+import { toJsDate } from "@/utils/format/formatDate";
+import { mainCategory } from "@/utils/wardrobe/itemOptions";
 
 // The period chips at the top. "text" finishes sentences like "124 items this year"
 export const periodOptions = [

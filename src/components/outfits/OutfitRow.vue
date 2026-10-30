@@ -1,11 +1,11 @@
 <script setup>
 import { computed } from "vue";
 
-import OutfitCollage from "@/components/OutfitCollage.vue";
+import OutfitCollage from "@/components/outfits/OutfitCollage.vue";
 import chevronRightIcon from "@/assets/icons/chevron-right.svg";
-import { outfitCostPerWear } from "@/utils/costPerWear";
-import { formatMoney } from "@/utils/formatMoney";
-import { formatWears } from "@/utils/formatWears";
+import { outfitCostPerWear } from "@/utils/wardrobe/costPerWear";
+import { formatMoney } from "@/utils/format/formatMoney";
+import { formatWears } from "@/utils/format/formatWears";
 
 // One outfit in a list, like ItemRow: its photos, name, items and wears, what it costs to wear.
 // Clicking it opens the outfit's page. outfit.items are its items that are still in the wardrobe

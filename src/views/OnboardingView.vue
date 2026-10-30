@@ -1,19 +1,19 @@
 <script setup>
 import { computed } from "vue";
 
-import Navigation from '@/components/Navigation.vue'
-import Footer from '@/components/Footer.vue'
-import StepProgress from '@/components/StepProgress.vue'
-import CpwCard from '@/components/CpwCard.vue'
-import PhotoUpload from '@/components/PhotoUpload.vue'
-import FormField from '@/components/FormField.vue'
-import CurrencyPicker from '@/components/CurrencyPicker.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import Footer from '@/components/layout/Footer.vue'
+import StepProgress from '@/components/ui/StepProgress.vue'
+import CpwCard from '@/components/ui/CpwCard.vue'
+import PhotoUpload from '@/components/ui/PhotoUpload.vue'
+import FormField from '@/components/ui/FormField.vue'
+import CurrencyPicker from '@/components/ui/CurrencyPicker.vue'
 
 import { useOnboarding } from '@/composables/useOnboarding'
-import { formatMoney } from '@/utils/formatMoney'
-import { isFormValid } from '@/utils/isFormValid'
-import { accessoryOptions, clothingOptions } from '@/utils/itemOptions'
-import { findCurrency } from '@/utils/currencyOptions'
+import { formatMoney } from '@/utils/format/formatMoney'
+import { isFormValid } from '@/utils/forms/isFormValid'
+import { accessoryOptions, clothingOptions } from '@/utils/wardrobe/itemOptions'
+import { findCurrency } from '@/utils/wardrobe/currencyOptions'
 
 import moneyIcon from '@/assets/icons/money.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'

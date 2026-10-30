@@ -17,11 +17,20 @@ Follow the coding conventions in @AGENTS.md.
 - `npm run format` – format `src/` with oxfmt
 
 ## Structure
-- `src/views/` – pages, grouped by area: `auth/`, `user/`, `admin/` (landing and onboarding at the root)
-- `src/components/` – shared UI (e.g. `Navigation.vue`)
-- `src/composables/` – reactive state and UI actions (`useAuth`, `useOnboarding`, `useAddItem`, `useAdminUsers`)
+- `src/views/` – pages, grouped by area: `auth/`, `user/` (with `items/`, `outfits/`, `settings/`), `admin/` (landing and onboarding at the root)
+- `src/components/` – shared UI, grouped by area:
+  - `layout/` – `Navigation`, `Footer`
+  - `ui/` – generic building blocks: `AppDialog`, `FormField`, `ListRow`, `CpwCard`, `PhotoUpload`, `CurrencyPicker`…
+  - `items/` and `outfits/` – cards, rows, forms and dialogs for items and outfits
+  - `landing/` – `HeroSlideshow`
+- `src/composables/` – reactive state and UI actions. Shared ones and one-per-page ones (`useAuth`, `useDropdown`, `useWardrobe`, `useDashboard`, `useInsights`, `useOnboarding`, `useAdminUsers`) sit at the root; `items/`, `outfits/` and `settings/` hold the rest
 - `src/services/` – external API calls only: Firestore (`users.js`, `wardrobes.js`, `outfits.js`) and Cloudinary (`cloudinary.js`)
-- `src/utils/` – pure helpers (`costPerWear.js`, `formatMoney.js`, `itemOptions.js` for category/color/season/tag choices)
+- `src/utils/` – pure helpers, grouped by area:
+  - `format/` – `formatDate`, `formatMoney`, `formatWears`, `getInitials`
+  - `forms/` – `isFormValid`, `validationMessage`, `authErrorMessage`, `passwordRules`
+  - `wardrobe/` – `costPerWear`, `wornToday`, `itemOptions` (category/color/season/tag choices), `currencyOptions`
+  - `theme.js` at the root
+- New files go in the subfolder of their area; import them with the full `@/` path (no `index.js` re-exports)
 - `src/router/index.js` – routes and the global guard
 - `src/firebase.js` – Firebase init; config comes from `VITE_FIREBASE_*` env vars in `.env`
 - Cloudinary config: `VITE_CLOUDINARY_CLOUD_NAME` and `VITE_CLOUDINARY_UPLOAD_PRESET` in `.env`
@@ -48,7 +57,7 @@ Route `meta` drives access in `router.beforeEach`:
 
 ## Forms
 - Wrap every field in `FormField` (`label` prop, the input goes in the slot). It shows a red `*` when the input has `required`, otherwise "(optional)", plus the error message under the field.
-- Validation comes from HTML attributes (`required`, `type="email"`, `min`, `max`, `minlength`, `pattern` + `title`); friendly messages are in `utils/validationMessage.js`.
-- Forms use `novalidate`, and the submit handler starts with `if (!isFormValid(event.target)) return;` (`utils/isFormValid.js`).
+- Validation comes from HTML attributes (`required`, `type="email"`, `min`, `max`, `minlength`, `pattern` + `title`); friendly messages are in `utils/forms/validationMessage.js`.
+- Forms use `novalidate`, and the submit handler starts with `if (!isFormValid(event.target)) return;` (`utils/forms/isFormValid.js`).
 - Custom errors (e.g. "Passwords do not match.") go in `FormField`'s `error` prop. Groups of radios/checkboxes use `<FormField label="..." group>`.
-- Firebase auth errors are turned into readable text by `utils/authErrorMessage.js`; show them in `<p class="form-error" role="alert">`.
+- Firebase auth errors are turned into readable text by `utils/forms/authErrorMessage.js`; show them in `<p class="form-error" role="alert">`.

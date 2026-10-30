@@ -2,15 +2,15 @@
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import FormField from '@/components/FormField.vue'
-import PhotoUpload from '@/components/PhotoUpload.vue'
-import CpwCard from '@/components/CpwCard.vue'
-import AppDialog from '@/components/AppDialog.vue'
+import FormField from '@/components/ui/FormField.vue'
+import PhotoUpload from '@/components/ui/PhotoUpload.vue'
+import CpwCard from '@/components/ui/CpwCard.vue'
+import AppDialog from '@/components/ui/AppDialog.vue'
 
-import { useItemForm } from '@/composables/useItemForm'
-import { isFormValid } from '@/utils/isFormValid'
-import { getCurrencySymbol } from '@/utils/formatMoney'
-import { accessoryOptions, clothingOptions, colorOptions, seasonOptions } from '@/utils/itemOptions'
+import { useItemForm } from '@/composables/items/useItemForm'
+import { isFormValid } from '@/utils/forms/isFormValid'
+import { getCurrencySymbol } from '@/utils/format/formatMoney'
+import { accessoryOptions, clothingOptions, colorOptions, seasonOptions } from '@/utils/wardrobe/itemOptions'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import plusIcon from '@/assets/icons/plus.svg'

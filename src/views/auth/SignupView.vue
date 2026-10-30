@@ -1,12 +1,12 @@
 <script setup>
 import { computed, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import Navigation from '@/components/Navigation.vue'
-import StepProgress from '@/components/StepProgress.vue'
-import FormField from '@/components/FormField.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import StepProgress from '@/components/ui/StepProgress.vue'
+import FormField from '@/components/ui/FormField.vue'
 
 import { useAuth } from '@/composables/useAuth'
-import { isFormValid } from '@/utils/isFormValid'
+import { isFormValid } from '@/utils/forms/isFormValid'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import lockIcon from '@/assets/icons/lock.svg'

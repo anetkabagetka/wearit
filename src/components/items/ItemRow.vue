@@ -2,9 +2,9 @@
 import { computed } from "vue";
 
 import chevronRightIcon from "@/assets/icons/chevron-right.svg";
-import { costPerWear } from "@/utils/costPerWear";
-import { formatMoney } from "@/utils/formatMoney";
-import { formatWears } from "@/utils/formatWears";
+import { costPerWear } from "@/utils/wardrobe/costPerWear";
+import { formatMoney } from "@/utils/format/formatMoney";
+import { formatWears } from "@/utils/format/formatWears";
 
 // One row in the wardrobe list: photo, name, brand and wears, cost per wear.
 // Clicking it opens the item's edit page

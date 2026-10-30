@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, useId, watch } from "vue";
 
-import { getValidationMessage } from "@/utils/validationMessage";
+import { getValidationMessage } from "@/utils/forms/validationMessage";
 
 // Wraps one form field: its label, the input (in the slot) and its error message.
 // A red star is shown when the input has "required", otherwise "(optional)"

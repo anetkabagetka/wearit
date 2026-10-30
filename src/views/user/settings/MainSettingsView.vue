@@ -1,12 +1,12 @@
 <script setup>
 import { computed } from 'vue'
 
-import Navigation from '@/components/Navigation.vue'
-import ListRow from '@/components/ListRow.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import ListRow from '@/components/ui/ListRow.vue'
 
-import { useSettings } from '@/composables/useSettings'
-import { formatMoney, getCurrencySymbol } from '@/utils/formatMoney'
-import { getInitials } from '@/utils/getInitials'
+import { useSettings } from '@/composables/settings/useSettings'
+import { formatMoney, getCurrencySymbol } from '@/utils/format/formatMoney'
+import { getInitials } from '@/utils/format/getInitials'
 
 import userIcon from '@/assets/icons/user.svg'
 import lockIcon from '@/assets/icons/lock.svg'

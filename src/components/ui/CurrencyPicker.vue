@@ -1,5 +1,5 @@
 <script setup>
-import { currencyOptions } from '@/utils/currencyOptions'
+import { currencyOptions } from '@/utils/wardrobe/currencyOptions'
 
 // The list of currencies as option rows with a radio button each.
 // The parent gets the chosen code (e.g. "EUR") with v-model

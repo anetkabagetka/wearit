@@ -2,15 +2,15 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import Navigation from '@/components/Navigation.vue'
-import ItemCard from '@/components/ItemCard.vue'
-import ItemRow from '@/components/ItemRow.vue'
-import OutfitCard from '@/components/OutfitCard.vue'
-import AppDialog from '@/components/AppDialog.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import ItemCard from '@/components/items/ItemCard.vue'
+import ItemRow from '@/components/items/ItemRow.vue'
+import OutfitCard from '@/components/outfits/OutfitCard.vue'
+import AppDialog from '@/components/ui/AppDialog.vue'
 
 import { useWardrobe } from '@/composables/useWardrobe'
-import { formatMoney } from '@/utils/formatMoney'
-import { categoryOptions, colorOptions, cpwSliderMax, seasonOptions } from '@/utils/itemOptions'
+import { formatMoney } from '@/utils/format/formatMoney'
+import { categoryOptions, colorOptions, cpwSliderMax, seasonOptions } from '@/utils/wardrobe/itemOptions'
 
 import plusIcon from '@/assets/icons/plus.svg'
 import searchIcon from '@/assets/icons/search.svg'

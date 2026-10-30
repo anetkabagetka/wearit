@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from "vue";
 
-import { costPerWear } from "@/utils/costPerWear";
-import { formatMoney } from "@/utils/formatMoney";
-import { formatWears } from "@/utils/formatWears";
+import { costPerWear } from "@/utils/wardrobe/costPerWear";
+import { formatMoney } from "@/utils/format/formatMoney";
+import { formatWears } from "@/utils/format/formatWears";
 
 // One tile in the wardrobe grid: photo, name, cost per wear, wears and brand.
 // Clicking it opens the item's edit page

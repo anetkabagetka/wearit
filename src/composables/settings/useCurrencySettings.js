@@ -3,7 +3,7 @@ import { useRouter } from "vue-router";
 
 import { auth } from "@/firebase";
 import { changeWardrobeCurrency, getWardrobe, listItems } from "@/services/wardrobes";
-import { convertAmount } from "@/utils/currencyOptions";
+import { convertAmount } from "@/utils/wardrobe/currencyOptions";
 
 // State and actions for the currency settings page
 export function useCurrencySettings() {

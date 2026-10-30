@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { auth } from "@/firebase";
 import { useAuth } from "@/composables/useAuth";
 import { getWardrobe, listItems } from "@/services/wardrobes";
-import { averageCostPerWear } from "@/utils/costPerWear";
+import { averageCostPerWear } from "@/utils/wardrobe/costPerWear";
 
 // State and actions for the main settings page
 export function useSettings() {

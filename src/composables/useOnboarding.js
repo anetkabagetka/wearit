@@ -8,7 +8,7 @@ import { useRouter } from "vue-router";
 import { auth } from "@/firebase";
 import { completeOnboarding } from "@/services/wardrobes";
 import { uploadItemPhoto } from "@/services/cloudinary";
-import { costPerWear } from "@/utils/costPerWear";
+import { costPerWear } from "@/utils/wardrobe/costPerWear";
 
 // The useOnboarding composable manages the logic for the onboarding process
 export function useOnboarding() {

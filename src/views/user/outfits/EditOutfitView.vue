@@ -1,8 +1,8 @@
 <script setup>
 import { useRoute } from 'vue-router'
 
-import Navigation from '@/components/Navigation.vue'
-import OutfitForm from '@/components/OutfitForm.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import OutfitForm from '@/components/outfits/OutfitForm.vue'
 
 // The outfit's ID comes from the address, e.g. /edit-outfit/abc123 → "abc123"
 const route = useRoute()

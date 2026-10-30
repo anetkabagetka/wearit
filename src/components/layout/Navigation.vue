@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useDropdown } from '@/composables/useDropdown'
-import { getInitials } from '@/utils/getInitials'
+import { getInitials } from '@/utils/format/getInitials'
 
 import logo from '@/assets/wearitlogo.svg'
 

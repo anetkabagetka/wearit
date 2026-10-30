@@ -3,14 +3,14 @@ import { computed } from 'vue'
 import { ArcElement, CategoryScale, Chart, LinearScale, LineElement, PointElement, Tooltip } from 'chart.js'
 import { Doughnut, Line } from 'vue-chartjs'
 
-import Navigation from '@/components/Navigation.vue'
-import ItemRow from '@/components/ItemRow.vue'
-import OutfitRow from '@/components/OutfitRow.vue'
-import ChartCard from '@/components/ChartCard.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import ItemRow from '@/components/items/ItemRow.vue'
+import OutfitRow from '@/components/outfits/OutfitRow.vue'
+import ChartCard from '@/components/ui/ChartCard.vue'
 
 import { periodOptions, useInsights } from '@/composables/useInsights'
-import { formatDate } from '@/utils/formatDate'
-import { formatMoney } from '@/utils/formatMoney'
+import { formatDate } from '@/utils/format/formatDate'
+import { formatMoney } from '@/utils/format/formatMoney'
 
 // Chart.js only loads these parts: lines with points, the donut (Arc),
 // the month names and values (the two Scales) and the pop-up when you point at a value (Tooltip)

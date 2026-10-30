@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import { auth } from "@/firebase";
 import { getWardrobe, listItems } from "@/services/wardrobes";
 import { addOutfit, getOutfit, updateOutfit } from "@/services/outfits";
-import { outfitCostPerWear } from "@/utils/costPerWear";
-import { categoryOptions, defaultTags, mainCategory } from "@/utils/itemOptions";
+import { outfitCostPerWear } from "@/utils/wardrobe/costPerWear";
+import { categoryOptions, defaultTags, mainCategory } from "@/utils/wardrobe/itemOptions";
 
 // State and actions for the outfit form: pick items, name the outfit, save it.
 // Without an outfitId it creates a new outfit, with an outfitId it edits that outfit

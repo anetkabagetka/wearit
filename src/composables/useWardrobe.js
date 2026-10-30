@@ -3,9 +3,9 @@ import { computed, onMounted, ref } from "vue";
 import { auth } from "@/firebase";
 import { getWardrobe, listItems, markItemRemoved, markItemWorn } from "@/services/wardrobes";
 import { listOutfits, logOutfitWear } from "@/services/outfits";
-import { costPerWear, outfitCostPerWear } from "@/utils/costPerWear";
-import { cpwSliderMax, mainCategory } from "@/utils/itemOptions";
-import { wornToday } from "@/utils/wornToday";
+import { costPerWear, outfitCostPerWear } from "@/utils/wardrobe/costPerWear";
+import { cpwSliderMax, mainCategory } from "@/utils/wardrobe/itemOptions";
+import { wornToday } from "@/utils/wardrobe/wornToday";
 
 // What the Filters pop-up starts with. Empty lists mean "show everything"
 function emptyFilters() {

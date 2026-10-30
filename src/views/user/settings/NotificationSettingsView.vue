@@ -1,7 +1,7 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
+import Navigation from '@/components/layout/Navigation.vue'
 
-import { useNotificationSettings } from '@/composables/useNotificationSettings'
+import { useNotificationSettings } from '@/composables/settings/useNotificationSettings'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'

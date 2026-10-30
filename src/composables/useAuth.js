@@ -17,7 +17,7 @@ import {
 // Import Firebase authentication and Google provider from firebase.js
 import { auth, googleProvider } from "@/firebase";
 import { getOrCreateUserProfile } from "@/services/users";
-import { getAuthErrorMessage } from "@/utils/authErrorMessage";
+import { getAuthErrorMessage } from "@/utils/forms/authErrorMessage";
 import { applyTheme } from "@/utils/theme";
 // Reactive references for authentication state
 const currentUser = ref(null);

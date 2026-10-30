@@ -1,11 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-import Navigation from '@/components/Navigation.vue'
-import FormField from '@/components/FormField.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import FormField from '@/components/ui/FormField.vue'
 
-import { useDeleteAccount } from '@/composables/useDeleteAccount'
-import { isFormValid } from '@/utils/isFormValid'
+import { useDeleteAccount } from '@/composables/settings/useDeleteAccount'
+import { isFormValid } from '@/utils/forms/isFormValid'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import infoIcon from '@/assets/icons/info.svg'

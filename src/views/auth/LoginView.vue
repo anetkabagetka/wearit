@@ -2,9 +2,9 @@
 import { ref } from "vue"
 import { useRoute, useRouter, RouterLink } from "vue-router"
 
-import Navigation from '@/components/Navigation.vue'
-import Footer from '@/components/Footer.vue'
-import FormField from '@/components/FormField.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import Footer from '@/components/layout/Footer.vue'
+import FormField from '@/components/ui/FormField.vue'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import lockIcon from '@/assets/icons/lock.svg'
@@ -12,7 +12,7 @@ import eyeIcon from '@/assets/icons/eye.svg'
 import logo from '@/assets/wearitlogo.svg'
 
 import { useAuth } from '@/composables/useAuth'
-import { isFormValid } from '@/utils/isFormValid'
+import { isFormValid } from '@/utils/forms/isFormValid'
 
 const router = useRouter();
 const route = useRoute();

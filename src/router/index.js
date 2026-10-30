@@ -188,7 +188,7 @@ const router = createRouter({
     {
       path: "/item/:itemId",
       name: "item",
-      component: () => import("@/views/user/ItemDetailView.vue"),
+      component: () => import("@/views/user/items/ItemDetailView.vue"),
       meta: {
         tab: "wardrobe",
         requiresAuth: true,
@@ -198,7 +198,7 @@ const router = createRouter({
     {
       path: "/add-item",
       name: "add-item",
-      component: () => import("@/views/user/AddItemView.vue"),
+      component: () => import("@/views/user/items/AddItemView.vue"),
       meta: {
         requiresAuth: true
       },
@@ -207,7 +207,7 @@ const router = createRouter({
     {
       path: "/create-outfit",
       name: "create-outfit",
-      component: () => import("@/views/user/CreateOutfitView.vue"),
+      component: () => import("@/views/user/outfits/CreateOutfitView.vue"),
       meta: {
         tab: "wardrobe",
         requiresAuth: true,
@@ -217,7 +217,7 @@ const router = createRouter({
     {
       path: "/outfit/:outfitId",
       name: "outfit",
-      component: () => import("@/views/user/OutfitDetailView.vue"),
+      component: () => import("@/views/user/outfits/OutfitDetailView.vue"),
       meta: {
         tab: "wardrobe",
         requiresAuth: true,
@@ -227,7 +227,7 @@ const router = createRouter({
     {
       path: "/edit-outfit/:outfitId",
       name: "edit-outfit",
-      component: () => import("@/views/user/EditOutfitView.vue"),
+      component: () => import("@/views/user/outfits/EditOutfitView.vue"),
       meta: {
         tab: "wardrobe",
         requiresAuth: true,
@@ -237,7 +237,7 @@ const router = createRouter({
     {
       path: "/edit-item/:itemId",
       name: "edit-item",
-      component: () => import("@/views/user/EditItemView.vue"),
+      component: () => import("@/views/user/items/EditItemView.vue"),
       meta: {
         tab: "wardrobe",
         requiresAuth: true,

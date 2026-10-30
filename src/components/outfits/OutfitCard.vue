@@ -1,10 +1,10 @@
 <script setup>
 import { computed } from "vue";
 
-import OutfitCollage from "@/components/OutfitCollage.vue";
-import { outfitCostPerWear } from "@/utils/costPerWear";
-import { formatMoney } from "@/utils/formatMoney";
-import { formatWears } from "@/utils/formatWears";
+import OutfitCollage from "@/components/outfits/OutfitCollage.vue";
+import { outfitCostPerWear } from "@/utils/wardrobe/costPerWear";
+import { formatMoney } from "@/utils/format/formatMoney";
+import { formatWears } from "@/utils/format/formatWears";
 
 // One tile in the Outfits grid: its items' photos, name, what it costs to wear, wears and how many items.
 // outfit.items are its items that are still in the wardrobe (useWardrobe fills them in)

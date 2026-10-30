@@ -1,10 +1,10 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
-import CurrencyPicker from '@/components/CurrencyPicker.vue'
-import AppDialog from '@/components/AppDialog.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import CurrencyPicker from '@/components/ui/CurrencyPicker.vue'
+import AppDialog from '@/components/ui/AppDialog.vue'
 
-import { useCurrencySettings } from '@/composables/useCurrencySettings'
-import { RATES_DATE } from '@/utils/currencyOptions'
+import { useCurrencySettings } from '@/composables/settings/useCurrencySettings'
+import { RATES_DATE } from '@/utils/wardrobe/currencyOptions'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 

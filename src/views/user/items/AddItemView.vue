@@ -1,6 +1,6 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
-import ItemForm from '@/components/ItemForm.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import ItemForm from '@/components/items/ItemForm.vue'
 </script>
 
 <template>

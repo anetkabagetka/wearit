@@ -1,6 +1,6 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
-import OutfitForm from '@/components/OutfitForm.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import OutfitForm from '@/components/outfits/OutfitForm.vue'
 </script>
 
 <template>

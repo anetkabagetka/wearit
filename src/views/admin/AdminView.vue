@@ -1,12 +1,12 @@
 <script setup>
 import { computed, ref } from "vue";
 
-import Navigation from "@/components/Navigation.vue";
-import AppDialog from "@/components/AppDialog.vue";
+import Navigation from "@/components/layout/Navigation.vue";
+import AppDialog from "@/components/ui/AppDialog.vue";
 import { useAdminUsers } from "@/composables/useAdminUsers";
 import { useAuth } from "@/composables/useAuth";
 import { useDropdown } from "@/composables/useDropdown";
-import { getInitials } from '@/utils/getInitials'
+import { getInitials } from '@/utils/format/getInitials'
 
 import chevronLeftIcon from "@/assets/icons/chevron-left.svg";
 import searchIcon from "@/assets/icons/search.svg";

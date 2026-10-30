@@ -1,5 +1,5 @@
 <script setup>
-import Navigation from "@/components/Navigation.vue";
+import Navigation from "@/components/layout/Navigation.vue";
 import { useAuth } from "@/composables/useAuth";
 
 const { profile, userEmail } = useAuth();

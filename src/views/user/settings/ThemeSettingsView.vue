@@ -1,7 +1,7 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
+import Navigation from '@/components/layout/Navigation.vue'
 
-import { useThemeSettings } from '@/composables/useThemeSettings'
+import { useThemeSettings } from '@/composables/settings/useThemeSettings'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import sunIcon from '@/assets/icons/sun.svg'

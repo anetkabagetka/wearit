@@ -1,9 +1,9 @@
 <script setup>
-import Navigation from '@/components/Navigation.vue'
-import Footer from '@/components/Footer.vue'
-import FormField from '@/components/FormField.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import Footer from '@/components/layout/Footer.vue'
+import FormField from '@/components/ui/FormField.vue'
 
-import { isFormValid } from '@/utils/isFormValid'
+import { isFormValid } from '@/utils/forms/isFormValid'
 
 import mailIcon from '@/assets/icons/mail.svg'
 import chevronRightIcon from '@/assets/icons/chevron-right.svg'

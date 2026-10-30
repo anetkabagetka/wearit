@@ -1,8 +1,8 @@
 <script setup>
 import { useRoute } from 'vue-router'
 
-import Navigation from '@/components/Navigation.vue'
-import ItemForm from '@/components/ItemForm.vue'
+import Navigation from '@/components/layout/Navigation.vue'
+import ItemForm from '@/components/items/ItemForm.vue'
 
 // The item's ID comes from the address, e.g. /edit-item/abc123 → "abc123"
 const route = useRoute()

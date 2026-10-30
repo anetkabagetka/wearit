@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { auth } from "@/firebase";
 import { getWardrobe, listItems } from "@/services/wardrobes";
 import { deleteOutfit, getOutfit, logOutfitWear } from "@/services/outfits";
-import { wornToday } from "@/utils/wornToday";
+import { wornToday } from "@/utils/wardrobe/wornToday";
 
 // One more wear on the page, the same way useItemDetail does it after "Log a wear"
 function addWear(thing) {
