@@ -2,7 +2,7 @@
 
 **Know what every outfit really costs.** wearit is a cost-per-wear wardrobe app: add your clothes, log what you wear, and watch each piece get cheaper with every wear.
 
-🔗 **Live:** [wearit-c77ac.web.app](https://wearit-c77ac.web.app)
+🔗 **Live:** [wearit.site](https://wearit.site) or [wearit-c77ac.web.app](https://wearit-c77ac.web.app)
 
 ## ✨ Features
 
