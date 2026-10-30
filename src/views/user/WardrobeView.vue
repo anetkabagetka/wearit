@@ -169,6 +169,9 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
         <div v-else-if="items.length === 0 && !errorMessage" class="stack-small">
             <p>Your wardrobe is empty.</p>
             <p class="caption">Add your first item to start tracking its cost per wear.</p>
+            <RouterLink :to="{ name: 'add-item' }" class="btn btn-primary create-first">
+                Add item
+            </RouterLink>
         </div>
 
         <!-- Show the search bar and the items -->
@@ -339,8 +342,10 @@ const resetShownFilters = () => (tab.value === 'outfits' ? resetOutfitFilters() 
     font-size: 13px;
 }
 
+/* "Add item" / "Create outfit" when the tab is empty: not full width, with a bit more space above than the text has */
 .create-first {
     align-self: flex-start;
+    margin-top: 8px;
 }
 
 /* Like the item grid, but 4 per row on desktop, so the photos in each outfit stay big enough */
