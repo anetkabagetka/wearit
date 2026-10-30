@@ -128,7 +128,6 @@ export function useEditProfile() {
         email,
         isGoogleAccount,
         shownPhoto,
-        isGoogleAccount,
         isSaving,
         errorMessage,
         successMessage,
