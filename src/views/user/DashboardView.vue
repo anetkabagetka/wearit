@@ -10,6 +10,8 @@ import OutfitCollage from '@/components/outfits/OutfitCollage.vue'
 import OutfitLoggedSummary from '@/components/outfits/OutfitLoggedSummary.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
 import RemoveItemDialog from '@/components/items/RemoveItemDialog.vue'
+import ItemRemovedDialog from '@/components/items/ItemRemovedDialog.vue'
+import ItemLoggedSummary from '@/components/items/ItemLoggedSummary.vue'
 
 import { useAuth } from '@/composables/useAuth'
 import { useDashboard } from '@/composables/useDashboard'
@@ -24,7 +26,6 @@ import shirtIcon from '@/assets/icons/shirt.svg'
 import plusIcon from '@/assets/icons/plus.svg'
 import searchIcon from '@/assets/icons/search.svg'
 import closeIcon from '@/assets/icons/close.svg'
-import checkIcon from '@/assets/icons/check.svg'
 import bellIcon from '@/assets/icons/bell.svg'
 import leafIcon from '@/assets/icons/leaf.svg'
 
@@ -163,12 +164,6 @@ const logOutfit = async (outfit) => {
     }
 }
 
-// e.g. "€126 ÷ 31 wears · was €4.20"
-const loggedFormula = computed(() => {
-    const item = loggedItem.value
-    const price = formatMoney(item.price, currency.value, { wholeNumbers: true })
-    return `${price} ÷ ${formatWears(item.timesWorn)} · was ${formatMoney(cpwBefore.value, currency.value)}`
-})
 
 
 // "Sell or donate" in "Wear them or sell them": first pick one of the 3 least worn items,
@@ -192,11 +187,17 @@ const goToRemove = () => {
     isRemoveOpen.value = true
 }
 
-// "Confirm" in "Remove from wardrobe": the item leaves the wardrobe and the lists on this page
+// "Confirm" in "Remove from wardrobe": the item leaves the wardrobe and the lists on this page,
+// then "Marked as sold" (ItemRemovedDialog) says what happened
+const isRemovedOpen = ref(false)
+const removedReason = ref('sold')
+
 const handleRemove = async (reason, salePrice) => {
     isRemoving.value = true
     if (await removeItem(itemToRemove.value, reason, salePrice)) {
         isRemoveOpen.value = false
+        removedReason.value = reason
+        isRemovedOpen.value = true
     }
     isRemoving.value = false
 }
@@ -337,18 +338,7 @@ const handleRemove = async (reason, salePrice) => {
 
                 <!-- After logging: the item and its new cost per wear -->
                 <template v-if="loggedItem">
-                    <div class="logged-item">
-                        <span class="logged-check">
-                            <img :src="checkIcon" alt="" width="20" height="20" class="white-icon" />
-                        </span>
-                        <span class="stack-small">
-                            <span class="logged-name">{{ loggedItem.name }}</span>
-                            <span class="caption">Worn today · wear #{{ loggedItem.timesWorn }}</span>
-                        </span>
-                    </div>
-
-                    <CpwCard label="New cost per wear" :price="loggedItem.price" :times-worn="loggedItem.timesWorn"
-                        :currency="currency" :goal="goal" :formula="loggedFormula" />
+                    <ItemLoggedSummary :item="loggedItem" :cpw-before="cpwBefore" :currency="currency" :goal="goal" />
 
                     <div class="stack-small">
                         <button type="button" class="btn btn-primary" @click="isLogOpen = false">Done</button>
@@ -487,6 +477,8 @@ const handleRemove = async (reason, salePrice) => {
         <!-- Sell or donate, step 2: the same pop-up as "Mark as sold or donated" on the item page -->
         <RemoveItemDialog v-model="isRemoveOpen" :item="itemToRemove" :currency="currency" :is-saving="isRemoving"
             @confirm="handleRemove" />
+
+        <ItemRemovedDialog v-model="isRemovedOpen" :item="itemToRemove" :reason="removedReason" />
     </main>
 </template>
 
@@ -572,23 +564,6 @@ const handleRemove = async (reason, salePrice) => {
 }
 
 /* The black circle with a check mark in "Wear logged" */
-.logged-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.logged-check {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--black);
-}
-
 .logged-name {
     font-family: var(--font-title);
     font-size: 15px;

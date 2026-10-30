@@ -9,11 +9,12 @@ export const seasonOptions = ["All year", "Spring", "Summer", "Autumn", "Winter"
 // Tags every user starts with. They can add their own on the add item page
 export const defaultTags = ["Work", "Date night", "Gift"];
 
-// Why an item left the wardrobe, for the "Remove from wardrobe" pop-up on the item page
+// Why an item left the wardrobe, for the "Remove from wardrobe" pop-up on the item page.
+// doneText finishes "Marked as …" in the pop-up that shows afterwards
 export const removeOptions = [
-    { value: "sold", label: "Sold", description: "Record the sale price" },
-    { value: "donated", label: "Donated", description: "Gave it to a charity shop or clothes bank" },
-    { value: "gave-away", label: "Gave away", description: "Passed on to a friend or family" },
+    { value: "sold", label: "Sold", description: "Record the sale price", doneText: "sold" },
+    { value: "donated", label: "Donated", description: "Gave it to a charity shop or clothes bank", doneText: "donated" },
+    { value: "gave-away", label: "Gave away", description: "Passed on to a friend or family", doneText: "given away" },
 ];
 // The CPW slider in the Filters pop-up goes from 0 to this. At the very top it means "and more"
 export const cpwSliderMax = 50;

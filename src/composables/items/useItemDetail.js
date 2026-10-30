@@ -67,8 +67,10 @@ export function useItemDetail(itemId) {
             item.value.lastWornAt = new Date();
             // Items saved before wear history existed have no wornDates, ?? [] starts an empty list
             item.value.wornDates = [...(item.value.wornDates ?? []), new Date()];
+            return true;
         } catch {
             errorMessage.value = "Could not save the wear. Please try again.";
+            return false;
         } finally {
             isSaving.value = false;
         }
@@ -89,8 +91,9 @@ export function useItemDetail(itemId) {
         }
     };
 
-    // Takes the item out of the wardrobe (sold, donated or given away), then opens the wardrobe.
-    // The sale price is only saved when it was sold
+    // Takes the item out of the wardrobe (sold, donated or given away).
+    // The sale price is only saved when it was sold. Returns true when it worked,
+    // so the page can show "Marked as sold" before going back to the wardrobe
     const markRemoved = async (reason, salePrice) => {
         isSaving.value = true;
         errorMessage.value = "";
@@ -100,9 +103,10 @@ export function useItemDetail(itemId) {
                 reason,
                 salePrice: reason === "sold" ? salePrice : null,
             });
-            await router.push({ name: "wardrobe" });
+            return true;
         } catch {
             errorMessage.value = "Could not save the change. Please try again.";
+            return false;
         } finally {
             isSaving.value = false;
         }

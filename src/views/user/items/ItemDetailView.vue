@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import Navigation from '@/components/layout/Navigation.vue'
 import CpwCard from '@/components/ui/CpwCard.vue'
@@ -8,6 +8,8 @@ import ListRow from '@/components/ui/ListRow.vue'
 import OutfitRow from '@/components/outfits/OutfitRow.vue'
 import AppDialog from '@/components/ui/AppDialog.vue'
 import RemoveItemDialog from '@/components/items/RemoveItemDialog.vue'
+import ItemRemovedDialog from '@/components/items/ItemRemovedDialog.vue'
+import ItemLoggedSummary from '@/components/items/ItemLoggedSummary.vue'
 
 import { useItemDetail } from '@/composables/items/useItemDetail'
 import { useDropdown } from '@/composables/useDropdown'
@@ -18,6 +20,7 @@ import { removeOptions } from '@/utils/wardrobe/itemOptions'
 import { wornToday } from '@/utils/wardrobe/wornToday'
 
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
+import closeIcon from '@/assets/icons/close.svg'
 import editIcon from '@/assets/icons/edit.svg'
 import shirtIcon from '@/assets/icons/shirt.svg'
 import trashIcon from '@/assets/icons/trash.svg'
@@ -26,6 +29,7 @@ import moreIcon from '@/assets/icons/more.svg'
 
 // The item's ID comes from the address, e.g. /item/abc123 → "abc123"
 const route = useRoute()
+const router = useRouter()
 
 const { item, itemOutfits, currency, goal, isLoading, isNotFound, isSaving, errorMessage, logWear, remove, markRemoved } =
     useItemDetail(route.params.itemId)
@@ -39,23 +43,42 @@ const confirmDelete = () => {
     remove()
 }
 
-// "Remove from wardrobe" pop-up (RemoveItemDialog). Confirm in it sends the reason and sale price here
+// "Remove from wardrobe" pop-up (RemoveItemDialog). Confirm in it sends the reason and sale price here.
+// Once it's saved, "Marked as sold" (ItemRemovedDialog) says what happened
 const isRemoveOpen = ref(false)
+const isRemovedOpen = ref(false)
+const removedReason = ref('sold')
 
-const handleRemove = (reason, salePrice) => {
+const handleRemove = async (reason, salePrice) => {
     isRemoveOpen.value = false
-    markRemoved(reason, salePrice)
+    if (await markRemoved(reason, salePrice)) {
+        removedReason.value = reason
+        isRemovedOpen.value = true
+    }
 }
 
-// "Log a wear" works once a day. When today's wear is already logged, a pop-up says so instead
-const isWornTodayOpen = ref(false)
+// The item isn't in the wardrobe anymore, so closing "Marked as sold" (button or Esc) goes back to the wardrobe
+watch(isRemovedOpen, (open) => {
+    if (!open) {
+        router.push({ name: 'wardrobe' })
+    }
+})
 
-const handleLogWear = () => {
+// "Log a wear" works once a day. When today's wear is already logged, a pop-up says so instead.
+// Otherwise it saves, then "Wear logged" shows the new cost per wear
+const isWornTodayOpen = ref(false)
+const isLoggedOpen = ref(false)
+const cpwBefore = ref(0) // The cost per wear before this wear, for "was €4.20"
+
+const handleLogWear = async () => {
     if (wornToday(item.value)) {
         isWornTodayOpen.value = true
         return
     }
-    logWear()
+    cpwBefore.value = costPerWear(item.value.price, item.value.timesWorn)
+    if (await logWear()) {
+        isLoggedOpen.value = true
+    }
 }
 
 // e.g. "COS · Outerwear · Black · Autumn". filter(Boolean) skips the empty ones
@@ -288,6 +311,24 @@ const removedText = computed(() => {
 
                 <RemoveItemDialog v-model="isRemoveOpen" :item="item" :currency="currency" :is-saving="isSaving"
                     @confirm="handleRemove" />
+
+                <ItemRemovedDialog v-model="isRemovedOpen" :item="item" :reason="removedReason"
+                    button-label="Back to wardrobe" />
+
+                <AppDialog v-model="isLoggedOpen">
+                    <div class="stack">
+                        <div class="section-header">
+                            <h2 class="title-m">Wear logged</h2>
+                            <button type="button" class="back-button" aria-label="Close" @click="isLoggedOpen = false">
+                                <img :src="closeIcon" alt="" />
+                            </button>
+                        </div>
+                        <ItemLoggedSummary :item="item" :cpw-before="cpwBefore" :currency="currency" :goal="goal" />
+                        <button type="button" class="btn btn-primary" autofocus @click="isLoggedOpen = false">
+                            Done
+                        </button>
+                    </div>
+                </AppDialog>
 
                 <AppDialog v-model="isWornTodayOpen">
                     <div class="stack">
